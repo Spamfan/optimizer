@@ -1,1 +1,1011 @@
-<!DOCTYPE html><html lang="en"><head>    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Optimizer (beta)</title>        <!-- PDF.js and jsPDF library CDNs -->    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>    <style>        body {            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;            background-color: #f0f2f5;            display: flex;            justify-content: center;            align-items: center;            min-height: 100vh;            margin: 0;            padding: 20px;            box-sizing: border-box;        }        #version-text {            position: absolute;            top: 10px;            left: 10px;            font-size: 0.8em;            color: #606770;            cursor: pointer;            user-select: none;        }        #app-container {            background-color: #ffffff;            padding: 30px;            border-radius: 12px;            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);            width: 100%;            max-width: 500px;            text-align: center;        }        h1 {            color: #1c1e21;            margin-bottom: 25px;            font-size: 1.8em;        }        #upload-area {            border: 2px dashed #dddfe2;            border-radius: 8px;            padding: 30px;            margin-bottom: 20px;            cursor: pointer;            transition: background-color 0.2s, border-color 0.2s;        }                #upload-area.dragover {            border-color: #1877f2;            background-color: #f0f8ff;        }                #upload-area p { margin: 0; font-weight: 600; color: #606770; }        #upload-input { display: none; }        .status-section {            display: none;            padding: 10px;            border: 1px solid #dddfe2;            border-radius: 6px;            margin-bottom: 10px;            text-align: left;        }                .status-text { font-weight: 600; }        .status-filename { font-weight: normal; font-style: italic; color: #606770; margin-left: 8px; }                .control-section { text-align: left; margin-bottom: 15px; }        .control-section label { display: block; margin-bottom: 8px; font-weight: 600; color: #606770; }                .toggles-wrapper {            display: flex;            align-items: flex-start;             justify-content: center;            margin-bottom: 20px;            gap: 20px;            flex-wrap: wrap;        }        .toggle-option { display: flex; align-items: center; }        .toggle-option label { margin: 0 0 0 8px; font-weight: normal; }                /* EDLP Toggle Styles */        #edlp-toggle-wrapper {             display: flex;             flex-direction: column;             align-items: flex-start;         }        #edlp-warning {             visibility: hidden;             font-size: 0.7em;             color: #d93025;             margin-top: 2px;             width: 100%;             text-align: left;             padding-left: 22px;             min-height: 1.2em;         }        #edlp-warning.visible {            visibility: visible;        }        .action-buttons {            display: flex;            gap: 10px;            margin-bottom: 20px;        }        #highlight-btn, #process-btn, #copy-log-btn {            flex-grow: 1;            border: none;            padding: 12px 20px;            border-radius: 6px;            font-size: 1em;            font-weight: bold;            cursor: pointer;            transition: background-color 0.2s;        }                #highlight-btn, #copy-log-btn { background-color: #e4e6eb; color: #050505; }        #process-btn { background-color: #1877f2; color: white; }                #comments {            width: 100%;            padding: 10px;            border: 1px solid #dddfe2;            border-radius: 6px;            box-sizing: border-box;            resize: vertical;            min-height: 60px;        }                #konami-message {            display: none;            text-align: center;            font-style: italic;            color: #606770;            margin-top: 5px;        }        #how-to-use-container {            text-align: left;            margin-top: 25px;            padding-top: 15px;            border-top: 1px solid #e4e6eb;        }        #how-to-use-container h3, #how-to-use-container h4 { margin: 15px 0 10px 0; color: #606770; font-size: 1em; }        #how-to-use-container ol, #how-to-use-container ul { padding-left: 20px; margin: 0; font-size: 0.9em; color: #606770; line-height: 1.6; }        #how-to-use-container ul { margin-top: 5px; }        .inline-svg { width: 1em; height: 1em; vertical-align: middle; margin: 0 2px; }        #dev-console-container {            display: none;            text-align: left;            margin-top: 20px;        }        #dev-console-output {            background-color: #f5f5f5;            border: 1px solid #ddd;            border-radius: 4px;            padding: 10px;            max-height: 200px;            overflow-y: auto;            white-space: pre-wrap;            word-wrap: break-word;            font-family: monospace;            font-size: 0.8em;            margin-bottom: 10px;        }        /* Modal Styles */        .modal-container { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }        .modal-content { background-color: #fefefe; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); width: 80%; max-width: 600px; max-height: 90%; display: flex; flex-direction: column; }        .modal-header { padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }        .modal-header h2 { margin: 0; font-size: 1.2em; }        .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }        #dev-mode-text { text-align: center; padding: 40px 20px; }        #dev-mode-text p { margin: 5px 0; }        .emphasis-header { display: flex; align-items: center; font-weight: bold; font-size: 0.8em; color: #606770; background-color: #f0f2f5; padding: 10px 20px; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; }        .emphasis-header-hide, .emphasis-header-partial, .emphasis-header-full { min-width: 40px; text-align: center; }        .emphasis-header-text { flex-grow: 1; padding-left: 5px; }        .modal-body { flex-grow: 1; padding: 0; overflow-y: auto; }        #emphasis-list-container { padding: 5px 20px; }        #pdf-preview-iframe { width: 100%; height: 100%; border: none; }        .emphasis-item { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #e9ebee; }        .emphasis-item-hide { min-width: 40px; text-align: center; }        .emphasis-item .hide-icon { width: 18px; height: 18px; cursor: pointer; fill: #606770; }        .emphasis-item.item-hidden .hide-icon { fill: #ccc; }        .emphasis-item input[type="checkbox"] { min-width: 40px; height: 18px; margin: 0; }        .emphasis-item-text { font-size: 0.9em; padding-left: 5px; transition: color 0.2s; }        .emphasis-item.item-hidden .emphasis-item-text { color: #ccc; text-decoration: line-through; }        .emphasis-list-carrier-header { font-weight: bold; font-size: 1.1em; margin-top: 15px; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 2px solid #050505; }        .modal-footer { padding: 15px 20px; border-top: 1px solid #ddd; text-align: right; }        #download-btn { display: none; }        .modal-footer button { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }    </style></head><body>    <div id="version-text">Beta Version 10</div>    <div id="app-container">        <h1>Optimizer</h1>                <div id="upload-area">            <input type="file" id="upload-input" multiple accept=".pdf">            <p>Drag & drop files here.</p>        </div>        <div id="status-container">            <div class="status-section" id="att-status"><div><span class="status-text">AT&T:</span><span class="status-filename"></span></div></div>            <div class="status-section" id="vzw-status"><div><span class="status-text">Verizon:</span><span class="status-filename"></span></div></div>            <div class="status-section" id="tmo-status"><div><span class="status-text">T-Mobile:</span><span class="status-filename"></span></div></div>        </div>        <div class="toggles-wrapper">            <div class="toggle-option">                <input type="checkbox" id="isolate-iphones">                <label for="isolate-iphones">Isolate iPhones</label>            </div>            <div class="toggle-option" id="edlp-toggle-wrapper">                <div style="display: flex; align-items: center;">                    <input type="checkbox" id="show-edlps-toggle">                    <label for="show-edlps-toggle">Show Likely EDLPs (experimental)</label>                </div>                <div id="edlp-warning">⚠ EDLP data last updated on October 17th.</div>            </div>            <div class="toggle-option">                <input type="checkbox" id="dev-console-toggle">                <label for="dev-console-toggle">Other experimental settings</label>            </div>        </div>                <div class="action-buttons">            <button id="highlight-btn">Customize</button>            <button id="process-btn">Preview or Print</button>        </div>        <div class="control-section">            <label for="comments">Comments (optional)</label>            <textarea id="comments"></textarea>            <p id="konami-message">Also try Tank Tycoon!</p>        </div>        <div id="how-to-use-container"></div>        <div id="dev-console-container">            <pre id="dev-console-output"></pre>            <button id="copy-log-btn">Copy Log</button>        </div>    </div>    <!-- Modals are empty here, populated by script -->    <div id="preview-modal" class="modal-container"></div>    <div id="emphasis-modal" class="modal-container"></div>    <div id="dev-mode-modal" class="modal-container"></div>    <script>    document.addEventListener('DOMContentLoaded', () => {        // --- SCRIPT INITIALIZATION ---        const APP_VERSION = 'Beta Version 10';        document.getElementById('version-text').textContent = APP_VERSION;        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;        const HIDE_ICON_SVG = `<svg class="hide-icon inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.83,9.53c1.53,0.24,2.74,1.46,2.98,2.98L11.83,9.53z M12,6c3.79,0,7.17,2.13,8.82,5.5c-0.64,1.32-1.57,2.44-2.68,3.32l1.42,1.42c1.51-1.26,2.7-2.89,3.43-4.74C21.27,7.11,17,4,12,4c-1.4,0-2.73,0.25-3.98,0.7L9.63,6.3C10.4,6.12,11.19,6,12,6z M2,4.27l3.11,3.11C3.26,8.9,2.42,10.36,2.03,11.5C3.73,15.89,7.5,18,12,18c1.55,0,3.03-0.3,4.38-0.84l2.1,2.1L20,18.73L3.27,2L2,4.27z M7.53,9.8l1.55,1.55C9.03,11.49,9,11.74,9,12c0,1.66,1.34,3,3,3c0.26,0,0.51-0.03,0.75-0.08l1.55,1.55C13.96,15.86,13,16,12,16c-2.76,0-5-2.24-5-5C7,10.54,7.14,9.96,7.53,9.8z"/></svg>`;        const MORE_OPTIONS_SVG = `<svg class="inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#606770"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;                document.getElementById('how-to-use-container').innerHTML = `            <h3><strong>Heads up! This software is still in development and can make mistakes.</strong></h3>            <h4><strong>HOW TO USE</strong></h4>            <ol>                <li><strong>Save Each Carrier's Inventory as a PDF</strong>                    <ul>                        <li>CRITICAL: You must open WARP in a new, separate window (Ctrl + N). The optimizer will not accept file inputs if WARP is only in a separate tab.</li>                        <li>In the new WARP window, navigate to: Inventory Management > View Available Inventory.</li>                        <li>Select AT&T, make sure the "Instock" box is checked, then click More Options (${MORE_OPTIONS_SVG}) and choose Print.</li>                        <li>Change the "Destination" printer from "CPR1" to Save as PDF.                            <ul><li>Note: For best results, use the original formatting (100% scale and default margins), as this has passed user testing.</li></ul>                        </li>                        <li>Name the file exactly "ATT.pdf". If a file with that name already exists, you must overwrite it.</li>                        <li>Repeat this exact process for Verizon, naming the file "VZW.pdf".</li>                        <li>Repeat one last time for T-Mobile, naming the file "TMO.pdf".</li>                        <li>To get the File Explorer ready for the next step, start to save the "TMO.pdf" file a second time, but don't actually save it. Just leave the File Explorer window open.</li>                    </ul>                </li>                <li><strong>Drag and Drop Files into the Optimizer</strong>                    <ul>                        <li>With the File Explorer window still open from the last step, locate the three PDF files you just created (ATT.pdf, VZW.pdf, TMO.pdf).</li>                        <li>Individually, click and hold each file and drag it directly into the optimizer window.                            <ul><li>Tip: While holding the file, you can use Alt + Tab or hover above the Chrome icon in your taskbar to switch from the File Explorer to the optimizer window to drop the file.</li></ul>                        </li>                    </ul>                </li>                <li><strong>Optional: Customize Your List</strong>                    <ul>                        <li>Partial Highlight (left checkbox): Highlights only the phone's name. (Recommended for good deals).</li>                        <li>Full Highlight (right checkbox): Highlights the entire row for that device. (Recommended for extra good deals).</li>                        <li>Hide (${HIDE_ICON_SVG} toggle): Use this to hide unwanted listings, such as demo-only or unlocked devices.</li>                        <li>Master Checkboxes: Use the main checkboxes at the top of the list to toggle partial or full highlights for the entire window at once.</li>                        <li>Click Done to save your customizations. Your highlight preferences are saved within the app, so you can adjust them anytime.</li>                    </ul>                </li>                <li><strong>Print the Combined PDF</strong>                    <ul>                        <li>Click the blue "Preview or Print" button.</li>                        <li>A preview pane showing the combined PDF will appear. Right-click anywhere on the PDF preview and choose Print.</li>                        <li>Important: Be sure to re-select your store's printer (e.g., "CPR1") as the destination so you print the combined file instead of saving it as a PDF again.</li>                    </ul>                </li>            </ol>        `;        // --- GLOBAL STATE ---        let appState = {             att: { consolidatedList: [], emphasis: new Map(), fileDate: '' },             vzw: { consolidatedList: [], emphasis: new Map(), fileDate: '' },             tmo: { consolidatedList: [], emphasis: new Map(), fileDate: '' }         };        let devModalCloseable = { button: true, backdrop: true };        // --- EDLP DATA & ABBREVIATIONS ---        const DEVICE_ABBREVIATIONS = {            'Classic': 'Classic', 'Galaxy A03': 'A03', 'Galaxy A13 LTE': 'A13', 'Galaxy A15 5G': 'A15', 'Galaxy A16 5G': 'A16', 'Galaxy A35 5G': 'A35', 'Galaxy S24 FE': '24FE', 'Galaxy S25 FE': '25FE', 'Galaxy S25 Plus 5G': 'S25+', 'Galaxy S25 Ultra 5G': 'S25U', 'Galaxy Z Flip 4 5G': 'GZF4',            'iPhone 15': 'IP15', 'iPhone 16 Pro Max': 'IP16PM', 'iPhone 16 Pro': 'IP16PR', 'iPhone 16 Plus': 'IP16+', 'iPhone 16e': 'IP16e', 'iPhone 16': 'IP16',             'iPhone 17 Pro Max': 'IP17PM', 'iPhone 17 Pro': 'IP17PR', 'iPhone 17': 'IP17', 'iPhone Air': 'IP AIR',            'Moto G 5G 2024': 'MG24', 'Moto G 5G 2025': 'MG25', 'Moto G Power 2024': 'PWR24', 'Moto G Power 2025': 'PWR25', 'Moto G Stylus 2024': 'STY24', 'Moto G Stylus 2025': 'GS25', 'One Ace 5G': 'ACE', 'REVVL 6': 'REV6', 'TCL Flip 3': 'Flip3'        };        const COLOR_ABBREVIATIONS = {            'Beige': 'BGE', 'Black': 'BLK', 'Black Titanium': 'BLK', 'Blue': 'BLU', 'Cosmic Orange': 'ORNG', 'Deep Blue': 'BLU', 'Desert Titanium': 'DSRT', 'Graphite': 'BLK', 'Gray': 'GRY', 'Green': 'GRN', 'Mist Blue': 'BLU', 'Natural Titanium': 'NTRL', 'Navy': 'BLU', 'Sky Blue': 'BLU', 'Space Black': 'BLK', 'Titanium Black': 'BLK', 'Ultramarine': 'BLU', 'White': 'WHTE'        };        const EDLP_DATA = {            tmo: {                'Flip 4 5G': { dp: 20, mo: 1, total: 44 },                'Flip 5G': { dp: 20, mo: 1, total: 44 },                'Galaxy A13 LTE': { total: 49 },                'iPhone 15': { dp: 379, mo: 5, total: 499 },                'iPhone 16': { total: 629 },                'iPhone 16 Plus': { dp: 549, mo: 7.54, total: 730 },                'iPhone 16 Pro': { dp: 601 },                'iPhone 16e': { total: 549 },                'iPhone 17': { total: 730 },                'iPhone 17 Pro': { total: 799 },                'iPhone Air': { total: 899 },                'Moto G 5G 2025': { dp: 30, mo: 1, total: 54 },                'Moto G Stylus 2025': { dp: 50, mo: 3.50, total: 134 },                'REVVL 6': { dp: 30, mo: 0.25, total: 36 }            },            vzw: {                'Galaxy A03': { total: 36 }, 'Galaxy A16 5G': { total: 120 }, 'Galaxy S24 FE': { total: 650 }, 'Galaxy S25 FE': { total: 651 }, 'Galaxy S25 Plus 5G': { total: 799 }, 'Galaxy Z Flip 4 5G': { total: 650 },                'iPhone 15': { total: 499 }, 'iPhone 16 Plus': { total: 730 }, 'iPhone 16 Pro': { total: 799 }, 'iPhone 16 Pro Max': { total: 1100 }, 'iPhone 16e': { total: 550 },                'iPhone 17': { total: 729 }, 'iPhone 17 Pro': { total: 999 }, 'iPhone 17 Pro Max': { total: 1149 }, 'iPhone Air': { total: 899 },                'Moto G 5G 2024': { total: 72 }, 'Moto G 5G 2025': { total: 72 }, 'Moto G Power 2025': { total: 108 }, 'One Ace 5G': { total: 101 }, 'TCL Flip 3': { total: 36 }            },            att: {                'Classic': { total: 56 }, 'Galaxy A11': { total: 36 }, 'Galaxy A15 5G': { total: 36 }, 'Galaxy A16 5G': { total: 119 }, 'Galaxy A35 5G': { total: 99 },                'Galaxy S24 FE': { total: 612 }, 'Galaxy S25 FE': { total: 612 }, 'Galaxy S25 Plus 5G': { total: 799 }, 'Galaxy S25 Ultra 5G': { total: 1149 },                'iPhone 15': { total: 499 }, 'iPhone 16 Plus': { total: 730 }, 'iPhone 16 Pro': { total: 800 }, 'iPhone 16e': { total: 550 },                'iPhone 17': { total: 729 }, 'iPhone 17 Pro': { total: 1199 }, 'iPhone Air': { total: 899 }, 'Moto G Stylus 2025': { total: 180 }            }        };        // --- LOCALSTORAGE FUNCTIONS ---        const saveSettings = () => {            try {                const cleanEmphasis = (emphasisMap) => {                    const cleanEntries = Array.from(emphasisMap.entries()).map(([key, value]) => {                        const { partial, full } = value;                         return [key, { partial, full }];                    });                    return new Map(cleanEntries);                };                const settings = {                    isolate: isolateIphonesCheckbox.checked,                    emphasis: {                        att: Array.from(cleanEmphasis(appState.att.emphasis).entries()),                        vzw: Array.from(cleanEmphasis(appState.vzw.emphasis).entries()),                        tmo: Array.from(cleanEmphasis(appState.tmo.emphasis).entries())                    }                };                localStorage.setItem('betterInvSettings', JSON.stringify(settings));            } catch (error) { console.error("Could not save settings:", error); }        };        const loadSettings = () => {            try {                const savedSettings = localStorage.getItem('betterInvSettings');                if (savedSettings) {                    const settings = JSON.parse(savedSettings);                    isolateIphonesCheckbox.checked = settings.isolate || false;                    appState.att.emphasis = new Map(settings.emphasis.att || []);                    appState.vzw.emphasis = new Map(settings.emphasis.vzw || []);                    appState.tmo.emphasis = new Map(settings.emphasis.tmo || []);                }            } catch (error) { console.error("Could not load settings, using defaults:", error); }        };        // --- STATIC UI ELEMENT SELECTORS ---        const versionText = document.getElementById('version-text');        const uploadArea = document.getElementById('upload-area');        const uploadInput = document.getElementById('upload-input');        const isolateIphonesCheckbox = document.getElementById('isolate-iphones');        const highlightBtn = document.getElementById('highlight-btn');        const processBtn = document.getElementById('process-btn');        const commentsInput = document.getElementById('comments');        const konamiMessage = document.getElementById('konami-message');        const devConsoleToggle = document.getElementById('dev-console-toggle');        const devConsoleContainer = document.getElementById('dev-console-container');        const devConsoleOutput = document.getElementById('dev-console-output');        const copyLogBtn = document.getElementById('copy-log-btn');        // Removed old wrapper link, handled directly now        const showEdlpsToggle = document.getElementById('show-edlps-toggle');        const edlpWarning = document.getElementById('edlp-warning');        // --- DYNAMIC HTML INJECTION ---        document.getElementById('preview-modal').innerHTML = `            <div class="modal-content">                <div class="modal-header"><h2>PDF Preview</h2><span class="close-btn" id="preview-close-btn">&times;</span></div>                <div class="modal-body">                    <div style="text-align: left; margin-bottom: 10px; color: #333; padding-left: 20px;">                        <strong>To print:</strong>                        <ul style="margin: 5px 0 10px 20px; padding: 0;">                            <li><strong>Right click preview pane</strong></li>                            <li><strong>Click print</strong></li>                            <li>Remember to change the destination printer back to CKPR1.</li>                        </ul>                    </div>                    <iframe id="pdf-preview-iframe" frameborder="0"></iframe>                </div>                <div class="modal-footer"><button id="download-btn">Download</button></div>            </div>`;        document.getElementById('emphasis-modal').innerHTML = `<div class="modal-content"><div class="modal-header"><h2 id="emphasis-modal-title">Highlight Inventory</h2><span class="close-btn" id="emphasis-close-btn">&times;</span></div><div class="modal-body"><div class="emphasis-header"><div class="emphasis-header-hide"></div><div class="emphasis-header-partial"><input type="checkbox" id="master-partial-checkbox" title="Select/Deselect All Partial"></div><div class="emphasis-header-full"><input type="checkbox" id="master-full-checkbox" title="Select/Deselect All Full"></div><div class="emphasis-header-text">(Highlight partial/full)</div></div><div id="emphasis-list-container"></div></div><div class="modal-footer"><button id="emphasis-done-btn">Done</button></div></div>`;        document.getElementById('dev-mode-modal').innerHTML = `<div class="modal-content"><div class="modal-header"><h2>Dev Mode</h2><span class="close-btn" id="dev-mode-close-btn">&times;</span></div><div class="modal-body"><div id="dev-mode-text"><p><strong>developer mode activated lol</strong></p><p>(this doesn't do anything)</p></div></div></div>`;                // --- DYNAMIC UI ELEMENT SELECTORS ---        const previewModal = document.getElementById('preview-modal');        const emphasisModal = document.getElementById('emphasis-modal');        const devModeModal = document.getElementById('dev-mode-modal');        const iframe = document.getElementById('pdf-preview-iframe');        const previewCloseBtn = document.getElementById('preview-close-btn');        const emphasisCloseBtn = document.getElementById('emphasis-close-btn');        const emphasisDoneBtn = document.getElementById('emphasis-done-btn');        const devModeCloseBtn = document.getElementById('dev-mode-close-btn');        const downloadBtn = document.getElementById('download-btn');        // --- CORE LOGIC & HELPER FUNCTIONS ---        const getTextFromPdf = (file) => { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = async (event) => { try { const pdf = await pdfjsLib.getDocument({ data: event.target.result }).promise; let textContent = ''; for (let i = 1; i <= pdf.numPages; i++) { const page = await pdf.getPage(i); const text = await page.getTextContent(); textContent += text.items.map(s => s.str).join(' '); } resolve(textContent); } catch (error) { reject(error); } }; reader.onerror = (error) => reject(error); reader.readAsArrayBuffer(file); }); };                const parseInventoryText = (text) => {             if (!text) return { preFilterList: [], postFilterList: [] };             const dataStartIndex = text.indexOf('Quantity');             if (dataStartIndex === -1) return { preFilterList: [], postFilterList: [] };             const dataText = text.substring(dataStartIndex + 'Quantity'.length);             const inventoryRegex = /(.+?)\s+(\d+\s?GB)\s+([a-zA-Z\s]+?)\s+(\d+\s+available)/g;             const matches = [...dataText.matchAll(inventoryRegex)];             const preFilterList = [];             const postFilterList = [];             const unlockedRegex = /un\s?-?\s?lock\s?-?\s?e\s?d/i;             for (const match of matches) {                 const model = match[1].trim();                 const capacity = match[2].trim();                 const modelAndCapacity = `${model} ${capacity}`;                 const color = match[3].trim();                 const quantity = match[4].match(/\d+/)[0];                 const item = [modelAndCapacity, color, quantity];                 preFilterList.push(item);                 if (!unlockedRegex.test(match[0])) { postFilterList.push(item); }             }             return { preFilterList, postFilterList };         };                const abbreviateColor = (color) => {            for (const [fullColor, abbrev] of Object.entries(COLOR_ABBREVIATIONS)) {                if (color.toLowerCase() === fullColor.toLowerCase()) return abbrev;            }            let processed = color;            for (const [fullColor, abbrev] of Object.entries(COLOR_ABBREVIATIONS)) {                const regex = new RegExp(`\\b${fullColor}\\b`, 'gi');                processed = processed.replace(regex, abbrev);            }            return processed;        };        const abbreviateModel = (model) => {            // Sort keys by length desc to match longest first            const sortedModels = Object.keys(DEVICE_ABBREVIATIONS).sort((a, b) => b.length - a.length);            for (const fullModel of sortedModels) {                if (model.startsWith(fullModel)) return model.replace(fullModel, DEVICE_ABBREVIATIONS[fullModel]);            }            return model;        };        const abbreviateDetails = (details) => {            return abbreviateColor(details);         };        const consolidateInventory = (inventoryList) => { const consolidationMap = new Map(); for (const [modelAndCapacity, color, quantity] of inventoryList) { const key = modelAndCapacity; if (!consolidationMap.has(key)) { consolidationMap.set(key, { modelAndCapacity, details: [] }); } const abbreviated = abbreviateColor(color); consolidationMap.get(key).details.push({ color: abbreviated, quantity }); } const consolidatedList = []; for (const value of consolidationMap.values()) { const detailsString = value.details.map(d => `${d.quantity} ${d.color}`).join(', '); consolidatedList.push([value.modelAndCapacity, detailsString]); } return consolidatedList; };                const categorizePdf = (text) => { const lowerCaseText = text.toLowerCase(); if (lowerCaseText.includes('at&t')) return 'att'; if (lowerCaseText.includes('verizon') || lowerCaseText.includes('vzw')) return 'vzw'; if (lowerCaseText.includes('t-mobile') || lowerCaseText.includes('tmo')) return 'tmo'; return 'unknown'; };                const prepareDataForDisplay = () => {             const preparedState = { att: {}, vzw: {}, tmo: {} };             if (isolateIphonesCheckbox.checked) {                 const priorityOrder = ['att', 'vzw', 'tmo'];                 let iphoneSource = null;                 for (const carrier of priorityOrder) {                     if (appState[carrier].consolidatedList.some(item => item[0].toLowerCase().startsWith('iphone'))) { iphoneSource = carrier; break; }                 }                 preparedState.apple = { consolidatedList: [] };                 for (const carrier of ['att', 'vzw', 'tmo']) {                     preparedState[carrier].consolidatedList = appState[carrier].consolidatedList.filter(item => !item[0].toLowerCase().startsWith('iphone'));                     if (carrier === iphoneSource) {                         const iphones = appState[carrier].consolidatedList.filter(item => item[0].toLowerCase().startsWith('iphone')).map(item => ({ modelAndCapacity: item[0], details: item[1], sourceCarrier: carrier }));                         preparedState.apple.consolidatedList = iphones;                     }                 }             } else {                 preparedState.att.consolidatedList = appState.att.consolidatedList;                 preparedState.vzw.consolidatedList = appState.vzw.consolidatedList;                 preparedState.tmo.consolidatedList = appState.tmo.consolidatedList;             }             return preparedState;         };                const generateFinalPdf = (state, comments) => {            const { jsPDF } = window.jspdf;            const doc = new jsPDF();            const topMargin = 12.7, sideMargin = 6.35, bottomMargin = 6.35;            const pageHeight = 297, lineHeight = 4.5, sectionSpacing = 7;            const headerHeight = 6, listTopMargin = 2;            let yPosition = topMargin;                        // Header - Merged Line            const dateNow = new Date();            const dateStr = dateNow.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });            const timeStr = dateNow.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');                        const headerText1 = `Optimized inventory report created at ${dateStr} ${timeStr}. `;            const headerText2 = "This software is experimental and can make mistakes.";                        doc.setFont("helvetica", "normal").setFontSize(8);            doc.text(headerText1, sideMargin, yPosition);                        const w1 = doc.getTextWidth(headerText1);            doc.setFont("helvetica", "bold");            doc.text(headerText2, sideMargin + w1, yPosition);            const w2 = doc.getTextWidth(headerText2);            doc.setLineWidth(0.1);            doc.line(sideMargin + w1, yPosition + 0.5, sideMargin + w1 + w2, yPosition + 0.5);                        yPosition += lineHeight;            // EDLP Warning (Conditional)            const showEdlps = showEdlpsToggle.checked;            if (showEdlps) {                const warnBold = "[!] CAUTION: EDLPS WERE LAST COLLECTED ON OCTOBER 17TH, MANY WILL LIKELY BE INACCURATE ";                const warnNormal = "(ESPECIALLY DURING ANNUAL EVENTS.)";                                doc.setFont("helvetica", "bold");                                // Simple wrap check logic for mixed bold/normal line                const boldWidth = doc.getTextWidth(warnBold);                const maxWidth = 210 - (sideMargin * 2);                                if (boldWidth > maxWidth) {                    const splitBold = doc.splitTextToSize(warnBold, maxWidth);                    doc.text(splitBold, sideMargin, yPosition);                    yPosition += (splitBold.length * lineHeight) - lineHeight; // Move to last line Y                    const lastLineWidth = doc.getTextWidth(splitBold[splitBold.length - 1]);                    doc.setFont("helvetica", "normal");                                        // Buffer space of 1.5mm                    doc.text(warnNormal, sideMargin + lastLineWidth + 1.5, yPosition);                    yPosition += lineHeight;                } else {                    doc.text(warnBold, sideMargin, yPosition);                    doc.setFont("helvetica", "normal");                    // Buffer space of 1.5mm                    doc.text(warnNormal, sideMargin + boldWidth + 1.5, yPosition);                    yPosition += lineHeight;                }            }                        if (comments) { const splitComments = doc.splitTextToSize(comments, 190); doc.setFont("helvetica", "italic").text(splitComments, sideMargin, yPosition); yPosition += (splitComments.length * (lineHeight - 1)); }            yPosition += sectionSpacing;            const contentStartY = yPosition;            // EDLP Layout Setup            let modelX = sideMargin;                        // Dynamic Right Column Start            // EDLP Only: 95 (Push right to fill space)            // EDLP + Isolate: 75 (Keep space for Apple Split)            // EDLP Off: 100            let startRightX = 100;            if (showEdlps) {                if (isolateIphonesCheckbox.checked) {                    startRightX = 75;                } else {                    startRightX = 95;                }            }            const calculateSectionHeight = (carrier, list) => {                 if (!list || list.length === 0) return 0;                 let visibleCount = 0;                 list.forEach(item => {                     const model = (carrier === 'apple') ? item.modelAndCapacity : item[0];                     const source = (carrier === 'apple') ? item.sourceCarrier : carrier;                     const emphasis = appState[source].emphasis.get(model) || {};                     if (!emphasis.hidden) { visibleCount++; }                 });                 let legendHeight = 0;                if (showEdlps) {                    legendHeight = (carrier === 'apple' && isolateIphonesCheckbox.checked) ? lineHeight * 2 : lineHeight;                } else {                    legendHeight = lineHeight; // Standard header                }                return headerHeight + legendHeight + listTopMargin + (visibleCount * lineHeight) + sectionSpacing;             };            const carriersForLayout = Object.keys(state).filter(c => state[c].consolidatedList && state[c].consolidatedList.length > 0);            const leftColumnCarriers = carriersForLayout.filter(c => c !== 'apple' && c !== 'tmo');            const rightColumnCarriers = carriersForLayout.filter(c => c === 'apple' || c === 'tmo');                        let leftColumnHeight = 0; leftColumnCarriers.forEach(c => leftColumnHeight += calculateSectionHeight(c, state[c].consolidatedList));            let rightColumnHeight = 0; rightColumnCarriers.forEach(c => rightColumnHeight += calculateSectionHeight(c, state[c].consolidatedList));                        const footerHeight = 12.7; // 0.5 inches approx            const availablePageHeight = pageHeight - contentStartY - bottomMargin - footerHeight;             const useTwoColumnLayout = (leftColumnHeight <= availablePageHeight) && (rightColumnHeight <= availablePageHeight) && (rightColumnHeight > 0);            // Footer Positioning Logic            let maxCursorY = contentStartY;            const drawSection = (carrier, data, currentX) => {                 doc.setFont("helvetica", "bold").setFontSize(10);                 const headerText = (carrier === 'apple') ? 'Apple Devices' : carrier.toUpperCase();                 const headerWidth = doc.getTextWidth(headerText);                 doc.text(headerText, currentX, yPosition);                 doc.setLineWidth(0.2).line(currentX, yPosition + 0.5, currentX + headerWidth, yPosition + 0.5);                 yPosition += headerHeight;                                 if (showEdlps) {                    doc.setFontSize(6).setFont("helvetica", "bold");                                        if (carrier === 'apple') {                        // Split Header                        // Left: attVzwX = +30, tmoX = +55, qtyX = +85 (Aligned with TMO QTY)                        const attVzwX = currentX + 30;                        const tmoX = currentX + 55;                        const qtyX = currentX + 85;                        doc.text("EDLPs", attVzwX, yPosition);                        doc.text("EDLPs for TMO", tmoX, yPosition);                        yPosition += lineHeight;                        doc.text("ITEM", currentX, yPosition);                        doc.text("(ATT, VZW)", attVzwX, yPosition);                        doc.text("(dp + /mo = EDLP)", tmoX, yPosition);                        doc.text("QTY", qtyX, yPosition);                        yPosition += lineHeight;                    } else if (carrier === 'tmo') {                        // TMO EDLP Layout                        const curEdlpX = currentX + 30;                                                 // Dynamic QTY Offset for TMO                        // If Isolate ON: +85 (matches Apple)                        // If Isolate OFF: +65 (hugs formula)                        const curDetailsX = currentX + (isolateIphonesCheckbox.checked ? 85 : 65);                        doc.text("ITEM", currentX, yPosition);                        doc.text("DP + $/mo = EDLP", curEdlpX, yPosition);                        doc.text("QTY", curDetailsX, yPosition);                        yPosition += lineHeight;                    } else {                        // Compact ATT/VZW with breathing room                        curEdlpX = currentX + 28;                        curDetailsX = currentX + 38;                         doc.text("ITEM", currentX, yPosition);                        doc.text("EDLP", curEdlpX, yPosition);                        doc.text("QTY", curDetailsX, yPosition);                         yPosition += lineHeight;                    }                } else {                    // Standard headers (No EDLP)                    doc.setFontSize(6).setFont("helvetica", "bold");                    doc.text("ITEM", currentX, yPosition);                    doc.text("QTY", currentX + 50, yPosition); // Expanded for long names                    yPosition += lineHeight;                }                doc.setFontSize(8);                                 data.consolidatedList.forEach(item => {                     const isApple = carrier === 'apple';                    const rawModel = isApple ? item.modelAndCapacity : item[0];                    const rawDetails = isApple ? item.details : item[1];                    const sourceCarrier = isApple ? item.sourceCarrier : carrier;                    const emphasisState = (appState[sourceCarrier].emphasis.get(rawModel) || {});                                         if (emphasisState.hidden) return;                     let displayModel = rawModel;                    let displayDetails = rawDetails;                    let displayEdlp = "";                    let displayEdlpTmo = ""; // Only used for split apple layout                    if (showEdlps) {                        displayModel = abbreviateModel(rawModel);                        displayDetails = abbreviateDetails(rawDetails);                                                const findPrice = (cData, mName) => {                             if (!cData) return null;                             for (const key in cData) {                                 if (mName.startsWith(key)) return cData[key];                             }                             return null;                        };                        const formatCurrency = (val) => val !== undefined ? `$${val}` : '$??';                        if (isApple) {                           const pAtt = findPrice(EDLP_DATA.att, rawModel);                           const pVzw = findPrice(EDLP_DATA.vzw, rawModel);                           const pTmo = findPrice(EDLP_DATA.tmo, rawModel);                                                      const tAtt = pAtt && pAtt.total !== undefined ? `$${pAtt.total}` : "$???";                           const tVzw = pVzw && pVzw.total !== undefined ? `$${pVzw.total}` : "$???";                                                      if (pTmo) {                               displayEdlpTmo = `${formatCurrency(pTmo.dp)} + ${formatCurrency(pTmo.mo)}/mo = ${formatCurrency(pTmo.total)}`;                           } else {                               displayEdlpTmo = "$?? + $??/mo = $???";                           }                                                      displayEdlp = `${tAtt}, ${tVzw}`;                         } else {                           const priceData = findPrice(EDLP_DATA[sourceCarrier], rawModel);                           if (!priceData) {                               displayEdlp = "";                           } else {                               if (sourceCarrier === 'tmo') {                                   displayEdlp = `${formatCurrency(priceData.dp)} + ${formatCurrency(priceData.mo)}/mo = ${formatCurrency(priceData.total)}`;                               } else {                                   displayEdlp = priceData.total !== undefined ? `$${priceData.total}` : "";                               }                           }                        }                    }                    doc.setFont('helvetica', 'normal');                                         // Coordinates for Data                    let curModelX = currentX;                    let curEdlpX = 0;                    let curDetailsX = 0;                    let curTmoX = 0;                    if (showEdlps) {                        if (isApple) {                            curEdlpX = currentX + 30; // attVzwX                            curTmoX = currentX + 55; // tmoX                            curDetailsX = currentX + 85; // qtyX - Aligned with TMO QTY                        } else if (carrier === 'tmo') {                            curEdlpX = currentX + 30;                             // Dynamic TMO QTY                            curDetailsX = currentX + (isolateIphonesCheckbox.checked ? 85 : 65);                        } else {                            // Compact ATT/VZW with breathing room                            curEdlpX = currentX + 28;                            curDetailsX = currentX + 38;                        }                    } else {                        curDetailsX = currentX + 50; // Expanded for long names                    }                    if (emphasisState.full || emphasisState.partial) {                         doc.setFillColor(150, 150, 150);                         const textDimensions = doc.getTextDimensions(displayDetails, { fontSize: 8 });                         const rectY = yPosition - textDimensions.h + 0.2;                         const rectHeight = textDimensions.h + 0.5;                                                 // Dynamic Highlight Width Logic (Beta 10 Fix)                        let widthSpan;                        if (showEdlps) {                            if (carrier === 'att' || carrier === 'vzw') {                                widthSpan = 60; // Increased from 50                            } else if (isApple) {                                widthSpan = 110; // Increased from 95                            } else if (carrier === 'tmo') {                                widthSpan = isolateIphonesCheckbox.checked ? 110 : 90; // Increased from 95/75                            }                        } else {                            widthSpan = 75; // Increased from 65                        }                                                let rectWidth = widthSpan;                                                 if (!emphasisState.full) {                             // Partial highlight width logic (unchanged)                             const modelDimensions = doc.getTextDimensions(displayModel, { fontSize: 8 });                              rectWidth = modelDimensions.w + 2;                         }                                                doc.rect(curModelX - 1, rectY, rectWidth, rectHeight, 'F');                     }                                         // Draw Data                    doc.setFont('helvetica', 'normal');                    doc.text(displayModel, curModelX, yPosition);                     if (showEdlps) {                        doc.setFontSize(7);                         doc.text(displayEdlp, curEdlpX, yPosition);                        if (isApple) {                            doc.text(displayEdlpTmo, curTmoX, yPosition);                        }                        doc.setFontSize(8);                    }                    doc.text(displayDetails, curDetailsX, yPosition);                     yPosition += lineHeight;                 });                 yPosition += sectionSpacing;                 maxCursorY = Math.max(maxCursorY, yPosition);            };                         // Draw Left Column            if (useTwoColumnLayout) {                 // Left Column                leftColumnCarriers.forEach(c => drawSection(c, state[c], sideMargin));                                 // Right Column                yPosition = contentStartY;                 rightColumnCarriers.forEach(c => {                    drawSection(c, state[c], startRightX);                });            } else {                 carriersForLayout.forEach(carrier => {                     const sectionHeight = calculateSectionHeight(carrier, state[carrier].consolidatedList);                     if (yPosition + sectionHeight > (pageHeight - bottomMargin - footerHeight) && yPosition > contentStartY) {                         doc.addPage();                         yPosition = topMargin;                     }                     drawSection(carrier, state[carrier], sideMargin);                 });             }             if (carriersForLayout.length === 0) { doc.setFont("helvetica", "normal").setFontSize(12).text("No inventory found.", sideMargin, yPosition); }                         // Footer            const footerY = Math.min(maxCursorY + (lineHeight * 3), pageHeight - 12.7);            doc.setFontSize(8);                        const text1 = "Made with Optimizer, an unofficial work app created by Abraham. ";            const text2 = "Sources: ";            const attDate = appState.att.fileDate ? appState.att.fileDate.replace(/\/20\d{2}/, '').replace(/:\d{2}\s/, ' ') : '';            const vzwDate = appState.vzw.fileDate ? appState.vzw.fileDate.replace(/\/20\d{2}/, '').replace(/:\d{2}\s/, ' ') : '';            const tmoDate = appState.tmo.fileDate ? appState.tmo.fileDate.replace(/\/20\d{2}/, '').replace(/:\d{2}\s/, ' ') : '';            const text3 = `ATT (${attDate || 'N/A'}), VZW (${vzwDate || 'N/A'}), TMO (${tmoDate || 'N/A'}).`;                        doc.setFont("helvetica", "normal");            doc.text(text1, sideMargin, footerY);            let cursorX = sideMargin + doc.getTextWidth(text1);                        doc.setFont("helvetica", "bold");            doc.text(text2, cursorX, footerY);            cursorX += doc.getTextWidth(text2);                        doc.setFont("helvetica", "normal");                        // Word-by-word wrapping for the final date text to ensure continuous flow            const words = text3.split(' ');            const maxWidth = 210 - sideMargin; // A4 width - margin            let currentY = footerY;                        words.forEach(word => {                const wordWithSpace = word + " ";                const wordWidth = doc.getTextWidth(wordWithSpace);                                if (cursorX + wordWidth > maxWidth) {                    cursorX = sideMargin;                    currentY += 4; // Line height for footer                }                                doc.text(wordWithSpace, cursorX, currentY);                cursorX += wordWidth;            });            return doc.output('datauristring');         };        // --- EVENT HANDLER FUNCTIONS ---        const handleFileUploads = async (files) => {             if (!files || files.length === 0) return;             uploadArea.querySelector('p').textContent = 'Processing...';             if (devConsoleToggle.checked) devConsoleOutput.textContent = '';             for (const file of files) {                 try {                     const text = await getTextFromPdf(file);                     const carrier = categorizePdf(text);                     if (carrier === 'unknown') { alert(`Could not determine carrier for file: ${file.name}`); continue; }                                         // Date Extraction                    const dateMatch = text.match(/Date:\s*(.*?)(?=\s+Store)/);                    if (dateMatch && dateMatch[1]) {                        appState[carrier].fileDate = dateMatch[1].trim();                    }                    const { preFilterList, postFilterList } = parseInventoryText(text);                     appState[carrier].consolidatedList = consolidateInventory(postFilterList);                     const statusSection = document.getElementById(`${carrier}-status`);                     statusSection.querySelector('.status-filename').textContent = file.name;                     statusSection.style.display = 'block';                     if (devConsoleToggle.checked) {                         let logContent = `--- DEBUG LOG FOR: ${file.name} (detected as ${carrier.toUpperCase()}) ---\n\n`;                         logContent += `== RAW TEXT EXTRACTED ==\n${text}\n\n`;                         logContent += `== ITEMS FOUND (PRE-FILTER) ==\n${preFilterList.map(item => item.join(' | ')).join('\n')}\n\n`;                         logContent += `== ITEMS KEPT (POST-FILTER) ==\n${postFilterList.map(item => item.join(' | ')).join('\n')}\n\n`;                         devConsoleOutput.textContent += logContent;                     }                 } catch (error) { alert(`Failed to process file: ${file.name}`); console.error(error); }             }             uploadArea.querySelector('p').textContent = 'Drag & drop files here.';         };                const openEmphasisModal = () => { const listContainer = document.getElementById('emphasis-list-container'); listContainer.innerHTML = ''; const processedData = prepareDataForDisplay(); const carriersToDisplay = Object.keys(processedData).filter(c => processedData[c].consolidatedList.length > 0); carriersToDisplay.forEach(carrier => { const header = document.createElement('div'); header.className = 'emphasis-list-carrier-header'; header.textContent = (carrier === 'apple') ? 'Apple Devices' : carrier.toUpperCase(); listContainer.appendChild(header); processedData[carrier].consolidatedList.forEach(item => { const isApple = carrier === 'apple'; const modelAndCapacity = isApple ? item.modelAndCapacity : item[0]; const details = isApple ? item.details : item[1]; const sourceCarrier = isApple ? item.sourceCarrier : carrier; const currentEmphasis = appState[sourceCarrier].emphasis.get(modelAndCapacity) || { partial: false, full: false, hidden: false }; const itemDiv = document.createElement('div'); itemDiv.className = 'emphasis-item'; if (currentEmphasis.hidden) itemDiv.classList.add('item-hidden'); const hideDiv = document.createElement('div'); hideDiv.className = 'emphasis-item-hide'; hideDiv.innerHTML = HIDE_ICON_SVG; hideDiv.dataset.key = modelAndCapacity; hideDiv.dataset.carrier = sourceCarrier; const partialCheckbox = document.createElement('input'); partialCheckbox.type = 'checkbox'; partialCheckbox.checked = currentEmphasis.partial; partialCheckbox.disabled = currentEmphasis.hidden; partialCheckbox.dataset.key = modelAndCapacity; partialCheckbox.dataset.carrier = sourceCarrier; partialCheckbox.dataset.type = 'partial'; const fullCheckbox = document.createElement('input'); fullCheckbox.type = 'checkbox'; fullCheckbox.checked = currentEmphasis.full; fullCheckbox.disabled = currentEmphasis.hidden; fullCheckbox.dataset.key = modelAndCapacity; fullCheckbox.dataset.carrier = sourceCarrier; fullCheckbox.dataset.type = 'full'; const textDiv = document.createElement('div'); textDiv.className = 'emphasis-item-text'; textDiv.textContent = `${modelAndCapacity} - ${details}`; itemDiv.appendChild(hideDiv); itemDiv.appendChild(partialCheckbox); itemDiv.appendChild(fullCheckbox); itemDiv.appendChild(textDiv); listContainer.appendChild(itemDiv); }); }); emphasisModal.style.display = 'flex'; };        // --- ATTACH EVENT LISTENERS ---        highlightBtn.addEventListener('click', openEmphasisModal);        processBtn.addEventListener('click', () => { const processedData = prepareDataForDisplay(); const comments = commentsInput.value; const pdfDataUri = generateFinalPdf(processedData, comments); iframe.src = pdfDataUri; previewModal.style.display = 'flex'; });        uploadArea.addEventListener('click', () => uploadInput.click());        uploadInput.addEventListener('change', (e) => handleFileUploads(e.target.files));        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });        uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); });        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); handleFileUploads(e.dataTransfer.files); });        isolateIphonesCheckbox.addEventListener('change', saveSettings);        devConsoleToggle.addEventListener('change', () => {             const isChecked = devConsoleToggle.checked;            devConsoleContainer.style.display = isChecked ? 'block' : 'none';            downloadBtn.style.display = isChecked ? 'inline-block' : 'none';        });                // Listener for EDLP toggle to show/hide warning        showEdlpsToggle.addEventListener('change', () => {             if (showEdlpsToggle.checked) {                 edlpWarning.classList.add('visible');             } else {                 edlpWarning.classList.remove('visible');             }        });                // Initialize EDLP warning state based on default or loaded setting        if (showEdlpsToggle.checked) {             edlpWarning.classList.add('visible');        }        copyLogBtn.addEventListener('click', () => { const logText = devConsoleOutput.textContent; if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(logText).then(() => { alert('Log copied to clipboard!'); }).catch(err => { console.warn('Modern clipboard API failed, trying fallback.', err); legacyCopy(logText); }); } else { legacyCopy(logText); } });        const legacyCopy = (text) => { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.top = 0; textArea.style.left = 0; textArea.style.opacity = 0; document.body.appendChild(textArea); textArea.focus(); textArea.select(); try { const successful = document.execCommand('copy'); if (!successful) { alert('Failed to copy log.'); } } catch (err) { alert('Failed to copy log.'); } document.body.removeChild(textArea); };                previewCloseBtn.addEventListener('click', () => previewModal.style.display = 'none');        emphasisCloseBtn.addEventListener('click', () => emphasisModal.style.display = 'none');        emphasisDoneBtn.addEventListener('click', () => emphasisModal.style.display = 'none');        devModeCloseBtn.addEventListener('click', () => { if (devModalCloseable.button) devModeModal.style.display = 'none'; });        window.addEventListener('click', (event) => { if (event.target == previewModal) previewModal.style.display = 'none'; if (event.target == emphasisModal) emphasisModal.style.display = 'none'; if (event.target == devModeModal && devModalCloseable.backdrop) devModeModal.style.display = 'none'; });        downloadBtn.addEventListener('click', () => { const link = document.createElement('a'); link.href = iframe.src; link.download = 'Combined_Inventory.pdf'; link.click(); });                emphasisModal.addEventListener('click', (e) => { const target = e.target.closest('.emphasis-item-hide'); if (!target) return; const { key, carrier } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false }; state.hidden = !state.hidden; appState[carrier].emphasis.set(key, state); const parentItem = target.closest('.emphasis-item'); parentItem.classList.toggle('item-hidden'); parentItem.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = state.hidden); saveSettings(); });        emphasisModal.addEventListener('change', (e) => { const target = e.target; if (target.type !== 'checkbox') return; const isMaster = target.id.startsWith('master-'); if (isMaster) { const masterType = target.id.includes('partial') ? 'partial' : 'full'; const isChecking = target.checked; const allItems = emphasisModal.querySelectorAll('.emphasis-item:not(.item-hidden)'); allItems.forEach(item => { const partialBox = item.querySelector('[data-type="partial"]'); const fullBox = item.querySelector('[data-type="full"]'); const key = partialBox.dataset.key; const carrier = partialBox.dataset.carrier; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false }; if (masterType === 'partial') { partialBox.checked = isChecking; state.partial = isChecking; if (!isChecking) { fullBox.checked = false; state.full = false; } } else { fullBox.checked = isChecking; state.full = isChecking; if (isChecking) { partialBox.checked = true; state.partial = true; } } appState[carrier].emphasis.set(key, state); }); const masterPartial = document.getElementById('master-partial-checkbox'); const masterFull = document.getElementById('master-full-checkbox'); if (masterType === 'full' && isChecking) masterPartial.checked = true; if (masterType === 'partial' && !isChecking) masterFull.checked = false; } else if (target.dataset.key) { const { key, carrier, type } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false }; state[type] = target.checked; const parentItem = target.closest('.emphasis-item'); if (parentItem) { const partialBox = parentItem.querySelector('[data-type="partial"]'); const fullBox = parentItem.querySelector('[data-type="full"]'); if (type === 'full' && target.checked) { state.partial = true; if (partialBox) partialBox.checked = true; } if (type === 'partial' && !target.checked) { state.full = false; if (fullBox) fullBox.checked = false; } } appState[carrier].emphasis.set(key, state); } saveSettings(); });                let clickCount = 0, lastClick = 0;        versionText.addEventListener('click', () => { const now = Date.now(); if (now - lastClick > 500) { clickCount = 0; } lastClick = now; clickCount++; if (clickCount === 7) { devModalCloseable.button = false; devModalCloseable.backdrop = false; devModeModal.style.display = 'flex'; setTimeout(() => { devModalCloseable.button = true; }, 500); setTimeout(() => { devModalCloseable.backdrop = true; }, 1000); clickCount = 0; } });        commentsInput.addEventListener('input', (e) => { const konami = "upupdowndownleftrightleftrightba"; const input = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''); konamiMessage.style.display = input.includes(konami) ? 'block' : 'none'; });        // Initial load of settings from localStorage        loadSettings();    });    </script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimizer (beta)</title>
+    
+    <!-- PDF.js and jsPDF library CDNs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #version-text {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 0.8em;
+            color: #606770;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #app-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1c1e21;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        #upload-area {
+            border: 2px dashed #dddfe2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        
+        #upload-area.dragover {
+            border-color: #1877f2;
+            background-color: #f0f8ff;
+        }
+        
+        #upload-area p { margin: 0; font-weight: 600; color: #606770; }
+        #upload-input { display: none; }
+
+        .status-section {
+            display: none;
+            padding: 10px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        
+        .status-text { font-weight: 600; }
+        .status-filename { font-weight: normal; font-style: italic; color: #606770; margin-left: 8px; }
+        
+        .control-section { text-align: left; margin-bottom: 15px; }
+        .control-section label { display: block; margin-bottom: 8px; font-weight: 600; color: #606770; }
+        
+        .toggles-wrapper {
+            display: flex;
+            align-items: flex-start; 
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .toggle-option { display: flex; align-items: center; }
+        .toggle-option label { margin: 0 0 0 8px; font-weight: normal; }
+        
+        /* EDLP Toggle Styles */
+        #edlp-toggle-wrapper { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-start; 
+        }
+        #edlp-warning { 
+            visibility: hidden; 
+            font-size: 0.7em; 
+            color: #d93025; 
+            margin-top: 2px; 
+            width: 100%; 
+            text-align: left; 
+            padding-left: 22px; 
+            min-height: 1.2em; 
+        }
+        #edlp-warning.visible {
+            visibility: visible;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #highlight-btn, #process-btn, #copy-log-btn {
+            flex-grow: 1;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        #highlight-btn, #copy-log-btn { background-color: #e4e6eb; color: #050505; }
+        #process-btn { background-color: #1877f2; color: white; }
+        
+        #comments {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            box-sizing: border-box;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        #konami-message {
+            display: none;
+            text-align: center;
+            font-style: italic;
+            color: #606770;
+            margin-top: 5px;
+        }
+
+        #how-to-use-container {
+            text-align: left;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #e4e6eb;
+        }
+
+        #how-to-use-container h3, #how-to-use-container h4 { margin: 15px 0 10px 0; color: #606770; font-size: 1em; }
+        #how-to-use-container ol, #how-to-use-container ul { padding-left: 20px; margin: 0; font-size: 0.9em; color: #606770; line-height: 1.6; }
+        #how-to-use-container ul { margin-top: 5px; }
+        .inline-svg { width: 1em; height: 1em; vertical-align: middle; margin: 0 2px; }
+
+        #dev-console-container {
+            display: none;
+            text-align: left;
+            margin-top: 20px;
+        }
+        #dev-console-output {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: monospace;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+
+        /* Modal Styles */
+        .modal-container { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fefefe; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); width: 80%; max-width: 600px; max-height: 90%; display: flex; flex-direction: column; }
+        .modal-header { padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { margin: 0; font-size: 1.2em; }
+        .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        #dev-mode-text { text-align: center; padding: 40px 20px; }
+        #dev-mode-text p { margin: 5px 0; }
+        .emphasis-header { display: flex; align-items: center; font-weight: bold; font-size: 0.8em; color: #606770; background-color: #f0f2f5; padding: 10px 20px; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; }
+        .emphasis-header-hide, .emphasis-header-partial, .emphasis-header-full { min-width: 40px; text-align: center; }
+        .emphasis-header-text { flex-grow: 1; padding-left: 5px; }
+        .modal-body { flex-grow: 1; padding: 0; overflow-y: auto; }
+        #emphasis-list-container { padding: 5px 20px; }
+        #pdf-preview-iframe { width: 100%; height: 100%; border: none; }
+        .emphasis-item { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #e9ebee; }
+        .emphasis-item-hide { min-width: 40px; text-align: center; }
+        .emphasis-item .hide-icon { width: 18px; height: 18px; cursor: pointer; fill: #606770; }
+        .emphasis-item.item-hidden .hide-icon { fill: #ccc; }
+        .emphasis-item input[type="checkbox"] { min-width: 40px; height: 18px; margin: 0; }
+        .emphasis-item-text { font-size: 0.9em; padding-left: 5px; transition: color 0.2s; }
+        .emphasis-item.item-hidden .emphasis-item-text { color: #ccc; text-decoration: line-through; }
+        .emphasis-list-carrier-header { font-weight: bold; font-size: 1.1em; margin-top: 15px; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 2px solid #050505; }
+        .modal-footer { padding: 15px 20px; border-top: 1px solid #ddd; text-align: right; }
+        #download-btn { display: none; }
+        .modal-footer button { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="version-text">Beta Version 11</div>
+
+    <div id="app-container">
+        <h1>Optimizer</h1>
+        
+        <div id="upload-area">
+            <input type="file" id="upload-input" multiple accept=".pdf">
+            <p>Drag & drop files here.</p>
+        </div>
+
+        <div id="status-container">
+            <div class="status-section" id="att-status"><div><span class="status-text">AT&T:</span><span class="status-filename"></span></div></div>
+            <div class="status-section" id="vzw-status"><div><span class="status-text">Verizon:</span><span class="status-filename"></span></div></div>
+            <div class="status-section" id="tmo-status"><div><span class="status-text">T-Mobile:</span><span class="status-filename"></span></div></div>
+        </div>
+
+        <div class="toggles-wrapper">
+            <div class="toggle-option">
+                <input type="checkbox" id="isolate-iphones">
+                <label for="isolate-iphones">Isolate iPhones</label>
+            </div>
+            <div class="toggle-option" id="edlp-toggle-wrapper">
+                <div style="display: flex; align-items: center;">
+                    <input type="checkbox" id="show-edlps-toggle">
+                    <label for="show-edlps-toggle">Show Likely EDLPs (experimental)</label>
+                </div>
+                <div id="edlp-warning">⚠ Experimental, values can be inaccurate.</div>
+            </div>
+            <div class="toggle-option">
+                <input type="checkbox" id="dev-console-toggle">
+                <label for="dev-console-toggle">Other experimental settings</label>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="highlight-btn">Customize</button>
+            <button id="process-btn">Preview or Print</button>
+        </div>
+
+        <div class="control-section">
+            <label for="comments">Comments (optional)</label>
+            <textarea id="comments"></textarea>
+            <p id="konami-message">Also try Tank Tycoon!</p>
+        </div>
+
+        <div id="how-to-use-container"></div>
+
+        <div id="dev-console-container">
+            <pre id="dev-console-output"></pre>
+            <button id="copy-log-btn">Copy Log</button>
+        </div>
+    </div>
+
+    <!-- Modals are empty here, populated by script -->
+    <div id="preview-modal" class="modal-container"></div>
+    <div id="emphasis-modal" class="modal-container"></div>
+    <div id="dev-mode-modal" class="modal-container"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- SCRIPT INITIALIZATION ---
+        const APP_VERSION = 'Beta Version 11';
+        document.getElementById('version-text').textContent = APP_VERSION;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
+        const HIDE_ICON_SVG = `<svg class="hide-icon inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.83,9.53c1.53,0.24,2.74,1.46,2.98,2.98L11.83,9.53z M12,6c3.79,0,7.17,2.13,8.82,5.5c-0.64,1.32-1.57,2.44-2.68,3.32l1.42,1.42c1.51-1.26,2.7-2.89,3.43-4.74C21.27,7.11,17,4,12,4c-1.4,0-2.73,0.25-3.98,0.7L9.63,6.3C10.4,6.12,11.19,6,12,6z M2,4.27l3.11,3.11C3.26,8.9,2.42,10.36,2.03,11.5C3.73,15.89,7.5,18,12,18c1.55,0,3.03-0.3,4.38-0.84l2.1,2.1L20,18.73L3.27,2L2,4.27z M7.53,9.8l1.55,1.55C9.03,11.49,9,11.74,9,12c0,1.66,1.34,3,3,3c0.26,0,0.51-0.03,0.75-0.08l1.55,1.55C13.96,15.86,13,16,12,16c-2.76,0-5-2.24-5-5C7,10.54,7.14,9.96,7.53,9.8z"/></svg>`;
+        const MORE_OPTIONS_SVG = `<svg class="inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#606770"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;
+        
+        document.getElementById('how-to-use-container').innerHTML = `
+            <h3><strong>Heads up! This software is still in development and can make mistakes.</strong></h3>
+            <h4><strong>HOW TO USE</strong></h4>
+            <ol>
+                <li><strong>Save Each Carrier's Inventory as a PDF</strong>
+                    <ul>
+                        <li>CRITICAL: You must open WARP in a new, separate window (Ctrl + N). The optimizer will not accept file inputs if WARP is only in a separate tab.</li>
+                        <li>In the new WARP window, navigate to: Inventory Management > View Available Inventory.</li>
+                        <li>Select AT&T, make sure the "Instock" box is checked, then click More Options (${MORE_OPTIONS_SVG}) and choose Print.</li>
+                        <li>Change the "Destination" printer from "CPR1" to Save as PDF.
+                            <ul><li>Note: For best results, use the original formatting (100% scale and default margins), as this has passed user testing.</li></ul>
+                        </li>
+                        <li>Name the file exactly "ATT.pdf". If a file with that name already exists, you must overwrite it.</li>
+                        <li>Repeat this exact process for Verizon, naming the file "VZW.pdf".</li>
+                        <li>Repeat one last time for T-Mobile, naming the file "TMO.pdf".</li>
+                        <li>To get the File Explorer ready for the next step, start to save the "TMO.pdf" file a second time, but don't actually save it. Just leave the File Explorer window open.</li>
+                    </ul>
+                </li>
+                <li><strong>Drag and Drop Files into the Optimizer</strong>
+                    <ul>
+                        <li>With the File Explorer window still open from the last step, locate the three PDF files you just created (ATT.pdf, VZW.pdf, TMO.pdf).</li>
+                        <li>Individually, click and hold each file and drag it directly into the optimizer window.
+                            <ul><li>Tip: While holding the file, you can use Alt + Tab or hover above the Chrome icon in your taskbar to switch from the File Explorer to the optimizer window to drop the file.</li></ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>Optional: Customize Your List</strong>
+                    <ul>
+                        <li>Partial Highlight (left checkbox): Highlights only the phone's name. (Recommended for good deals).</li>
+                        <li>Full Highlight (right checkbox): Highlights the entire row for that device. (Recommended for extra good deals).</li>
+                        <li>Hide (${HIDE_ICON_SVG} toggle): Use this to hide unwanted listings, such as demo-only or unlocked devices.</li>
+                        <li>Master Checkboxes: Use the main checkboxes at the top of the list to toggle partial or full highlights for the entire window at once.</li>
+                        <li>Click Done to save your customizations. Your highlight preferences are saved within the app, so you can adjust them anytime.</li>
+                    </ul>
+                </li>
+                <li><strong>Print the Combined PDF</strong>
+                    <ul>
+                        <li>Click the blue "Preview or Print" button.</li>
+                        <li>A preview pane showing the combined PDF will appear. Right-click anywhere on the PDF preview and choose Print.</li>
+                        <li>Important: Be sure to re-select your store's printer (e.g., "CPR1") as the destination so you print the combined file instead of saving it as a PDF again.</li>
+                    </ul>
+                </li>
+            </ol>
+        `;
+
+        // --- GLOBAL STATE ---
+        let appState = { 
+            att: { consolidatedList: [], emphasis: new Map(), fileDate: '' }, 
+            vzw: { consolidatedList: [], emphasis: new Map(), fileDate: '' }, 
+            tmo: { consolidatedList: [], emphasis: new Map(), fileDate: '' } 
+        };
+        let devModalCloseable = { button: true, backdrop: true };
+
+        // --- EDLP DATA & ABBREVIATIONS ---
+        const DEVICE_ABBREVIATIONS = {
+            'Classic': 'Classic', 'Galaxy A03': 'A03', 'Galaxy A13 LTE': 'A13', 'Galaxy A15 5G': 'A15', 'Galaxy A16 5G': 'A16', 'Galaxy A35 5G': 'A35', 'Galaxy S24 FE': '24FE', 'Galaxy S25 FE': '25FE', 'Galaxy S25 Plus 5G': 'S25+', 'Galaxy S25 Ultra 5G': 'S25U', 'Galaxy Z Flip 4 5G': 'GZF4',
+            'iPhone 15': 'IP15', 'iPhone 16 Pro Max': 'IP16PM', 'iPhone 16 Pro': 'IP16PR', 'iPhone 16 Plus': 'IP16+', 'iPhone 16e': 'IP16e', 'iPhone 16': 'IP16', 
+            'iPhone 17 Pro Max': 'IP17PM', 'iPhone 17 Pro': 'IP17PR', 'iPhone 17': 'IP17', 'iPhone Air': 'IP AIR',
+            'Moto G 5G 2024': 'MG24', 'Moto G 5G 2025': 'MG25', 'Moto G Power 2024': 'PWR24', 'Moto G Power 2025': 'PWR25', 'Moto G Stylus 2024': 'STY24', 'Moto G Stylus 2025': 'GS25', 'One Ace 5G': 'ACE', 'REVVL 6': 'REV6', 'TCL Flip 3': 'Flip3'
+        };
+
+        const COLOR_ABBREVIATIONS = {
+            'Beige': 'BGE', 'Black': 'BLK', 'Black Titanium': 'BLK', 'Blue': 'BLU', 'Cosmic Orange': 'ORNG', 'Deep Blue': 'BLU', 'Desert Titanium': 'DSRT', 'Graphite': 'BLK', 'Gray': 'GRY', 'Green': 'GRN', 'Mist Blue': 'BLU', 'Natural Titanium': 'NTRL', 'Navy': 'BLU', 'Sky Blue': 'BLU', 'Space Black': 'BLK', 'Titanium Black': 'BLK', 'Ultramarine': 'BLU', 'White': 'WHTE'
+        };
+
+        // Snapshot Data (Generated 12/2/2025)
+        const EDLP_DATA = {
+            tmo: {
+                'Flip 4 5G': { dp: 20, mo: 1, total: 44 },
+                'Flip 5G': { dp: 20, mo: 1, total: 44 },
+                'Galaxy A13 LTE': { total: 49 },
+                'Galaxy A16 5G': { dp: 45, mo: 3, total: 117 },
+                'iPhone 15': { dp: 227, mo: 3, total: 299 },
+                'iPhone 16': { total: 629 },
+                'iPhone 16 Plus': { dp: 549, mo: 7.5, total: 729 },
+                'iPhone 16 Pro': { dp: 601 },
+                'iPhone 16e': { total: 549 },
+                'iPhone 17': { dp: 587, mo: 8, total: 779 },
+                'iPhone 17 Pro': { dp: 791, mo: 10.75, total: 1049 },
+                'iPhone 17 Pro Max': { dp: 867, mo: 11.75, total: 1149 },
+                'iPhone Air': { dp: 677, mo: 9.25, total: 899 },
+                'Moto G 5G 2025': { dp: 30, mo: 1, total: 54 },
+                'Moto G Stylus 2025': { dp: 50, mo: 3.46, total: 133 },
+                'Moto G Power 2025': { dp: 40, mo: 2, total: 88 },
+                'REVVL 6': { dp: 30, mo: 0.25, total: 36 }
+            },
+            vzw: {
+                'Galaxy A03': { total: 36 },
+                'Galaxy A11': { total: 36 },
+                'Galaxy A15 5G': { total: 36 },
+                'Galaxy A16 5G': { total: 120 },
+                'Galaxy S24 FE': { total: 649 },
+                'Galaxy S25 FE': { total: 650 },
+                'Galaxy S25 Plus 5G': { total: 999 },
+                'Galaxy S25 Ultra 5G': { total: 1149 },
+                'Galaxy Z Flip 4 5G': { total: 650 },
+                'iPhone 15': { total: 630 },
+                'iPhone 16': { total: 729 },
+                'iPhone 16 Plus': { total: 721 },
+                'iPhone 16 Pro': { total: 899 },
+                'iPhone 16 Pro Max': { total: 1099 },
+                'iPhone 16e': { total: 600 },
+                'iPhone 17': { total: 829 },
+                'iPhone 17 Pro': { total: 1099 },
+                'iPhone 17 Pro Max': { total: 1199 },
+                'iPhone Air': { total: 999 },
+                'Moto G 5G 2024': { total: 72 },
+                'Moto G 5G 2025': { total: 72 },
+                'Moto G Power 2025': { total: 108 },
+                'One Ace 5G': { total: 36 },
+                'TCL Flip 3': { total: 36 }
+            },
+            att: {
+                'Classic': { total: 55 },
+                'Galaxy A11': { total: 36 },
+                'Galaxy A15 5G': { total: 36 },
+                'Galaxy A16 5G': { total: 119 },
+                'Galaxy A35 5G': { total: 99 },
+                'Galaxy S24 FE': { total: 580 },
+                'Galaxy S25 FE': { total: 612 },
+                'Galaxy S25 Plus 5G': { total: 799 },
+                'Galaxy S25 Ultra 5G': { total: 999 },
+                'Galaxy Z Flip 4 5G': { total: 0 },
+                'iPhone 15': { total: 299 },
+                'iPhone 16': { total: 629 },
+                'iPhone 16 Plus': { total: 729 },
+                'iPhone 16 Pro': { total: 800 },
+                'iPhone 16 Pro Max': { total: 999 },
+                'iPhone 16e': { total: 549 },
+                'iPhone 17': { total: 779 },
+                'iPhone 17 Pro': { total: 1049 },
+                'iPhone 17 Pro Max': { total: 1149 },
+                'iPhone Air': { total: 899 },
+                'Moto G Stylus 2025': { total: 180 }
+            }
+        };
+
+        // --- LOCALSTORAGE FUNCTIONS ---
+        const saveSettings = () => {
+            try {
+                const cleanEmphasis = (emphasisMap) => {
+                    const cleanEntries = Array.from(emphasisMap.entries()).map(([key, value]) => {
+                        const { partial, full } = value; 
+                        return [key, { partial, full }];
+                    });
+                    return new Map(cleanEntries);
+                };
+
+                const settings = {
+                    isolate: isolateIphonesCheckbox.checked,
+                    emphasis: {
+                        att: Array.from(cleanEmphasis(appState.att.emphasis).entries()),
+                        vzw: Array.from(cleanEmphasis(appState.vzw.emphasis).entries()),
+                        tmo: Array.from(cleanEmphasis(appState.tmo.emphasis).entries())
+                    }
+                };
+                localStorage.setItem('betterInvSettings', JSON.stringify(settings));
+            } catch (error) { console.error("Could not save settings:", error); }
+        };
+
+        const loadSettings = () => {
+            try {
+                const savedSettings = localStorage.getItem('betterInvSettings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    isolateIphonesCheckbox.checked = settings.isolate || false;
+                    appState.att.emphasis = new Map(settings.emphasis.att || []);
+                    appState.vzw.emphasis = new Map(settings.emphasis.vzw || []);
+                    appState.tmo.emphasis = new Map(settings.emphasis.tmo || []);
+                }
+            } catch (error) { console.error("Could not load settings, using defaults:", error); }
+        };
+
+        // --- STATIC UI ELEMENT SELECTORS ---
+        const versionText = document.getElementById('version-text');
+        const uploadArea = document.getElementById('upload-area');
+        const uploadInput = document.getElementById('upload-input');
+        const isolateIphonesCheckbox = document.getElementById('isolate-iphones');
+        const highlightBtn = document.getElementById('highlight-btn');
+        const processBtn = document.getElementById('process-btn');
+        const commentsInput = document.getElementById('comments');
+        const konamiMessage = document.getElementById('konami-message');
+        const devConsoleToggle = document.getElementById('dev-console-toggle');
+        const devConsoleContainer = document.getElementById('dev-console-container');
+        const devConsoleOutput = document.getElementById('dev-console-output');
+        const copyLogBtn = document.getElementById('copy-log-btn');
+        // Removed old wrapper link, handled directly now
+        const showEdlpsToggle = document.getElementById('show-edlps-toggle');
+        const edlpWarning = document.getElementById('edlp-warning');
+
+        // --- DYNAMIC HTML INJECTION ---
+        document.getElementById('preview-modal').innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header"><h2>PDF Preview</h2><span class="close-btn" id="preview-close-btn">&times;</span></div>
+                <div class="modal-body">
+                    <div style="text-align: left; margin-bottom: 10px; color: #333; padding-left: 20px;">
+                        <strong>To print:</strong>
+                        <ul style="margin: 5px 0 10px 20px; padding: 0;">
+                            <li><strong>Right click preview pane</strong></li>
+                            <li><strong>Click print</strong></li>
+                            <li>Remember to change the destination printer back to CKPR1.</li>
+                        </ul>
+                    </div>
+                    <iframe id="pdf-preview-iframe" frameborder="0"></iframe>
+                </div>
+                <div class="modal-footer"><button id="download-btn">Download</button></div>
+            </div>`;
+        document.getElementById('emphasis-modal').innerHTML = `<div class="modal-content"><div class="modal-header"><h2 id="emphasis-modal-title">Highlight Inventory</h2><span class="close-btn" id="emphasis-close-btn">&times;</span></div><div class="modal-body"><div class="emphasis-header"><div class="emphasis-header-hide"></div><div class="emphasis-header-partial"><input type="checkbox" id="master-partial-checkbox" title="Select/Deselect All Partial"></div><div class="emphasis-header-full"><input type="checkbox" id="master-full-checkbox" title="Select/Deselect All Full"></div><div class="emphasis-header-text">(Highlight partial/full)</div></div><div id="emphasis-list-container"></div></div><div class="modal-footer"><button id="emphasis-done-btn">Done</button></div></div>`;
+        document.getElementById('dev-mode-modal').innerHTML = `<div class="modal-content"><div class="modal-header"><h2>Dev Mode</h2><span class="close-btn" id="dev-mode-close-btn">&times;</span></div><div class="modal-body"><div id="dev-mode-text"><p><strong>developer mode activated lol</strong></p><p>(this doesn't do anything)</p></div></div></div>`;
+        
+        // --- DYNAMIC UI ELEMENT SELECTORS ---
+        const previewModal = document.getElementById('preview-modal');
+        const emphasisModal = document.getElementById('emphasis-modal');
+        const devModeModal = document.getElementById('dev-mode-modal');
+        const iframe = document.getElementById('pdf-preview-iframe');
+        const previewCloseBtn = document.getElementById('preview-close-btn');
+        const emphasisCloseBtn = document.getElementById('emphasis-close-btn');
+        const emphasisDoneBtn = document.getElementById('emphasis-done-btn');
+        const devModeCloseBtn = document.getElementById('dev-mode-close-btn');
+        const downloadBtn = document.getElementById('download-btn');
+
+        // --- CORE LOGIC & HELPER FUNCTIONS ---
+        const getTextFromPdf = (file) => { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = async (event) => { try { const pdf = await pdfjsLib.getDocument({ data: event.target.result }).promise; let textContent = ''; for (let i = 1; i <= pdf.numPages; i++) { const page = await pdf.getPage(i); const text = await page.getTextContent(); textContent += text.items.map(s => s.str).join(' '); } resolve(textContent); } catch (error) { reject(error); } }; reader.onerror = (error) => reject(error); reader.readAsArrayBuffer(file); }); };
+        
+        const parseInventoryText = (text) => { 
+            if (!text) return { preFilterList: [], postFilterList: [] }; 
+            const dataStartIndex = text.indexOf('Quantity'); 
+            if (dataStartIndex === -1) return { preFilterList: [], postFilterList: [] }; 
+            const dataText = text.substring(dataStartIndex + 'Quantity'.length); 
+            const inventoryRegex = /(.+?)\s+(\d+\s?GB)\s+([a-zA-Z\s]+?)\s+(\d+\s+available)/g; 
+            const matches = [...dataText.matchAll(inventoryRegex)]; 
+            const preFilterList = []; 
+            const postFilterList = []; 
+            const unlockedRegex = /un\s?-?\s?lock\s?-?\s?e\s?d/i; 
+            for (const match of matches) { 
+                const model = match[1].trim(); 
+                const capacity = match[2].trim(); 
+                const modelAndCapacity = `${model} ${capacity}`; 
+                const color = match[3].trim(); 
+                const quantity = match[4].match(/\d+/)[0]; 
+                const item = [modelAndCapacity, color, quantity]; 
+                preFilterList.push(item); 
+                if (!unlockedRegex.test(match[0])) { postFilterList.push(item); } 
+            } 
+            return { preFilterList, postFilterList }; 
+        };
+        
+        const abbreviateColor = (color) => {
+            for (const [fullColor, abbrev] of Object.entries(COLOR_ABBREVIATIONS)) {
+                if (color.toLowerCase() === fullColor.toLowerCase()) return abbrev;
+            }
+            let processed = color;
+            for (const [fullColor, abbrev] of Object.entries(COLOR_ABBREVIATIONS)) {
+                const regex = new RegExp(`\\b${fullColor}\\b`, 'gi');
+                processed = processed.replace(regex, abbrev);
+            }
+            return processed;
+        };
+
+        const abbreviateModel = (model) => {
+            // Sort keys by length desc to match longest first
+            const sortedModels = Object.keys(DEVICE_ABBREVIATIONS).sort((a, b) => b.length - a.length);
+            for (const fullModel of sortedModels) {
+                if (model.startsWith(fullModel)) return model.replace(fullModel, DEVICE_ABBREVIATIONS[fullModel]);
+            }
+            return model;
+        };
+
+        const abbreviateDetails = (details) => {
+            return abbreviateColor(details); 
+        };
+
+        const consolidateInventory = (inventoryList) => { const consolidationMap = new Map(); for (const [modelAndCapacity, color, quantity] of inventoryList) { const key = modelAndCapacity; if (!consolidationMap.has(key)) { consolidationMap.set(key, { modelAndCapacity, details: [] }); } const abbreviated = abbreviateColor(color); consolidationMap.get(key).details.push({ color: abbreviated, quantity }); } const consolidatedList = []; for (const value of consolidationMap.values()) { const detailsString = value.details.map(d => `${d.quantity} ${d.color}`).join(', '); consolidatedList.push([value.modelAndCapacity, detailsString]); } return consolidatedList; };
+        
+        const categorizePdf = (text) => { const lowerCaseText = text.toLowerCase(); if (lowerCaseText.includes('at&t')) return 'att'; if (lowerCaseText.includes('verizon') || lowerCaseText.includes('vzw')) return 'vzw'; if (lowerCaseText.includes('t-mobile') || lowerCaseText.includes('tmo')) return 'tmo'; return 'unknown'; };
+        
+        const prepareDataForDisplay = () => { 
+            const preparedState = { att: {}, vzw: {}, tmo: {} }; 
+            if (isolateIphonesCheckbox.checked) { 
+                const priorityOrder = ['att', 'vzw', 'tmo']; 
+                let iphoneSource = null; 
+                for (const carrier of priorityOrder) { 
+                    if (appState[carrier].consolidatedList.some(item => item[0].toLowerCase().startsWith('iphone'))) { iphoneSource = carrier; break; } 
+                } 
+                preparedState.apple = { consolidatedList: [] }; 
+                for (const carrier of ['att', 'vzw', 'tmo']) { 
+                    preparedState[carrier].consolidatedList = appState[carrier].consolidatedList.filter(item => !item[0].toLowerCase().startsWith('iphone')); 
+                    if (carrier === iphoneSource) { 
+                        const iphones = appState[carrier].consolidatedList.filter(item => item[0].toLowerCase().startsWith('iphone')).map(item => ({ modelAndCapacity: item[0], details: item[1], sourceCarrier: carrier })); 
+                        preparedState.apple.consolidatedList = iphones; 
+                    } 
+                } 
+            } else { 
+                preparedState.att.consolidatedList = appState.att.consolidatedList; 
+                preparedState.vzw.consolidatedList = appState.vzw.consolidatedList; 
+                preparedState.tmo.consolidatedList = appState.tmo.consolidatedList; 
+            } 
+            return preparedState; 
+        };
+        
+        const generateFinalPdf = (state, comments) => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const topMargin = 12.7, sideMargin = 6.35, bottomMargin = 6.35;
+            const pageHeight = 297, lineHeight = 4.5, sectionSpacing = 7;
+            const headerHeight = 6, listTopMargin = 2;
+            let yPosition = topMargin;
+            
+            // Header - Merged Line
+            const dateNow = new Date();
+            const dateStr = dateNow.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+            const timeStr = dateNow.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
+            
+            const headerText1 = `Optimized inventory report created at ${dateStr} ${timeStr}. `;
+            const headerText2 = "This software is experimental and can make mistakes.";
+            
+            doc.setFont("helvetica", "normal").setFontSize(8);
+            doc.text(headerText1, sideMargin, yPosition);
+            
+            const w1 = doc.getTextWidth(headerText1);
+            doc.setFont("helvetica", "bold");
+            doc.text(headerText2, sideMargin + w1, yPosition);
+            const w2 = doc.getTextWidth(headerText2);
+            doc.setLineWidth(0.1);
+            doc.line(sideMargin + w1, yPosition + 0.5, sideMargin + w1 + w2, yPosition + 0.5);
+            
+            yPosition += lineHeight;
+
+            // EDLP Warning (Conditional)
+            const showEdlps = showEdlpsToggle.checked;
+            if (showEdlps) {
+                const warnBold = "[!] EDLPs shown are experimental and may be inaccurate or out of date.";
+                doc.setFont("helvetica", "bold");
+                doc.text(warnBold, sideMargin, yPosition);
+                yPosition += lineHeight;
+            }
+            
+            if (comments) { const splitComments = doc.splitTextToSize(comments, 190); doc.setFont("helvetica", "italic").text(splitComments, sideMargin, yPosition); yPosition += (splitComments.length * (lineHeight - 1)); }
+            yPosition += sectionSpacing;
+            const contentStartY = yPosition;
+
+            // EDLP Layout Setup
+            let modelX = sideMargin;
+            
+            // Dynamic Right Column Start
+            // EDLP Only: 95 (Push right to fill space)
+            // EDLP + Isolate: 75 (Keep space for Apple Split)
+            // EDLP Off: 100
+            let startRightX = 100;
+            if (showEdlps) {
+                if (isolateIphonesCheckbox.checked) {
+                    startRightX = 75;
+                } else {
+                    startRightX = 95;
+                }
+            }
+
+            const calculateSectionHeight = (carrier, list) => { 
+                if (!list || list.length === 0) return 0; 
+                let visibleCount = 0; 
+                list.forEach(item => { 
+                    const model = (carrier === 'apple') ? item.modelAndCapacity : item[0]; 
+                    const source = (carrier === 'apple') ? item.sourceCarrier : carrier; 
+                    const emphasis = appState[source].emphasis.get(model) || {}; 
+                    if (!emphasis.hidden) { visibleCount++; } 
+                }); 
+                let legendHeight = 0;
+                if (showEdlps) {
+                    legendHeight = (carrier === 'apple' && isolateIphonesCheckbox.checked) ? lineHeight * 2 : lineHeight;
+                } else {
+                    legendHeight = lineHeight; // Standard header
+                }
+                return headerHeight + legendHeight + listTopMargin + (visibleCount * lineHeight) + sectionSpacing; 
+            };
+
+            const carriersForLayout = Object.keys(state).filter(c => state[c].consolidatedList && state[c].consolidatedList.length > 0);
+            const leftColumnCarriers = carriersForLayout.filter(c => c !== 'apple' && c !== 'tmo');
+            const rightColumnCarriers = carriersForLayout.filter(c => c === 'apple' || c === 'tmo');
+            
+            let leftColumnHeight = 0; leftColumnCarriers.forEach(c => leftColumnHeight += calculateSectionHeight(c, state[c].consolidatedList));
+            let rightColumnHeight = 0; rightColumnCarriers.forEach(c => rightColumnHeight += calculateSectionHeight(c, state[c].consolidatedList));
+            
+            const footerHeight = 12.7; // 0.5 inches approx
+            const availablePageHeight = pageHeight - contentStartY - bottomMargin - footerHeight; 
+            const useTwoColumnLayout = (leftColumnHeight <= availablePageHeight) && (rightColumnHeight <= availablePageHeight) && (rightColumnHeight > 0);
+
+            // Footer Positioning Logic
+            let maxCursorY = contentStartY;
+
+            const drawSection = (carrier, data, currentX) => { 
+                doc.setFont("helvetica", "bold").setFontSize(10); 
+                const headerText = (carrier === 'apple') ? 'Apple Devices' : carrier.toUpperCase(); 
+                const headerWidth = doc.getTextWidth(headerText); 
+                doc.text(headerText, currentX, yPosition); 
+                doc.setLineWidth(0.2).line(currentX, yPosition + 0.5, currentX + headerWidth, yPosition + 0.5); 
+                yPosition += headerHeight; 
+                
+                if (showEdlps) {
+                    doc.setFontSize(6).setFont("helvetica", "bold");
+                    
+                    if (carrier === 'apple') {
+                        // Split Header
+                        // Left: attVzwX = +30, tmoX = +55, qtyX = +85 (Aligned with TMO QTY)
+                        const attVzwX = currentX + 30;
+                        const tmoX = currentX + 55;
+                        const qtyX = currentX + 85;
+
+                        doc.text("EDLPs", attVzwX, yPosition);
+                        doc.text("EDLPs for TMO", tmoX, yPosition);
+                        yPosition += lineHeight;
+                        doc.text("ITEM", currentX, yPosition);
+                        doc.text("(ATT, VZW)", attVzwX, yPosition);
+                        doc.text("(dp + /mo = EDLP)", tmoX, yPosition);
+                        doc.text("QTY", qtyX, yPosition);
+                        yPosition += lineHeight;
+                    } else if (carrier === 'tmo') {
+                        // TMO EDLP Layout
+                        const curEdlpX = currentX + 30; 
+                        
+                        // Dynamic QTY Offset for TMO
+                        // If Isolate ON: +85 (matches Apple)
+                        // If Isolate OFF: +65 (hugs formula)
+                        const curDetailsX = currentX + (isolateIphonesCheckbox.checked ? 85 : 65);
+
+                        doc.text("ITEM", currentX, yPosition);
+                        doc.text("DP + $/mo = EDLP", curEdlpX, yPosition);
+                        doc.text("QTY", curDetailsX, yPosition);
+                        yPosition += lineHeight;
+                    } else {
+                        // ATT/VZW EDLP Layout (Expanded for breathing room)
+                        const curEdlpX = currentX + 28;
+                        const curDetailsX = currentX + 38; 
+                        doc.text("ITEM", currentX, yPosition);
+                        doc.text("EDLP", curEdlpX, yPosition);
+                        doc.text("QTY", curDetailsX, yPosition); 
+                        yPosition += lineHeight;
+                    }
+                } else {
+                    // Standard headers (No EDLP)
+                    doc.setFontSize(6).setFont("helvetica", "bold");
+                    doc.text("ITEM", currentX, yPosition);
+                    doc.text("QTY", currentX + 50, yPosition); // Expanded for long names
+                    yPosition += lineHeight;
+                }
+
+                doc.setFontSize(8); 
+                
+                data.consolidatedList.forEach(item => { 
+                    const isApple = carrier === 'apple';
+                    const rawModel = isApple ? item.modelAndCapacity : item[0];
+                    const rawDetails = isApple ? item.details : item[1];
+                    const sourceCarrier = isApple ? item.sourceCarrier : carrier;
+                    const emphasisState = (appState[sourceCarrier].emphasis.get(rawModel) || {}); 
+                    
+                    if (emphasisState.hidden) return; 
+
+                    let displayModel = rawModel;
+                    let displayDetails = rawDetails;
+                    let displayEdlp = "";
+                    let displayEdlpTmo = ""; // Only used for split apple layout
+
+                    if (showEdlps) {
+                        displayModel = abbreviateModel(rawModel);
+                        displayDetails = abbreviateDetails(rawDetails);
+                        
+                        const findPrice = (cData, mName) => {
+                             if (!cData) return null;
+                             for (const key in cData) {
+                                 if (mName.startsWith(key)) return cData[key];
+                             }
+                             return null;
+                        };
+
+                        const formatCurrency = (val) => val !== undefined ? `$${val}` : '$??';
+
+                        if (isApple) {
+                           const pAtt = findPrice(EDLP_DATA.att, rawModel);
+                           const pVzw = findPrice(EDLP_DATA.vzw, rawModel);
+                           const pTmo = findPrice(EDLP_DATA.tmo, rawModel);
+                           
+                           const tAtt = pAtt && pAtt.total !== undefined ? `$${pAtt.total}` : "$???";
+                           const tVzw = pVzw && pVzw.total !== undefined ? `$${pVzw.total}` : "$???";
+                           
+                           if (pTmo) {
+                               displayEdlpTmo = `${formatCurrency(pTmo.dp)} + ${formatCurrency(pTmo.mo)}/mo = ${formatCurrency(pTmo.total)}`;
+                           } else {
+                               displayEdlpTmo = "$?? + $??/mo = $???";
+                           }
+                           
+                           displayEdlp = `${tAtt}, ${tVzw}`; 
+                        } else {
+                           const priceData = findPrice(EDLP_DATA[sourceCarrier], rawModel);
+                           if (!priceData) {
+                               displayEdlp = "";
+                           } else {
+                               if (sourceCarrier === 'tmo') {
+                                   displayEdlp = `${formatCurrency(priceData.dp)} + ${formatCurrency(priceData.mo)}/mo = ${formatCurrency(priceData.total)}`;
+                               } else {
+                                   displayEdlp = priceData.total !== undefined ? `$${priceData.total}` : "";
+                               }
+                           }
+                        }
+                    }
+
+                    doc.setFont('helvetica', 'normal'); 
+                    
+                    // Coordinates for Data
+                    let curModelX = currentX;
+                    let curEdlpX = 0;
+                    let curDetailsX = 0;
+                    let curTmoX = 0;
+
+                    if (showEdlps) {
+                        if (isApple) {
+                            curEdlpX = currentX + 30; // attVzwX
+                            curTmoX = currentX + 55; // tmoX
+                            curDetailsX = currentX + 85; // qtyX - Aligned with TMO QTY
+                        } else if (carrier === 'tmo') {
+                            curEdlpX = currentX + 30; 
+                            // Dynamic TMO QTY
+                            curDetailsX = currentX + (isolateIphonesCheckbox.checked ? 85 : 65);
+                        } else {
+                            // Compact ATT/VZW with breathing room
+                            curEdlpX = currentX + 28;
+                            curDetailsX = currentX + 38;
+                        }
+                    } else {
+                        curDetailsX = currentX + 50; // Expanded for long names
+                    }
+
+                    if (emphasisState.full || emphasisState.partial) { 
+                        doc.setFillColor(150, 150, 150); 
+                        const textDimensions = doc.getTextDimensions(displayDetails, { fontSize: 8 }); 
+                        const rectY = yPosition - textDimensions.h + 0.2; 
+                        const rectHeight = textDimensions.h + 0.5; 
+                        
+                        // Dynamic Highlight Width Logic (Beta 10 Fix)
+                        let widthSpan;
+                        if (showEdlps) {
+                            if (carrier === 'att' || carrier === 'vzw') {
+                                widthSpan = 60; // Increased from 50
+                            } else if (isApple) {
+                                widthSpan = 110; // Increased from 95
+                            } else if (carrier === 'tmo') {
+                                widthSpan = isolateIphonesCheckbox.checked ? 110 : 90; // Increased from 95/75
+                            }
+                        } else {
+                            widthSpan = 75; // Increased from 65
+                        }
+                        
+                        let rectWidth = widthSpan; 
+                        
+                        if (!emphasisState.full) {
+                             // Partial highlight width logic (unchanged)
+                             const modelDimensions = doc.getTextDimensions(displayModel, { fontSize: 8 }); 
+                             rectWidth = modelDimensions.w + 2; 
+                        }
+                        
+                        doc.rect(curModelX - 1, rectY, rectWidth, rectHeight, 'F'); 
+                    } 
+                    
+                    // Draw Data
+                    doc.setFont('helvetica', 'normal');
+
+                    doc.text(displayModel, curModelX, yPosition); 
+                    if (showEdlps) {
+                        doc.setFontSize(7); 
+                        doc.text(displayEdlp, curEdlpX, yPosition);
+                        if (isApple) {
+                            doc.text(displayEdlpTmo, curTmoX, yPosition);
+                        }
+                        doc.setFontSize(8);
+                    }
+                    doc.text(displayDetails, curDetailsX, yPosition); 
+                    yPosition += lineHeight; 
+                }); 
+                yPosition += sectionSpacing; 
+                maxCursorY = Math.max(maxCursorY, yPosition);
+            }; 
+            
+            // Draw Left Column
+            if (useTwoColumnLayout) { 
+                // Left Column
+                leftColumnCarriers.forEach(c => drawSection(c, state[c], sideMargin)); 
+                
+                // Right Column
+                yPosition = contentStartY; 
+                rightColumnCarriers.forEach(c => {
+                    drawSection(c, state[c], startRightX);
+                });
+            } else { 
+                carriersForLayout.forEach(carrier => { 
+                    const sectionHeight = calculateSectionHeight(carrier, state[carrier].consolidatedList); 
+                    if (yPosition + sectionHeight > (pageHeight - bottomMargin - footerHeight) && yPosition > contentStartY) { 
+                        doc.addPage(); 
+                        yPosition = topMargin; 
+                    } 
+                    drawSection(carrier, state[carrier], sideMargin); 
+                }); 
+            } 
+            if (carriersForLayout.length === 0) { doc.setFont("helvetica", "normal").setFontSize(12).text("No inventory found.", sideMargin, yPosition); } 
+            
+            // Footer
+            const footerY = Math.min(maxCursorY + (lineHeight * 3), pageHeight - 12.7);
+            doc.setFontSize(8);
+            
+            const text1 = "Made with Optimizer, an unofficial work app created by Abraham. ";
+            const text2 = "Sources: ";
+            const attDate = appState.att.fileDate ? appState.att.fileDate.replace(/\/20\d{2}/, '').replace(/:\d{2}\s/, ' ') : '';
+            const vzwDate = appState.vzw.fileDate ? appState.vzw.fileDate.replace(/\/20\d{2}/, '').replace(/:\d{2}\s/, ' ') : '';
+            const tmoDate = appState.tmo.fileDate ? appState.tmo.fileDate.replace(/\/20\d{2}/, '').replace(/:\d{2}\s/, ' ') : '';
+            const text3 = `ATT (${attDate || 'N/A'}), VZW (${vzwDate || 'N/A'}), TMO (${tmoDate || 'N/A'}).`;
+            
+            doc.setFont("helvetica", "normal");
+            doc.text(text1, sideMargin, footerY);
+            let cursorX = sideMargin + doc.getTextWidth(text1);
+            
+            doc.setFont("helvetica", "bold");
+            doc.text(text2, cursorX, footerY);
+            cursorX += doc.getTextWidth(text2);
+            
+            doc.setFont("helvetica", "normal");
+            
+            // Word-by-word wrapping for the final date text to ensure continuous flow
+            const words = text3.split(' ');
+            const maxWidth = 210 - sideMargin; // A4 width - margin
+            let currentY = footerY;
+            
+            words.forEach(word => {
+                const wordWithSpace = word + " ";
+                const wordWidth = doc.getTextWidth(wordWithSpace);
+                
+                if (cursorX + wordWidth > maxWidth) {
+                    cursorX = sideMargin;
+                    currentY += 4; // Line height for footer
+                }
+                
+                doc.text(wordWithSpace, cursorX, currentY);
+                cursorX += wordWidth;
+            });
+
+            return doc.output('datauristring'); 
+        };
+
+        // --- EVENT HANDLER FUNCTIONS ---
+        const handleFileUploads = async (files) => { 
+            if (!files || files.length === 0) return; 
+            uploadArea.querySelector('p').textContent = 'Processing...'; 
+            if (devConsoleToggle.checked) devConsoleOutput.textContent = ''; 
+            for (const file of files) { 
+                try { 
+                    const text = await getTextFromPdf(file); 
+                    const carrier = categorizePdf(text); 
+                    if (carrier === 'unknown') { alert(`Could not determine carrier for file: ${file.name}`); continue; } 
+                    
+                    // Date Extraction
+                    const dateMatch = text.match(/Date:\s*(.*?)(?=\s+Store)/);
+                    if (dateMatch && dateMatch[1]) {
+                        appState[carrier].fileDate = dateMatch[1].trim();
+                    }
+
+                    const { preFilterList, postFilterList } = parseInventoryText(text); 
+                    appState[carrier].consolidatedList = consolidateInventory(postFilterList); 
+                    const statusSection = document.getElementById(`${carrier}-status`); 
+                    statusSection.querySelector('.status-filename').textContent = file.name; 
+                    statusSection.style.display = 'block'; 
+                    if (devConsoleToggle.checked) { 
+                        let logContent = `--- DEBUG LOG FOR: ${file.name} (detected as ${carrier.toUpperCase()}) ---\n\n`; 
+                        logContent += `== RAW TEXT EXTRACTED ==\n${text}\n\n`; 
+                        logContent += `== ITEMS FOUND (PRE-FILTER) ==\n${preFilterList.map(item => item.join(' | ')).join('\n')}\n\n`; 
+                        logContent += `== ITEMS KEPT (POST-FILTER) ==\n${postFilterList.map(item => item.join(' | ')).join('\n')}\n\n`; 
+                        devConsoleOutput.textContent += logContent; 
+                    } 
+                } catch (error) { alert(`Failed to process file: ${file.name}`); console.error(error); } 
+            } 
+            uploadArea.querySelector('p').textContent = 'Drag & drop files here.'; 
+        };
+        
+        const openEmphasisModal = () => { const listContainer = document.getElementById('emphasis-list-container'); listContainer.innerHTML = ''; const processedData = prepareDataForDisplay(); const carriersToDisplay = Object.keys(processedData).filter(c => processedData[c].consolidatedList.length > 0); carriersToDisplay.forEach(carrier => { const header = document.createElement('div'); header.className = 'emphasis-list-carrier-header'; header.textContent = (carrier === 'apple') ? 'Apple Devices' : carrier.toUpperCase(); listContainer.appendChild(header); processedData[carrier].consolidatedList.forEach(item => { const isApple = carrier === 'apple'; const modelAndCapacity = isApple ? item.modelAndCapacity : item[0]; const details = isApple ? item.details : item[1]; const sourceCarrier = isApple ? item.sourceCarrier : carrier; const currentEmphasis = appState[sourceCarrier].emphasis.get(modelAndCapacity) || { partial: false, full: false, hidden: false }; const itemDiv = document.createElement('div'); itemDiv.className = 'emphasis-item'; if (currentEmphasis.hidden) itemDiv.classList.add('item-hidden'); const hideDiv = document.createElement('div'); hideDiv.className = 'emphasis-item-hide'; hideDiv.innerHTML = HIDE_ICON_SVG; hideDiv.dataset.key = modelAndCapacity; hideDiv.dataset.carrier = sourceCarrier; const partialCheckbox = document.createElement('input'); partialCheckbox.type = 'checkbox'; partialCheckbox.checked = currentEmphasis.partial; partialCheckbox.disabled = currentEmphasis.hidden; partialCheckbox.dataset.key = modelAndCapacity; partialCheckbox.dataset.carrier = sourceCarrier; partialCheckbox.dataset.type = 'partial'; const fullCheckbox = document.createElement('input'); fullCheckbox.type = 'checkbox'; fullCheckbox.checked = currentEmphasis.full; fullCheckbox.disabled = currentEmphasis.hidden; fullCheckbox.dataset.key = modelAndCapacity; fullCheckbox.dataset.carrier = sourceCarrier; fullCheckbox.dataset.type = 'full'; const textDiv = document.createElement('div'); textDiv.className = 'emphasis-item-text'; textDiv.textContent = `${modelAndCapacity} - ${details}`; itemDiv.appendChild(hideDiv); itemDiv.appendChild(partialCheckbox); itemDiv.appendChild(fullCheckbox); itemDiv.appendChild(textDiv); listContainer.appendChild(itemDiv); }); }); emphasisModal.style.display = 'flex'; };
+
+        // --- ATTACH EVENT LISTENERS ---
+        highlightBtn.addEventListener('click', openEmphasisModal);
+        processBtn.addEventListener('click', () => { const processedData = prepareDataForDisplay(); const comments = commentsInput.value; const pdfDataUri = generateFinalPdf(processedData, comments); iframe.src = pdfDataUri; previewModal.style.display = 'flex'; });
+        uploadArea.addEventListener('click', () => uploadInput.click());
+        uploadInput.addEventListener('change', (e) => handleFileUploads(e.target.files));
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+        uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); });
+        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); handleFileUploads(e.dataTransfer.files); });
+        isolateIphonesCheckbox.addEventListener('change', saveSettings);
+        devConsoleToggle.addEventListener('change', () => { 
+            const isChecked = devConsoleToggle.checked;
+            devConsoleContainer.style.display = isChecked ? 'block' : 'none';
+            downloadBtn.style.display = isChecked ? 'inline-block' : 'none';
+        });
+        
+        // Listener for EDLP toggle to show/hide warning
+        showEdlpsToggle.addEventListener('change', () => {
+             if (showEdlpsToggle.checked) {
+                 edlpWarning.classList.add('visible');
+             } else {
+                 edlpWarning.classList.remove('visible');
+             }
+        });
+        
+        // Initialize EDLP warning state based on default or loaded setting
+        if (showEdlpsToggle.checked) {
+             edlpWarning.classList.add('visible');
+        }
+
+        copyLogBtn.addEventListener('click', () => { const logText = devConsoleOutput.textContent; if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(logText).then(() => { alert('Log copied to clipboard!'); }).catch(err => { console.warn('Modern clipboard API failed, trying fallback.', err); legacyCopy(logText); }); } else { legacyCopy(logText); } });
+        const legacyCopy = (text) => { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.top = 0; textArea.style.left = 0; textArea.style.opacity = 0; document.body.appendChild(textArea); textArea.focus(); textArea.select(); try { const successful = document.execCommand('copy'); if (!successful) { alert('Failed to copy log.'); } } catch (err) { alert('Failed to copy log.'); } document.body.removeChild(textArea); };
+        
+        previewCloseBtn.addEventListener('click', () => previewModal.style.display = 'none');
+        emphasisCloseBtn.addEventListener('click', () => emphasisModal.style.display = 'none');
+        emphasisDoneBtn.addEventListener('click', () => emphasisModal.style.display = 'none');
+        devModeCloseBtn.addEventListener('click', () => { if (devModalCloseable.button) devModeModal.style.display = 'none'; });
+        window.addEventListener('click', (event) => { if (event.target == previewModal) previewModal.style.display = 'none'; if (event.target == emphasisModal) emphasisModal.style.display = 'none'; if (event.target == devModeModal && devModalCloseable.backdrop) devModeModal.style.display = 'none'; });
+        downloadBtn.addEventListener('click', () => { const link = document.createElement('a'); link.href = iframe.src; link.download = 'Combined_Inventory.pdf'; link.click(); });
+        
+        emphasisModal.addEventListener('click', (e) => { const target = e.target.closest('.emphasis-item-hide'); if (!target) return; const { key, carrier } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false }; state.hidden = !state.hidden; appState[carrier].emphasis.set(key, state); const parentItem = target.closest('.emphasis-item'); parentItem.classList.toggle('item-hidden'); parentItem.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = state.hidden); saveSettings(); });
+        emphasisModal.addEventListener('change', (e) => { const target = e.target; if (target.type !== 'checkbox') return; const isMaster = target.id.startsWith('master-'); if (isMaster) { const masterType = target.id.includes('partial') ? 'partial' : 'full'; const isChecking = target.checked; const allItems = emphasisModal.querySelectorAll('.emphasis-item:not(.item-hidden)'); allItems.forEach(item => { const partialBox = item.querySelector('[data-type="partial"]'); const fullBox = item.querySelector('[data-type="full"]'); const key = partialBox.dataset.key; const carrier = partialBox.dataset.carrier; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false }; if (masterType === 'partial') { partialBox.checked = isChecking; state.partial = isChecking; if (!isChecking) { fullBox.checked = false; state.full = false; } } else { fullBox.checked = isChecking; state.full = isChecking; if (isChecking) { partialBox.checked = true; state.partial = true; } } appState[carrier].emphasis.set(key, state); }); const masterPartial = document.getElementById('master-partial-checkbox'); const masterFull = document.getElementById('master-full-checkbox'); if (masterType === 'full' && isChecking) masterPartial.checked = true; if (masterType === 'partial' && !isChecking) masterFull.checked = false; } else if (target.dataset.key) { const { key, carrier, type } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false }; state[type] = target.checked; const parentItem = target.closest('.emphasis-item'); if (parentItem) { const partialBox = parentItem.querySelector('[data-type="partial"]'); const fullBox = parentItem.querySelector('[data-type="full"]'); if (type === 'full' && target.checked) { state.partial = true; if (partialBox) partialBox.checked = true; } if (type === 'partial' && !target.checked) { state.full = false; if (fullBox) fullBox.checked = false; } } appState[carrier].emphasis.set(key, state); } saveSettings(); });
+        
+        let clickCount = 0, lastClick = 0;
+        versionText.addEventListener('click', () => { const now = Date.now(); if (now - lastClick > 500) { clickCount = 0; } lastClick = now; clickCount++; if (clickCount === 7) { devModalCloseable.button = false; devModalCloseable.backdrop = false; devModeModal.style.display = 'flex'; setTimeout(() => { devModalCloseable.button = true; }, 500); setTimeout(() => { devModalCloseable.backdrop = true; }, 1000); clickCount = 0; } });
+        commentsInput.addEventListener('input', (e) => { const konami = "upupdowndownleftrightleftrightba"; const input = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''); konamiMessage.style.display = input.includes(konami) ? 'block' : 'none'; });
+
+        // Initial load of settings from localStorage
+        loadSettings();
+    });
+    </script>
+
+</body>
+</html>
