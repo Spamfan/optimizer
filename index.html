@@ -209,7 +209,7 @@
 </head>
 <body>
 
-    <div id="version-text">Beta Version 11</div>
+    <div id="version-text">Beta Version 13</div>
 
     <div id="app-container">
         <h1>Optimizer</h1>
@@ -270,10 +270,11 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta Version 11';
+        const APP_VERSION = 'Beta Version 13';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
-        const HIDE_ICON_SVG = `<svg class="hide-icon inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.83,9.53c1.53,0.24,2.74,1.46,2.98,2.98L11.83,9.53z M12,6c3.79,0,7.17,2.13,8.82,5.5c-0.64,1.32-1.57,2.44-2.68,3.32l1.42,1.42c1.51-1.26,2.7-2.89,3.43-4.74C21.27,7.11,17,4,12,4c-1.4,0-2.73,0.25-3.98,0.7L9.63,6.3C10.4,6.12,11.19,6,12,6z M2,4.27l3.11,3.11C3.26,8.9,2.42,10.36,2.03,11.5C3.73,15.89,7.5,18,12,18c1.55,0,3.03-0.3,4.38-0.84l2.1,2.1L20,18.73L3.27,2L2,4.27z M7.53,9.8l1.55,1.55C9.03,11.49,9,11.74,9,12c0,1.66,1.34,3,3,3c0.26,0,0.51-0.03,0.75-0.08l1.55,1.55C13.96,15.86,13,16,12,16c-2.76,0-5-2.24-5-5C7,10.54,7.14,9.96,7.53,9.8z"/></svg>`;
+        // Restored simple clean SVG for hide icon
+        const HIDE_ICON_SVG = `<svg class="hide-icon inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/><line x1="2" y1="2" x2="22" y2="22" stroke="#606770" stroke-width="2"/></svg>`;
         const MORE_OPTIONS_SVG = `<svg class="inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#606770"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;
         
         document.getElementById('how-to-use-container').innerHTML = `
@@ -341,25 +342,48 @@
             'Beige': 'BGE', 'Black': 'BLK', 'Black Titanium': 'BLK', 'Blue': 'BLU', 'Cosmic Orange': 'ORNG', 'Deep Blue': 'BLU', 'Desert Titanium': 'DSRT', 'Graphite': 'BLK', 'Gray': 'GRY', 'Green': 'GRN', 'Mist Blue': 'BLU', 'Natural Titanium': 'NTRL', 'Navy': 'BLU', 'Sky Blue': 'BLU', 'Space Black': 'BLK', 'Titanium Black': 'BLK', 'Ultramarine': 'BLU', 'White': 'WHTE'
         };
 
-        // Snapshot Data (Generated 12/2/2025)
+        // Snapshot Data (Generated Beta v13)
         const EDLP_DATA = {
+            att: {
+                'Classic': { total: 55 },
+                'Galaxy A11': { total: 36 },
+                'Galaxy A15 5G': { total: 36 },
+                'Galaxy A16 5G': { total: 119 },
+                'Galaxy A35 5G': { total: 99 },
+                'Galaxy S24 FE': { total: 580 },
+                'Galaxy S25 FE': { total: 612 },
+                'Galaxy S25 Plus 5G': { total: 799 },
+                'Galaxy S25 Ultra 5G': { total: 999 },
+                'iPhone 15': { total: 299 },
+                'iPhone 16': { total: 629 },
+                'iPhone 16 Plus': { total: 729 },
+                'iPhone 16 Pro': { total: 799 },
+                'iPhone 16 Pro Max': { total: 999 },
+                'iPhone 16e': { total: 549 },
+                'iPhone 17': { total: 779 },
+                'iPhone 17 Pro': { total: 1049 },
+                'iPhone 17 Pro Max': { total: 1149 },
+                'iPhone Air': { total: 899 },
+                'Moto G Stylus 2025': { total: 180 }
+            },
             tmo: {
                 'Flip 4 5G': { dp: 20, mo: 1, total: 44 },
-                'Flip 5G': { dp: 20, mo: 1, total: 44 },
                 'Galaxy A13 LTE': { total: 49 },
                 'Galaxy A16 5G': { dp: 45, mo: 3, total: 117 },
+                'Galaxy Z Flip 4 5G': { dp: 20, mo: 1, total: 44 },
                 'iPhone 15': { dp: 227, mo: 3, total: 299 },
                 'iPhone 16': { total: 629 },
                 'iPhone 16 Plus': { dp: 549, mo: 7.5, total: 729 },
-                'iPhone 16 Pro': { dp: 601 },
+                'iPhone 16 Pro': { dp: 601, mo: 8.25, total: 799 },
+                'iPhone 16 Pro Max': { mo: 41.63, total: 999 },
                 'iPhone 16e': { total: 549 },
                 'iPhone 17': { dp: 587, mo: 8, total: 779 },
                 'iPhone 17 Pro': { dp: 791, mo: 10.75, total: 1049 },
                 'iPhone 17 Pro Max': { dp: 867, mo: 11.75, total: 1149 },
                 'iPhone Air': { dp: 677, mo: 9.25, total: 899 },
                 'Moto G 5G 2025': { dp: 30, mo: 1, total: 54 },
-                'Moto G Stylus 2025': { dp: 50, mo: 3.46, total: 133 },
                 'Moto G Power 2025': { dp: 40, mo: 2, total: 88 },
+                'Moto G Stylus 2025': { dp: 50, mo: 3.46, total: 133 },
                 'REVVL 6': { dp: 30, mo: 0.25, total: 36 }
             },
             vzw: {
@@ -387,29 +411,6 @@
                 'Moto G Power 2025': { total: 108 },
                 'One Ace 5G': { total: 36 },
                 'TCL Flip 3': { total: 36 }
-            },
-            att: {
-                'Classic': { total: 55 },
-                'Galaxy A11': { total: 36 },
-                'Galaxy A15 5G': { total: 36 },
-                'Galaxy A16 5G': { total: 119 },
-                'Galaxy A35 5G': { total: 99 },
-                'Galaxy S24 FE': { total: 580 },
-                'Galaxy S25 FE': { total: 612 },
-                'Galaxy S25 Plus 5G': { total: 799 },
-                'Galaxy S25 Ultra 5G': { total: 999 },
-                'Galaxy Z Flip 4 5G': { total: 0 },
-                'iPhone 15': { total: 299 },
-                'iPhone 16': { total: 629 },
-                'iPhone 16 Plus': { total: 729 },
-                'iPhone 16 Pro': { total: 800 },
-                'iPhone 16 Pro Max': { total: 999 },
-                'iPhone 16e': { total: 549 },
-                'iPhone 17': { total: 779 },
-                'iPhone 17 Pro': { total: 1049 },
-                'iPhone 17 Pro Max': { total: 1149 },
-                'iPhone Air': { total: 899 },
-                'Moto G Stylus 2025': { total: 180 }
             }
         };
 
@@ -743,7 +744,9 @@
                         
                         const findPrice = (cData, mName) => {
                              if (!cData) return null;
-                             for (const key in cData) {
+                             // SORT FIX: Match longest keys first to prevent partial matches
+                             const keys = Object.keys(cData).sort((a, b) => b.length - a.length);
+                             for (const key of keys) {
                                  if (mName.startsWith(key)) return cData[key];
                              }
                              return null;
