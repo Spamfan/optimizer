@@ -209,7 +209,7 @@
 </head>
 <body>
 
-    <div id="version-text">Beta Version 13</div>
+    <div id="version-text">Beta Version 14</div>
 
     <div id="app-container">
         <h1>Optimizer</h1>
@@ -270,10 +270,9 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta Version 13';
+        const APP_VERSION = 'Beta Version 15';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
-        // Restored simple clean SVG for hide icon
         const HIDE_ICON_SVG = `<svg class="hide-icon inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/><line x1="2" y1="2" x2="22" y2="22" stroke="#606770" stroke-width="2"/></svg>`;
         const MORE_OPTIONS_SVG = `<svg class="inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#606770"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;
         
@@ -590,26 +589,27 @@
             const dateStr = dateNow.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
             const timeStr = dateNow.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
             
-            const headerText1 = `Optimized inventory report created at ${dateStr} ${timeStr}. `;
-            const headerText2 = "This software is experimental and can make mistakes.";
+            const headerText1 = `${dateStr} ${timeStr} optimized report`;
+            const headerText2 = " This software is experimental and can make mistakes.";
             
-            doc.setFont("helvetica", "normal").setFontSize(8);
-            doc.text(headerText1, sideMargin, yPosition);
-            
-            const w1 = doc.getTextWidth(headerText1);
+            doc.setFontSize(8); // Fix: Explicitly set size
             doc.setFont("helvetica", "bold");
-            doc.text(headerText2, sideMargin + w1, yPosition);
-            const w2 = doc.getTextWidth(headerText2);
+            doc.text(headerText1, sideMargin, yPosition);
+            const w1 = doc.getTextWidth(headerText1);
+            
             doc.setLineWidth(0.1);
-            doc.line(sideMargin + w1, yPosition + 0.5, sideMargin + w1 + w2, yPosition + 0.5);
+            doc.line(sideMargin, yPosition + 0.5, sideMargin + w1, yPosition + 0.5);
+            
+            doc.setFont("helvetica", "normal");
+            doc.text(headerText2, sideMargin + w1, yPosition);
             
             yPosition += lineHeight;
 
             // EDLP Warning (Conditional)
             const showEdlps = showEdlpsToggle.checked;
             if (showEdlps) {
-                const warnBold = "[!] EDLPs shown are experimental and may be inaccurate or out of date.";
-                doc.setFont("helvetica", "bold");
+                const warnBold = "EDLP values shown are likely to be accurate, but not guaranteed.";
+                doc.setFont("helvetica", "normal"); // Fix: Changed to normal
                 doc.text(warnBold, sideMargin, yPosition);
                 yPosition += lineHeight;
             }
@@ -678,31 +678,23 @@
                     doc.setFontSize(6).setFont("helvetica", "bold");
                     
                     if (carrier === 'apple') {
-                        // Split Header
-                        // Left: attVzwX = +30, tmoX = +55, qtyX = +85 (Aligned with TMO QTY)
-                        const attVzwX = currentX + 30;
-                        const tmoX = currentX + 55;
-                        const qtyX = currentX + 85;
+                        // Merged Header for Apple
+                        const curEdlpX = currentX + 30;
+                        const curDetailsX = currentX + 85;
 
-                        doc.text("EDLPs", attVzwX, yPosition);
-                        doc.text("EDLPs for TMO", tmoX, yPosition);
+                        doc.text("EDLPs", curEdlpX, yPosition);
                         yPosition += lineHeight;
                         doc.text("ITEM", currentX, yPosition);
-                        doc.text("(ATT, VZW)", attVzwX, yPosition);
-                        doc.text("(dp + /mo = EDLP)", tmoX, yPosition);
-                        doc.text("QTY", qtyX, yPosition);
+                        doc.text("ATT, VZW, TMO (dp + /mo)", curEdlpX, yPosition);
+                        doc.text("QTY", curDetailsX, yPosition);
                         yPosition += lineHeight;
                     } else if (carrier === 'tmo') {
                         // TMO EDLP Layout
                         const curEdlpX = currentX + 30; 
-                        
-                        // Dynamic QTY Offset for TMO
-                        // If Isolate ON: +85 (matches Apple)
-                        // If Isolate OFF: +65 (hugs formula)
                         const curDetailsX = currentX + (isolateIphonesCheckbox.checked ? 85 : 65);
 
                         doc.text("ITEM", currentX, yPosition);
-                        doc.text("DP + $/mo = EDLP", curEdlpX, yPosition);
+                        doc.text("EDLP (dp + /mo)", curEdlpX, yPosition);
                         doc.text("QTY", curDetailsX, yPosition);
                         yPosition += lineHeight;
                     } else {
@@ -736,7 +728,7 @@
                     let displayModel = rawModel;
                     let displayDetails = rawDetails;
                     let displayEdlp = "";
-                    let displayEdlpTmo = ""; // Only used for split apple layout
+                    let displayEdlpTmo = ""; 
 
                     if (showEdlps) {
                         displayModel = abbreviateModel(rawModel);
@@ -744,7 +736,6 @@
                         
                         const findPrice = (cData, mName) => {
                              if (!cData) return null;
-                             // SORT FIX: Match longest keys first to prevent partial matches
                              const keys = Object.keys(cData).sort((a, b) => b.length - a.length);
                              for (const key of keys) {
                                  if (mName.startsWith(key)) return cData[key];
@@ -763,19 +754,27 @@
                            const tVzw = pVzw && pVzw.total !== undefined ? `$${pVzw.total}` : "$???";
                            
                            if (pTmo) {
-                               displayEdlpTmo = `${formatCurrency(pTmo.dp)} + ${formatCurrency(pTmo.mo)}/mo = ${formatCurrency(pTmo.total)}`;
+                               if (pTmo.dp !== undefined) {
+                                   displayEdlpTmo = `${formatCurrency(pTmo.total)} (${formatCurrency(pTmo.dp)} + ${formatCurrency(pTmo.mo)}/mo)`;
+                               } else {
+                                   displayEdlpTmo = formatCurrency(pTmo.total);
+                               }
                            } else {
-                               displayEdlpTmo = "$?? + $??/mo = $???";
+                               displayEdlpTmo = "$???";
                            }
                            
-                           displayEdlp = `${tAtt}, ${tVzw}`; 
+                           displayEdlp = `${tAtt}, ${tVzw}, ${displayEdlpTmo}`; 
                         } else {
                            const priceData = findPrice(EDLP_DATA[sourceCarrier], rawModel);
                            if (!priceData) {
                                displayEdlp = "";
                            } else {
                                if (sourceCarrier === 'tmo') {
-                                   displayEdlp = `${formatCurrency(priceData.dp)} + ${formatCurrency(priceData.mo)}/mo = ${formatCurrency(priceData.total)}`;
+                                   if (priceData.dp !== undefined) {
+                                       displayEdlp = `${formatCurrency(priceData.total)} (${formatCurrency(priceData.dp)} + ${formatCurrency(priceData.mo)}/mo)`;
+                                   } else {
+                                       displayEdlp = formatCurrency(priceData.total);
+                                   }
                                } else {
                                    displayEdlp = priceData.total !== undefined ? `$${priceData.total}` : "";
                                }
@@ -789,24 +788,20 @@
                     let curModelX = currentX;
                     let curEdlpX = 0;
                     let curDetailsX = 0;
-                    let curTmoX = 0;
 
                     if (showEdlps) {
                         if (isApple) {
-                            curEdlpX = currentX + 30; // attVzwX
-                            curTmoX = currentX + 55; // tmoX
-                            curDetailsX = currentX + 85; // qtyX - Aligned with TMO QTY
+                            curEdlpX = currentX + 30; 
+                            curDetailsX = currentX + 85; 
                         } else if (carrier === 'tmo') {
                             curEdlpX = currentX + 30; 
-                            // Dynamic TMO QTY
                             curDetailsX = currentX + (isolateIphonesCheckbox.checked ? 85 : 65);
                         } else {
-                            // Compact ATT/VZW with breathing room
                             curEdlpX = currentX + 28;
                             curDetailsX = currentX + 38;
                         }
                     } else {
-                        curDetailsX = currentX + 50; // Expanded for long names
+                        curDetailsX = currentX + 50; 
                     }
 
                     if (emphasisState.full || emphasisState.partial) { 
@@ -815,24 +810,22 @@
                         const rectY = yPosition - textDimensions.h + 0.2; 
                         const rectHeight = textDimensions.h + 0.5; 
                         
-                        // Dynamic Highlight Width Logic (Beta 10 Fix)
                         let widthSpan;
                         if (showEdlps) {
                             if (carrier === 'att' || carrier === 'vzw') {
-                                widthSpan = 60; // Increased from 50
+                                widthSpan = 60; 
                             } else if (isApple) {
-                                widthSpan = 110; // Increased from 95
+                                widthSpan = 110; 
                             } else if (carrier === 'tmo') {
-                                widthSpan = isolateIphonesCheckbox.checked ? 110 : 90; // Increased from 95/75
+                                widthSpan = isolateIphonesCheckbox.checked ? 110 : 90; 
                             }
                         } else {
-                            widthSpan = 75; // Increased from 65
+                            widthSpan = 75; 
                         }
                         
                         let rectWidth = widthSpan; 
                         
                         if (!emphasisState.full) {
-                             // Partial highlight width logic (unchanged)
                              const modelDimensions = doc.getTextDimensions(displayModel, { fontSize: 8 }); 
                              rectWidth = modelDimensions.w + 2; 
                         }
@@ -847,9 +840,6 @@
                     if (showEdlps) {
                         doc.setFontSize(7); 
                         doc.text(displayEdlp, curEdlpX, yPosition);
-                        if (isApple) {
-                            doc.text(displayEdlpTmo, curTmoX, yPosition);
-                        }
                         doc.setFontSize(8);
                     }
                     doc.text(displayDetails, curDetailsX, yPosition); 
@@ -882,7 +872,7 @@
             if (carriersForLayout.length === 0) { doc.setFont("helvetica", "normal").setFontSize(12).text("No inventory found.", sideMargin, yPosition); } 
             
             // Footer
-            const footerY = Math.min(maxCursorY + (lineHeight * 3), pageHeight - 12.7);
+            const footerY = Math.min(maxCursorY + (lineHeight * 1.5), pageHeight - 12.7);
             doc.setFontSize(8);
             
             const text1 = "Made with Optimizer, an unofficial work app created by Abraham. ";
