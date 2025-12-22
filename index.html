@@ -210,7 +210,7 @@
 </head>
 <body>
 
-    <div id="version-text">Beta Version 21</div>
+    <div id="version-text">Beta Version 23</div>
 
     <div id="app-container">
         <h1>Optimizer</h1>
@@ -270,7 +270,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta Version 21';
+        const APP_VERSION = 'Beta Version 23';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -331,7 +331,7 @@
         };
         let devModalCloseable = { button: true, backdrop: true };
 
-        const STORE_NICKNAMES = { '1698': 'HKST', '2399': 'MANCH', '1762': 'SBRK' };
+        const STORE_NICKNAMES = { '1698': 'Hooksett', '2399': 'Manchester', '1762': 'Seabrook' };
 
         // --- EDLP DATA & ABBREVIATIONS ---
         const DEVICE_ABBREVIATIONS = {
@@ -372,11 +372,15 @@
             'Moto G Stylus 2025 unlocke d 256GB': 'STYL25 Unlocked'
         };
 
-        // Snapshot Data (Generated Beta v16 with Timestamps)
+        // Snapshot Data (Generated Beta v23 with Fixes)
         const EDLP_DATA = {
             att: {
                 'Classic': { total: 55, last_updated: 1764700686556 },
+                'Flip 4 5G': { total: 0, last_updated: 1765054773532 },
+                'Galaxy S23 Ultra 5G': { total: 36, last_updated: 1766198104640 },
+                'Galaxy A03': { last_updated: 1764700839781 },
                 'Galaxy A11': { total: 36, last_updated: 1764449590527 },
+                'Galaxy A13 LTE': { last_updated: 1764701158435 },
                 'Galaxy A15 5G': { total: 36, last_updated: 1764700704335 },
                 'Galaxy A16 5G': { total: 119, last_updated: 1764701196650 },
                 'Galaxy A35 5G': { total: 99, last_updated: 1764448685541 },
@@ -384,41 +388,64 @@
                 'Galaxy S25 FE': { total: 612, last_updated: 1764700930321 },
                 'Galaxy S25 Plus 5G': { total: 799, last_updated: 1764700953069 },
                 'Galaxy S25 Ultra 5G': { total: 999, last_updated: 1764700790604 },
+                'Galaxy Z Flip 4 5G': { total: 0, last_updated: 1764700989400 },
+                'Galaxy S24 Ultra 5G': { total: 299, last_updated: 1766198073687 },
                 'iPhone 15': { total: 299, last_updated: 1765144676354 },
                 'iPhone 16': { total: 629, last_updated: 1765144696336 },
+                'iPhone 16e': { total: 549, last_updated: 1765142389531 },
                 'iPhone 16 Plus': { total: 729, last_updated: 1765142386885 },
                 'iPhone 16 Pro': { total: 799, last_updated: 1765144735530 },
                 'iPhone 16 Pro Max': { total: 999, last_updated: 1765144749989 },
-                'iPhone 16e': { total: 549, last_updated: 1765142389531 },
                 'iPhone 17': { total: 779, last_updated: 1764701687148 },
                 'iPhone 17 Pro': { total: 1049, last_updated: 1764701705290 },
                 'iPhone 17 Pro Max': { total: 1149, last_updated: 1764701731301 },
                 'iPhone Air': { total: 899, last_updated: 1765144806232 },
-                'Moto G Stylus 2025': { total: 180, last_updated: 1765054861213 }
+                'Moto G 5G 2024': { total: 36, last_updated: 1766198011746 },
+                'Moto G 5G 2025': { last_updated: 1764701376302 },
+                'Moto G Power 2025': { total: 0, last_updated: 1764701374519 },
+                'Moto G Stylus 2025': { total: 180, last_updated: 1765054861213 },
+                'One Ace 5G': { total: 0, last_updated: 1764701048879 },
+                'REVVL 6': { last_updated: 1764701398907 }
             },
             tmo: {
-                'Flip 4 5G': { dp: 20, mo: 1, total: 44, last_updated: 1764701132757 },
+                'Classic': { total: 0, dp: 0, last_updated: 1764700686556 },
+                'Flip 4 5G': { total: 44, dp: 20, last_updated: 1764701132757 },
+                'Galaxy S23 Ultra 5G': { total: 0, dp: 0, last_updated: 1766198104640 },
+                'Galaxy A03': { last_updated: 1764700839781 },
+                'Galaxy A11': { total: 0, dp: 0, last_updated: 1764449590527 },
                 'Galaxy A13 LTE': { total: 49, last_updated: 1764701158435 },
-                'Galaxy A16 5G': { dp: 45, mo: 3, total: 117, last_updated: 1764701196650 },
-                'Galaxy Z Flip 4 5G': { dp: 20, mo: 1, total: 44, last_updated: 1764700989400 },
-                'iPhone 15': { dp: 227, mo: 3, total: 299, last_updated: 1765144676354 },
-                'iPhone 16': { total: 629, last_updated: 1765144696336 },
-                'iPhone 16 Plus': { dp: 549, mo: 7.5, total: 729, last_updated: 1765142386885 },
-                'iPhone 16 Pro': { dp: 601, mo: 8.25, total: 799, last_updated: 1765144735530 },
-                'iPhone 16 Pro Max': { mo: 41.63, total: 999, last_updated: 1765144749989 },
-                'iPhone 16e': { total: 549, last_updated: 1765142389531 },
-                'iPhone 17': { dp: 587, mo: 8, total: 779, last_updated: 1764701687148 },
-                'iPhone 17 Pro': { dp: 791, mo: 10.75, total: 1049, last_updated: 1764701705290 },
-                'iPhone 17 Pro Max': { dp: 867, mo: 11.75, total: 1149, last_updated: 1764701731301 },
-                'iPhone Air': { dp: 677, mo: 9.25, total: 899, last_updated: 1765144806232 },
-                'Moto G 5G 2025': { dp: 30, mo: 1, total: 54, last_updated: 1764701376302 },
-                'Moto G Power 2025': { dp: 40, mo: 2, total: 88, last_updated: 1764701374519 },
-                'Moto G Stylus 2025': { dp: 50, mo: 3.46, total: 133, last_updated: 1764701373157 },
-                'REVVL 6': { dp: 30, mo: 0.25, total: 36, last_updated: 1764701398907 }
+                'Galaxy A15 5G': { total: 0, dp: 0, last_updated: 1764700704335 },
+                'Galaxy A16 5G': { total: 117, dp: 45, last_updated: 1764701196650 },
+                'Galaxy S24 FE': { total: 0, dp: 0, last_updated: 1764700915613 },
+                'Galaxy S25 FE': { total: 0, dp: 0, last_updated: 1764700930321 },
+                'Galaxy S25 Plus 5G': { total: 0, dp: 0, last_updated: 1764700953069 },
+                'Galaxy S25 Ultra 5G': { total: 0, dp: 0, last_updated: 1764630490975 },
+                'Galaxy Z Flip 4 5G': { total: 44, dp: 20, last_updated: 1764700989400 },
+                'Galaxy S24 Ultra 5G': { total: 0, dp: 0, last_updated: 1766198073687 },
+                'iPhone 15': { total: 299, dp: 227, last_updated: 1765144676354 },
+                'iPhone 16': { total: 629, dp: 0, last_updated: 1765144696336 },
+                'iPhone 16e': { total: 549, dp: 0, last_updated: 1765142389531 },
+                'iPhone 16 Plus': { total: 729, dp: 549, last_updated: 1765142386885 },
+                'iPhone 16 Pro': { total: 799, dp: 601, last_updated: 1765144735530 },
+                'iPhone 16 Pro Max': { total: 999, dp: 0, mo: 41.63, last_updated: 1765144749989 },
+                'iPhone 17': { total: 779, dp: 587, last_updated: 1764701687148 },
+                'iPhone 17 Pro': { total: 1049, dp: 791, last_updated: 1764701705290 },
+                'iPhone 17 Pro Max': { total: 1149, dp: 867, last_updated: 1764701731301 },
+                'iPhone Air': { total: 899, dp: 677, last_updated: 1765144806232 },
+                'Moto G 5G 2024': { total: 36, dp: 0, mo: 1.5, last_updated: 1766198011746 },
+                'Moto G 5G 2025': { total: 54, dp: 30, last_updated: 1764701376302 },
+                'Moto G Power 2025': { total: 88, dp: 40, last_updated: 1764701374519 },
+                'Moto G Stylus 2025': { total: 133, dp: 50, last_updated: 1764701373157 },
+                'One Ace 5G': { total: 0, dp: 0, last_updated: 1764701048879 },
+                'REVVL 6': { total: 36, dp: 30, last_updated: 1764701398907 }
             },
             vzw: {
+                'Classic': { total: 0, last_updated: 1764700686556 },
+                'Flip 4 5G': { total: 0, last_updated: 1764701132757 },
+                'Galaxy S23 Ultra 5G': { total: 36, last_updated: 1766198104640 },
                 'Galaxy A03': { total: 36, last_updated: 1764700839781 },
                 'Galaxy A11': { total: 36, last_updated: 1764449590527 },
+                'Galaxy A13 LTE': { last_updated: 1764701158435 },
                 'Galaxy A15 5G': { total: 36, last_updated: 1764700704335 },
                 'Galaxy A16 5G': { total: 120, last_updated: 1764701196650 },
                 'Galaxy S24 FE': { total: 649, last_updated: 1764700915613 },
@@ -426,19 +453,21 @@
                 'Galaxy S25 Plus 5G': { total: 999, last_updated: 1764700958907 },
                 'Galaxy S25 Ultra 5G': { total: 1149, last_updated: 1764630886489 },
                 'Galaxy Z Flip 4 5G': { total: 650, last_updated: 1764700989400 },
+                'Galaxy S24 Ultra 5G': { total: 299, last_updated: 1766198073687 },
                 'iPhone 15': { total: 630, last_updated: 1765144676354 },
                 'iPhone 16': { total: 729, last_updated: 1765144696336 },
+                'iPhone 16e': { total: 600, last_updated: 1765142389531 },
                 'iPhone 16 Plus': { total: 721, last_updated: 1765142386885 },
                 'iPhone 16 Pro': { total: 899, last_updated: 1765144735530 },
                 'iPhone 16 Pro Max': { total: 1099, last_updated: 1765144749989 },
-                'iPhone 16e': { total: 600, last_updated: 1765142389531 },
                 'iPhone 17': { total: 829, last_updated: 1764701687148 },
                 'iPhone 17 Pro': { total: 1099, last_updated: 1764701705290 },
                 'iPhone 17 Pro Max': { total: 1199, last_updated: 1764701741757 },
                 'iPhone Air': { total: 999, last_updated: 1765144806232 },
-                'Moto G 5G 2024': { total: 72, last_updated: 1764701008759 },
+                'Moto G 5G 2024': { total: 36, last_updated: 1766198011746 },
                 'Moto G 5G 2025': { total: 72, last_updated: 1764701376302 },
                 'Moto G Power 2025': { total: 108, last_updated: 1764701374519 },
+                'Moto G Stylus 2024': { total: 72, last_updated: 1764701374519 },
                 'One Ace 5G': { total: 36, last_updated: 1764701048879 },
                 'TCL Flip 3': { total: 36, last_updated: 1764448685542 }
             }
@@ -547,7 +576,7 @@
             for (const match of matches) { 
                 const model = match[1].trim(); 
                 let capacity = match[2].trim();
-                capacity = capacity.replace(/\s+GB/i, 'GB'); // v21 Fix
+                capacity = capacity.replace(/\s+GB/i, 'GB'); 
                 
                 const modelAndCapacity = `${model} ${capacity}`; 
                 const color = match[3].trim(); 
@@ -621,7 +650,7 @@
             let cursorY = y;
             
             segments.forEach(seg => {
-                doc.setFont("helvetica", seg.bold ? "bold" : "normal"); // v21 normal
+                doc.setFont("helvetica", seg.bold ? "bold" : "normal"); 
                 const words = seg.text.split(' ');
                 
                 words.forEach((word, index) => {
@@ -700,25 +729,24 @@
                 return citationMap.get(shortDate);
             };
 
-            // --- HEADER (v21) ---
+            // --- HEADER (v22) ---
             const dateNow = new Date();
             const dateStr = dateNow.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
             const timeStr = dateNow.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
             
-            // Build Store String (v21 Format)
+            // Build Store String (v22 Format)
             const storeSet = new Set();
             ['att', 'vzw', 'tmo'].forEach(c => {
                 if (appState[c].storeNumber) {
                     const nick = STORE_NICKNAMES[appState[c].storeNumber];
-                    storeSet.add(nick ? `${nick} (#${appState[c].storeNumber})` : `#${appState[c].storeNumber}`);
+                    storeSet.add(nick ? ` - ${nick} #${appState[c].storeNumber} -` : ` - #${appState[c].storeNumber} -`);
                 }
             });
-            const storeList = Array.from(storeSet).join(', ');
-            const storeString = storeList ? `(${storeList})` : '';
+            const storeString = Array.from(storeSet).join(' '); // Using space to separate multiple stores if any
 
             // Line 1: Attribution + Store
             const headerText1 = `${dateStr} ${timeStr}`;
-            const headerText2 = ` ${storeString} Inventory report made with Optimizer, an unofficial and experimental work app created by Abraham.`;
+            const headerText2 = `${storeString} Inventory report made with Optimizer, an unofficial and experimental work app created by Abraham.`;
             doc.setFontSize(8); 
             doc.setFont("helvetica", "bold");
             doc.text(headerText1, sideMargin, yPosition);
@@ -727,13 +755,36 @@
             doc.text(headerText2, sideMargin + w1, yPosition);
             yPosition += lineHeight;
 
-            // Line 2: Sources
-            const attDate = appState.att.fileDate ? appState.att.fileDate.replace(/\/20\d{2}/, '').replace(/:\d{2}\s/, ' ') : 'N/A';
-            const vzwDate = appState.vzw.fileDate ? appState.vzw.fileDate.replace(/\/20\d{2}/, '').replace(/:\d{2}\s/, ' ') : 'N/A';
-            const tmoDate = appState.tmo.fileDate ? appState.tmo.fileDate.replace(/\/20\d{2}/, '').replace(/:\d{2}\s/, ' ') : 'N/A';
+            // Line 2: Sources (v22 Condensed)
+            // Group carriers by Time
+            const timeMap = new Map();
+            ['att', 'vzw', 'tmo'].forEach(c => {
+                const rawDate = appState[c].fileDate;
+                if (rawDate) {
+                    // Normalize "12/21/2025 11:15:22 AM" -> "12/21 11:15am"
+                    // Assuming rawDate format is roughly consistent from PDF parse
+                    // We can try to parse it or just use the first part up to AM/PM
+                    let cleanTime = rawDate.replace(/\/20\d{2}/, ''); // Remove year
+                    cleanTime = cleanTime.replace(/:\d{2}\s/, ' '); // Remove seconds
+                    cleanTime = cleanTime.toLowerCase();
+                    
+                    if (!timeMap.has(cleanTime)) timeMap.set(cleanTime, []);
+                    timeMap.get(cleanTime).push(c.toUpperCase());
+                } else {
+                    if (!timeMap.has("N/A")) timeMap.set("N/A", []);
+                    timeMap.get("N/A").push(c.toUpperCase());
+                }
+            });
+
+            let sourcesContent = "";
+            const times = Array.from(timeMap.keys());
+            times.forEach((time, i) => {
+                const carriers = timeMap.get(time).join(", ");
+                sourcesContent += `${time}: ${carriers}`;
+                if (i < times.length - 1) sourcesContent += ", ";
+            });
+
             const sourcesLabel = "Inventory Report Sources: ";
-            const sourcesContent = `ATT (${attDate}), VZW (${vzwDate}), TMO (${tmoDate}).`;
-            
             doc.setFont("helvetica", "bold");
             doc.text(sourcesLabel, sideMargin, yPosition);
             const wSources = doc.getTextWidth(sourcesLabel);
