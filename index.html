@@ -210,7 +210,7 @@
 </head>
 <body>
 
-    <div id="version-text">Beta Version 23</div>
+    <div id="version-text">Beta Version 25</div>
 
     <div id="app-container">
         <h1>Optimizer</h1>
@@ -270,7 +270,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta Version 23';
+        const APP_VERSION = 'Beta Version 25';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -369,30 +369,28 @@
             'Demo - iPhone 17 Plus DEMO 256GB': 'Demo IP17+',
             'Demo - Galaxy S25 128GB': 'Demo S25',
             'Moto G 5G 2025 unlocke d 128GB': 'MG25 Unlocked',
-            'Moto G Stylus 2025 unlocke d 256GB': 'STYL25 Unlocked'
+            'Moto G Stylus 2025 unlocke d 256GB': 'STYL25 Unlocked',
+            'Moto G Power 2024 unloc ked 128GB': 'PWR24 Unlocked',
+            'Moto G Stylus 2024 unloc ked 256GB': 'STYL24 Unlocked'
         };
 
-        // Snapshot Data (Generated Beta v23 with Fixes)
+        // Snapshot Data (Generated Beta v25 with TMO Math Fix)
         const EDLP_DATA = {
             att: {
                 'Classic': { total: 55, last_updated: 1764700686556 },
-                'Flip 4 5G': { total: 0, last_updated: 1765054773532 },
-                'Galaxy S23 Ultra 5G': { total: 36, last_updated: 1766198104640 },
-                'Galaxy A03': { last_updated: 1764700839781 },
                 'Galaxy A11': { total: 36, last_updated: 1764449590527 },
-                'Galaxy A13 LTE': { last_updated: 1764701158435 },
-                'Galaxy A15 5G': { total: 36, last_updated: 1764700704335 },
-                'Galaxy A16 5G': { total: 119, last_updated: 1764701196650 },
+                'Galaxy A15 5G': { total: 36, last_updated: 1767472964800 },
+                'Galaxy A16 5G': { total: 119, last_updated: 1766792781330 },
                 'Galaxy A35 5G': { total: 99, last_updated: 1764448685541 },
                 'Galaxy S24 FE': { total: 580, last_updated: 1764700915613 },
                 'Galaxy S25 FE': { total: 612, last_updated: 1764700930321 },
                 'Galaxy S25 Plus 5G': { total: 799, last_updated: 1764700953069 },
                 'Galaxy S25 Ultra 5G': { total: 999, last_updated: 1764700790604 },
                 'Galaxy Z Flip 4 5G': { total: 0, last_updated: 1764700989400 },
-                'Galaxy S24 Ultra 5G': { total: 299, last_updated: 1766198073687 },
+                'Galaxy S24 Ultra 5G': { total: 299, last_updated: 1767474294959 },
                 'iPhone 15': { total: 299, last_updated: 1765144676354 },
                 'iPhone 16': { total: 629, last_updated: 1765144696336 },
-                'iPhone 16e': { total: 549, last_updated: 1765142389531 },
+                'iPhone 16e': { total: 549, last_updated: 1767039334223 },
                 'iPhone 16 Plus': { total: 729, last_updated: 1765142386885 },
                 'iPhone 16 Pro': { total: 799, last_updated: 1765144735530 },
                 'iPhone 16 Pro Max': { total: 999, last_updated: 1765144749989 },
@@ -405,58 +403,65 @@
                 'Moto G Power 2025': { total: 0, last_updated: 1764701374519 },
                 'Moto G Stylus 2025': { total: 180, last_updated: 1765054861213 },
                 'One Ace 5G': { total: 0, last_updated: 1764701048879 },
-                'REVVL 6': { last_updated: 1764701398907 }
+                'REVVL 6': { last_updated: 1764701398907 },
+                'Galaxy A03': { last_updated: 1767474365814 },
+                'Galaxy A13 LTE': { last_updated: 1767472968352 },
+                'Galaxy S23 Ultra 5G': { total: 36, last_updated: 1766198104640 },
+                'Flip 4 5G': { total: 0, last_updated: 1766772123050 },
+                'Pixel 8a': { total: 72, last_updated: 1766792893463 },
+                'Galaxy A11': { total: 36, last_updated: 1767472970733 }
             },
             tmo: {
                 'Classic': { total: 0, dp: 0, last_updated: 1764700686556 },
-                'Flip 4 5G': { total: 44, dp: 20, last_updated: 1764701132757 },
+                'Flip 4 5G': { total: 44, dp: 20, mo: 1, last_updated: 1766772123050 },
                 'Galaxy S23 Ultra 5G': { total: 0, dp: 0, last_updated: 1766198104640 },
-                'Galaxy A03': { last_updated: 1764700839781 },
-                'Galaxy A11': { total: 0, dp: 0, last_updated: 1764449590527 },
-                'Galaxy A13 LTE': { total: 49, last_updated: 1764701158435 },
-                'Galaxy A15 5G': { total: 0, dp: 0, last_updated: 1764700704335 },
-                'Galaxy A16 5G': { total: 117, dp: 45, last_updated: 1764701196650 },
+                'Galaxy A03': { last_updated: 1767474365814 },
+                'Galaxy A11': { total: 0, dp: 0, last_updated: 1767472970733 },
+                'Galaxy A13 LTE': { total: 49, last_updated: 1767472968352 },
+                'Galaxy A15 5G': { total: 0, dp: 0, last_updated: 1767472964800 },
+                'Galaxy A16 5G': { total: 117, dp: 45, mo: 3, last_updated: 1766792781330 },
                 'Galaxy S24 FE': { total: 0, dp: 0, last_updated: 1764700915613 },
                 'Galaxy S25 FE': { total: 0, dp: 0, last_updated: 1764700930321 },
                 'Galaxy S25 Plus 5G': { total: 0, dp: 0, last_updated: 1764700953069 },
                 'Galaxy S25 Ultra 5G': { total: 0, dp: 0, last_updated: 1764630490975 },
-                'Galaxy Z Flip 4 5G': { total: 44, dp: 20, last_updated: 1764700989400 },
-                'Galaxy S24 Ultra 5G': { total: 0, dp: 0, last_updated: 1766198073687 },
-                'iPhone 15': { total: 299, dp: 227, last_updated: 1765144676354 },
+                'Galaxy Z Flip 4 5G': { total: 44, dp: 20, mo: 1, last_updated: 1764700989400 },
+                'Galaxy S24 Ultra 5G': { total: 0, dp: 0, last_updated: 1767474294959 },
+                'iPhone 15': { total: 299, dp: 227, mo: 3, last_updated: 1765144676354 },
                 'iPhone 16': { total: 629, dp: 0, last_updated: 1765144696336 },
-                'iPhone 16e': { total: 549, dp: 0, last_updated: 1765142389531 },
-                'iPhone 16 Plus': { total: 729, dp: 549, last_updated: 1765142386885 },
-                'iPhone 16 Pro': { total: 799, dp: 601, last_updated: 1765144735530 },
+                'iPhone 16e': { total: 549, dp: 417, mo: 5.5, last_updated: 1767039334223 },
+                'iPhone 16 Plus': { total: 729, dp: 549, mo: 7.5, last_updated: 1765142386885 },
+                'iPhone 16 Pro': { total: 799, dp: 601, mo: 8.25, last_updated: 1765144735530 },
                 'iPhone 16 Pro Max': { total: 999, dp: 0, mo: 41.63, last_updated: 1765144749989 },
-                'iPhone 17': { total: 779, dp: 587, last_updated: 1764701687148 },
-                'iPhone 17 Pro': { total: 1049, dp: 791, last_updated: 1764701705290 },
-                'iPhone 17 Pro Max': { total: 1149, dp: 867, last_updated: 1764701731301 },
-                'iPhone Air': { total: 899, dp: 677, last_updated: 1765144806232 },
+                'iPhone 17': { total: 779, dp: 587, mo: 8, last_updated: 1764701687148 },
+                'iPhone 17 Pro': { total: 1049, dp: 791, mo: 10.75, last_updated: 1764701705290 },
+                'iPhone 17 Pro Max': { total: 1149, dp: 867, mo: 11.75, last_updated: 1764701731301 },
+                'iPhone Air': { total: 899, dp: 677, mo: 9.25, last_updated: 1765144806232 },
                 'Moto G 5G 2024': { total: 36, dp: 0, mo: 1.5, last_updated: 1766198011746 },
-                'Moto G 5G 2025': { total: 54, dp: 30, last_updated: 1764701376302 },
-                'Moto G Power 2025': { total: 88, dp: 40, last_updated: 1764701374519 },
-                'Moto G Stylus 2025': { total: 133, dp: 50, last_updated: 1764701373157 },
+                'Moto G 5G 2025': { total: 54, dp: 30, mo: 1, last_updated: 1764701376302 },
+                'Moto G Power 2025': { total: 88, dp: 40, mo: 2, last_updated: 1764701374519 },
+                'Moto G Stylus 2025': { total: 133, dp: 50, mo: 3.46, last_updated: 1764701373157 },
                 'One Ace 5G': { total: 0, dp: 0, last_updated: 1764701048879 },
-                'REVVL 6': { total: 36, dp: 30, last_updated: 1764701398907 }
+                'REVVL 6': { total: 36, dp: 30, mo: 0.25, last_updated: 1764701398907 },
+                'Pixel 8a': { total: 0, dp: 0, last_updated: 1766792893463 }
             },
             vzw: {
                 'Classic': { total: 0, last_updated: 1764700686556 },
-                'Flip 4 5G': { total: 0, last_updated: 1764701132757 },
+                'Flip 4 5G': { total: 0, last_updated: 1766772123050 },
                 'Galaxy S23 Ultra 5G': { total: 36, last_updated: 1766198104640 },
-                'Galaxy A03': { total: 36, last_updated: 1764700839781 },
-                'Galaxy A11': { total: 36, last_updated: 1764449590527 },
-                'Galaxy A13 LTE': { last_updated: 1764701158435 },
-                'Galaxy A15 5G': { total: 36, last_updated: 1764700704335 },
-                'Galaxy A16 5G': { total: 120, last_updated: 1764701196650 },
+                'Galaxy A03': { total: 0, last_updated: 1767474365814 },
+                'Galaxy A11': { total: 36, last_updated: 1767472970733 },
+                'Galaxy A13 LTE': { total: 0, last_updated: 1767472968352 },
+                'Galaxy A15 5G': { total: 36, last_updated: 1767472964800 },
+                'Galaxy A16 5G': { total: 120, last_updated: 1766792781330 },
                 'Galaxy S24 FE': { total: 649, last_updated: 1764700915613 },
                 'Galaxy S25 FE': { total: 650, last_updated: 1764700930321 },
                 'Galaxy S25 Plus 5G': { total: 999, last_updated: 1764700958907 },
                 'Galaxy S25 Ultra 5G': { total: 1149, last_updated: 1764630886489 },
                 'Galaxy Z Flip 4 5G': { total: 650, last_updated: 1764700989400 },
-                'Galaxy S24 Ultra 5G': { total: 299, last_updated: 1766198073687 },
+                'Galaxy S24 Ultra 5G': { total: 299, last_updated: 1767474294959 },
                 'iPhone 15': { total: 630, last_updated: 1765144676354 },
                 'iPhone 16': { total: 729, last_updated: 1765144696336 },
-                'iPhone 16e': { total: 600, last_updated: 1765142389531 },
+                'iPhone 16e': { total: 600, last_updated: 1767039334223 },
                 'iPhone 16 Plus': { total: 721, last_updated: 1765142386885 },
                 'iPhone 16 Pro': { total: 899, last_updated: 1765144735530 },
                 'iPhone 16 Pro Max': { total: 1099, last_updated: 1765144749989 },
@@ -464,12 +469,13 @@
                 'iPhone 17 Pro': { total: 1099, last_updated: 1764701705290 },
                 'iPhone 17 Pro Max': { total: 1199, last_updated: 1764701741757 },
                 'iPhone Air': { total: 999, last_updated: 1765144806232 },
-                'Moto G 5G 2024': { total: 36, last_updated: 1766198011746 },
+                'Moto G 5G 2024': { total: 72, last_updated: 1766198011746 },
                 'Moto G 5G 2025': { total: 72, last_updated: 1764701376302 },
                 'Moto G Power 2025': { total: 108, last_updated: 1764701374519 },
                 'Moto G Stylus 2024': { total: 72, last_updated: 1764701374519 },
                 'One Ace 5G': { total: 36, last_updated: 1764701048879 },
-                'TCL Flip 3': { total: 36, last_updated: 1764448685542 }
+                'TCL Flip 3': { total: 36, last_updated: 1764448685542 },
+                'Pixel 8a': { total: 72, last_updated: 1766792893463 }
             }
         };
 
@@ -571,7 +577,8 @@
             const postFilterList = []; 
             const autoHidden = []; 
 
-            const excludeRegex = /demo|un\s?-?\s?lock\s?-?\s?e\s?d/i; 
+            // v25: Updated regex to catch "unloc ked"
+            const excludeRegex = /demo|un\s?-?\s?loc\s?k\s?e\s?d/i; 
             
             for (const match of matches) { 
                 const model = match[1].trim(); 
