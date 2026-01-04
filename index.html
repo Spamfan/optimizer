@@ -210,7 +210,7 @@
 </head>
 <body>
 
-    <div id="version-text">Beta Version 25</div>
+    <div id="version-text">Beta Version 27</div>
 
     <div id="app-container">
         <h1>Optimizer</h1>
@@ -270,7 +270,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta Version 25';
+        const APP_VERSION = 'Beta Version 27';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -427,7 +427,7 @@
                 'Galaxy Z Flip 4 5G': { total: 44, dp: 20, mo: 1, last_updated: 1764700989400 },
                 'Galaxy S24 Ultra 5G': { total: 0, dp: 0, last_updated: 1767474294959 },
                 'iPhone 15': { total: 299, dp: 227, mo: 3, last_updated: 1765144676354 },
-                'iPhone 16': { total: 629, dp: 0, last_updated: 1765144696336 },
+                'iPhone 16': { total: 629, dp: 0, mo: 26.21, last_updated: 1765144696336 },
                 'iPhone 16e': { total: 549, dp: 417, mo: 5.5, last_updated: 1767039334223 },
                 'iPhone 16 Plus': { total: 729, dp: 549, mo: 7.5, last_updated: 1765142386885 },
                 'iPhone 16 Pro': { total: 799, dp: 601, mo: 8.25, last_updated: 1765144735530 },
@@ -446,9 +446,9 @@
             },
             vzw: {
                 'Classic': { total: 0, last_updated: 1764700686556 },
-                'Flip 4 5G': { total: 36, last_updated: 1766772123050 },
+                'Flip 4 5G': { total: 0, last_updated: 1766772123050 },
                 'Galaxy S23 Ultra 5G': { total: 36, last_updated: 1766198104640 },
-                'Galaxy A03': { total: 0, last_updated: 1767474365814 },
+                'Galaxy A03': { total: 36, last_updated: 1767474365814 },
                 'Galaxy A11': { total: 36, last_updated: 1767472970733 },
                 'Galaxy A13 LTE': { total: 0, last_updated: 1767472968352 },
                 'Galaxy A15 5G': { total: 36, last_updated: 1767472964800 },
@@ -469,7 +469,7 @@
                 'iPhone 17 Pro': { total: 1099, last_updated: 1764701705290 },
                 'iPhone 17 Pro Max': { total: 1199, last_updated: 1764701741757 },
                 'iPhone Air': { total: 999, last_updated: 1765144806232 },
-                'Moto G 5G 2024': { total: 72, last_updated: 1766198011746 },
+                'Moto G 5G 2024': { total: 72, last_updated: 1764701008759 },
                 'Moto G 5G 2025': { total: 72, last_updated: 1764701376302 },
                 'Moto G Power 2025': { total: 108, last_updated: 1764701374519 },
                 'Moto G Stylus 2024': { total: 72, last_updated: 1764701374519 },
@@ -709,12 +709,12 @@
                         const pAtt = getPriceObj(EDLP_DATA.att, rawModel);
                         const pVzw = getPriceObj(EDLP_DATA.vzw, rawModel);
                         const pTmo = getPriceObj(EDLP_DATA.tmo, rawModel);
-                        if (pAtt && pAtt.last_updated) uniqueDates.add(new Date(pAtt.last_updated).toDateString());
-                        if (pVzw && pVzw.last_updated) uniqueDates.add(new Date(pVzw.last_updated).toDateString());
-                        if (pTmo && pTmo.last_updated) uniqueDates.add(new Date(pTmo.last_updated).toDateString());
+                        if (pAtt && pAtt.total > 0 && pAtt.last_updated) uniqueDates.add(new Date(pAtt.last_updated).toDateString());
+                        if (pVzw && pVzw.total > 0 && pVzw.last_updated) uniqueDates.add(new Date(pVzw.last_updated).toDateString());
+                        if (pTmo && pTmo.total > 0 && pTmo.last_updated) uniqueDates.add(new Date(pTmo.last_updated).toDateString());
                     } else {
                         const p = getPriceObj(EDLP_DATA[sourceCarrier], rawModel);
-                        if (p && p.last_updated) uniqueDates.add(new Date(p.last_updated).toDateString());
+                        if (p && p.total > 0 && p.last_updated) uniqueDates.add(new Date(p.last_updated).toDateString());
                     }
                 });
             };
@@ -741,7 +741,7 @@
             const dateStr = dateNow.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
             const timeStr = dateNow.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
             
-            // Build Store String (v22 Format)
+            // Build Store String
             const storeSet = new Set();
             ['att', 'vzw', 'tmo'].forEach(c => {
                 if (appState[c].storeNumber) {
@@ -749,9 +749,9 @@
                     storeSet.add(nick ? ` - ${nick} #${appState[c].storeNumber} -` : ` - #${appState[c].storeNumber} -`);
                 }
             });
-            const storeString = Array.from(storeSet).join(' '); // Using space to separate multiple stores if any
+            const storeString = Array.from(storeSet).join(' '); 
 
-            // Line 1: Attribution + Store
+            // Line 1
             const headerText1 = `${dateStr} ${timeStr}`;
             const headerText2 = `${storeString} Inventory report made with Optimizer, an unofficial and experimental work app created by Abraham.`;
             doc.setFontSize(8); 
@@ -762,33 +762,65 @@
             doc.text(headerText2, sideMargin + w1, yPosition);
             yPosition += lineHeight;
 
-            // Line 2: Sources (v22 Condensed)
-            // Group carriers by Time
+            // Line 2: Sources
             const timeMap = new Map();
+            const sourceDates = []; 
             ['att', 'vzw', 'tmo'].forEach(c => {
                 const rawDate = appState[c].fileDate;
                 if (rawDate) {
-                    // Normalize "12/21/2025 11:15:22 AM" -> "12/21 11:15am"
-                    // Assuming rawDate format is roughly consistent from PDF parse
-                    // We can try to parse it or just use the first part up to AM/PM
-                    let cleanTime = rawDate.replace(/\/20\d{2}/, ''); // Remove year
-                    cleanTime = cleanTime.replace(/:\d{2}\s/, ' '); // Remove seconds
-                    cleanTime = cleanTime.toLowerCase();
-                    
-                    if (!timeMap.has(cleanTime)) timeMap.set(cleanTime, []);
-                    timeMap.get(cleanTime).push(c.toUpperCase());
+                    try {
+                        const datePart = rawDate.match(/(\d{1,2}\/\d{1,2}\/\d{4}\s+\d{1,2}:\d{2}:\d{2}\s+[AP]M)/i);
+                        if (datePart) {
+                            const dObj = new Date(datePart[0]);
+                            sourceDates.push({ carrier: c.toUpperCase(), date: dObj });
+                        } else {
+                            sourceDates.push({ carrier: c.toUpperCase(), date: null }); 
+                        }
+                    } catch (e) {
+                         sourceDates.push({ carrier: c.toUpperCase(), date: null });
+                    }
                 } else {
-                    if (!timeMap.has("N/A")) timeMap.set("N/A", []);
-                    timeMap.get("N/A").push(c.toUpperCase());
+                    sourceDates.push({ carrier: c.toUpperCase(), date: null });
                 }
             });
 
+            sourceDates.sort((a, b) => (a.date || 0) - (b.date || 0));
+
+            let groups = [];
+            if (sourceDates.length > 0) {
+                let currentGroup = { anchor: sourceDates[0].date, startTime: sourceDates[0].date, endTime: sourceDates[0].date, carriers: [sourceDates[0].carrier] };
+                
+                for (let i = 1; i < sourceDates.length; i++) {
+                    const item = sourceDates[i];
+                    if (item.date && currentGroup.anchor && (item.date - currentGroup.anchor <= 30 * 60 * 1000)) {
+                         currentGroup.carriers.push(item.carrier);
+                         currentGroup.endTime = item.date;
+                    } else {
+                         groups.push(currentGroup);
+                         currentGroup = { anchor: item.date, startTime: item.date, endTime: item.date, carriers: [item.carrier] };
+                    }
+                }
+                groups.push(currentGroup);
+            }
+
             let sourcesContent = "";
-            const times = Array.from(timeMap.keys());
-            times.forEach((time, i) => {
-                const carriers = timeMap.get(time).join(", ");
-                sourcesContent += `${time}: ${carriers}`;
-                if (i < times.length - 1) sourcesContent += ", ";
+            const formatTime = (d) => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
+
+            groups.forEach((g, i) => {
+                let timeLabel = "N/A";
+                if (g.startTime) {
+                     const datePart = g.startTime.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+                     const startStr = formatTime(g.startTime);
+                     const endStr = formatTime(g.endTime);
+                     
+                     if (startStr === endStr) {
+                        timeLabel = (i === 0) ? `${datePart} ${startStr}` : `${startStr}`;
+                     } else {
+                        timeLabel = (i === 0) ? `${datePart} ${startStr}-${endStr}` : `${startStr}-${endStr}`;
+                     }
+                }
+                sourcesContent += `${timeLabel}: ${g.carriers.join(", ")}`;
+                if (i < groups.length - 1) sourcesContent += ", ";
             });
 
             const sourcesLabel = "Inventory Report Sources: ";
@@ -943,19 +975,20 @@
                            const pVzw = findPrice(EDLP_DATA.vzw, rawModel);
                            const pTmo = findPrice(EDLP_DATA.tmo, rawModel);
                            
-                           const tAtt = pAtt && pAtt.total !== undefined ? `$${pAtt.total}` : "$???";
-                           const citAtt = pAtt ? getCitation(pAtt.last_updated) : null;
+                           // Zero Filter (v26)
+                           const tAtt = (pAtt && pAtt.total > 0) ? `$${pAtt.total}` : "$???";
+                           const citAtt = (pAtt && pAtt.total > 0) ? getCitation(pAtt.last_updated) : null;
                            edlpSegments.push({ text: tAtt, citation: citAtt });
                            edlpSegments.push({ text: ", ", citation: null });
 
-                           const tVzw = pVzw && pVzw.total !== undefined ? `$${pVzw.total}` : "$???";
-                           const citVzw = pVzw ? getCitation(pVzw.last_updated) : null;
+                           const tVzw = (pVzw && pVzw.total > 0) ? `$${pVzw.total}` : "$???";
+                           const citVzw = (pVzw && pVzw.total > 0) ? getCitation(pVzw.last_updated) : null;
                            edlpSegments.push({ text: tVzw, citation: citVzw });
                            edlpSegments.push({ text: ", ", citation: null });
                            
                            let tTmoText = "$???";
                            let citTmo = null;
-                           if (pTmo) {
+                           if (pTmo && pTmo.total > 0) {
                                citTmo = getCitation(pTmo.last_updated);
                                if (pTmo.dp !== undefined) {
                                    tTmoText = `${formatCurrency(pTmo.total)} (${formatCurrency(pTmo.dp)} + ${formatCurrency(pTmo.mo)}/mo)`;
@@ -967,7 +1000,7 @@
 
                         } else {
                            const priceData = findPrice(EDLP_DATA[sourceCarrier], rawModel);
-                           if (priceData) {
+                           if (priceData && priceData.total > 0) {
                                const cit = getCitation(priceData.last_updated);
                                let txt = "";
                                if (sourceCarrier === 'tmo') {
@@ -1070,7 +1103,8 @@
             if (carriersForLayout.length === 0) { doc.setFont("helvetica", "normal").setFontSize(12).text("No inventory found.", sideMargin, yPosition); } 
             
             // --- FOOTER (Hidden Items v21) ---
-            const footerY = Math.min(maxCursorY + (lineHeight * 2), pageHeight - 12.7);
+            // v26 Fix: Reduced gap
+            const footerY = Math.min(maxCursorY + (lineHeight * 1), pageHeight - 12.7);
             doc.setFontSize(7);
             
             // Generate Auto-Hidden List
@@ -1265,5 +1299,4 @@
     </script>
 
 </body>
-
 </html>
