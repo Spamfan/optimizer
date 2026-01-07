@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimizer (beta)</title>
+    <title>Optimizer (v33)</title>
     
     <!-- PDF.js and jsPDF library CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -22,14 +22,21 @@
             box-sizing: border-box;
         }
 
-        #version-text {
+        #version-wrapper {
             position: absolute;
             top: 10px;
             left: 10px;
-            font-size: 0.8em;
+            font-size: 0.9em;
             color: #606770;
             cursor: pointer;
             user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #status-icon {
+            font-size: 1.1em;
         }
 
         #app-container {
@@ -117,7 +124,7 @@
             margin-bottom: 20px;
         }
 
-        #highlight-btn, #process-btn, #copy-log-btn {
+        #highlight-btn, #process-btn, #copy-log-btn, #btn-force-fetch {
             flex-grow: 1;
             border: none;
             padding: 12px 20px;
@@ -128,8 +135,10 @@
             transition: background-color 0.2s;
         }
         
-        #highlight-btn, #copy-log-btn { background-color: #e4e6eb; color: #050505; }
+        #highlight-btn, #copy-log-btn, #btn-force-fetch { background-color: #e4e6eb; color: #050505; }
         #process-btn { background-color: #1877f2; color: white; }
+
+        #btn-force-fetch { font-size: 0.8em; padding: 8px 12px; margin-top: 5px; width: 100%; }
         
         #comments {
             width: 100%;
@@ -156,7 +165,7 @@
             border-top: 1px solid #e4e6eb;
         }
 
-        #how-to-use-container h3, #how-to-use-container h4 { margin: 15px 0 10px 0; color: #606770; font-size: 1em; }
+        #how-to-use-container h4 { margin: 15px 0 10px 0; color: #606770; font-size: 1em; }
         #how-to-use-container ol, #how-to-use-container ul { padding-left: 20px; margin: 0; font-size: 0.9em; color: #606770; line-height: 1.6; }
         #how-to-use-container ul { margin-top: 5px; }
         .inline-svg { width: 1em; height: 1em; vertical-align: middle; margin: 0 2px; }
@@ -178,6 +187,37 @@
             font-family: monospace;
             font-size: 0.8em;
             margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Log Styles & View Filtering */
+        .log-entry { margin-bottom: 2px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
+        .log-pdf { color: #0056b3; } /* Blueish */
+        .log-edlp { color: #d93025; } /* Reddish */
+        .log-sys { color: #333; }
+        
+        /* Filter Classes applied to parent */
+        #dev-console-output.hide-pdf .log-pdf { display: none !important; }
+        #dev-console-output.hide-edlp .log-edlp { display: none !important; }
+        
+        #console-filters {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 15px;
+            font-size: 0.85em;
+            color: #606770;
+        }
+        #console-filters label {
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+        #console-filters input {
+            margin-right: 5px;
         }
 
         /* Modal Styles */
@@ -210,7 +250,10 @@
 </head>
 <body>
 
-    <div id="version-text">Beta Version 27</div>
+    <div id="version-wrapper">
+        <span id="version-text">Version 33</span>
+        <span id="status-icon" title="Offline Mode">❌☁</span>
+    </div>
 
     <div id="app-container">
         <h1>Optimizer</h1>
@@ -254,10 +297,62 @@
             <p id="konami-message">Also try Tank Tycoon!</p>
         </div>
 
-        <div id="how-to-use-container"></div>
+        <div id="how-to-use-container">
+            <h4 id="tutorial-toggle" style="cursor:pointer; user-select:none;">HOW TO USE 🔽</h4>
+            <div id="tutorial-content" style="display:none;">
+                <ol>
+                    <li><strong>Save Each Carrier's Inventory as a PDF</strong>
+                        <ul>
+                            <li>CRITICAL: You must open WARP in a new, separate window (Ctrl + N). The optimizer will not accept file inputs if WARP is only in a separate tab.</li>
+                            <li>In the new WARP window, navigate to: Inventory Management > View Available Inventory.</li>
+                            <li>Select AT&T, make sure the "Instock" box is checked, then click More Options (${MORE_OPTIONS_SVG}) and choose Print.</li>
+                            <li>Change the "Destination" printer from "CPR1" to Save as PDF.
+                                <ul><li>Note: For best results, use the original formatting (100% scale and default margins), as this has passed user testing.</li></ul>
+                            </li>
+                            <li>Name the file exactly "ATT.pdf". If a file with that name already exists, you must overwrite it.</li>
+                            <li>Repeat this exact process for Verizon, naming the file "VZW.pdf".</li>
+                            <li>Repeat one last time for T-Mobile, naming the file "TMO.pdf".</li>
+                            <li>To get the File Explorer ready for the next step, start to save the "TMO.pdf" file a second time, but don't actually save it. Just leave the File Explorer window open.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Drag and Drop Files into the Optimizer</strong>
+                        <ul>
+                            <li>With the File Explorer window still open from the last step, locate the three PDF files you just created (ATT.pdf, VZW.pdf, TMO.pdf).</li>
+                            <li>Individually, click and hold each file and drag it directly into the optimizer window.
+                                <ul><li>Tip: While holding the file, you can use Alt + Tab or hover above the Chrome icon in your taskbar to switch from the File Explorer to the optimizer window to drop the file.</li></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><strong>Optional: Customize Your List</strong>
+                        <ul>
+                            <li>Partial Highlight (left checkbox): Highlights only the phone's name. (Recommended for good deals).</li>
+                            <li>Full Highlight (right checkbox): Highlights the entire row for that device. (Recommended for extra good deals).</li>
+                            <li>Hide (${HIDE_ICON_SVG} toggle): Use this to hide unwanted listings, such as demo-only or unlocked devices.</li>
+                            <li>Master Checkboxes: Use the main checkboxes at the top of the list to toggle partial or full highlights for the entire window at once.</li>
+                            <li>Click Done to save your customizations. Your highlight preferences are saved within the app, so you can adjust them anytime.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Print the Combined PDF</strong>
+                        <ul>
+                            <li>Click the blue "Preview or Print" button.</li>
+                            <li>A preview pane showing the combined PDF will appear. Right-click anywhere on the PDF preview and choose Print.</li>
+                            <li>Important: Be sure to re-select your store's printer (e.g., "CPR1") as the destination so you print the combined file instead of saving it as a PDF again.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
 
+        <!-- Developer Console -->
         <div id="dev-console-container">
+            <!-- Log Filters -->
+            <div id="console-filters">
+                <label><input type="checkbox" id="cb-log-pdf" checked> Show PDF Inputs</label>
+                <label><input type="checkbox" id="cb-log-edlp" checked> Show EDLP Fetches</label>
+            </div>
+            
             <pre id="dev-console-output"></pre>
+            <button id="btn-force-fetch">Force Refetch Data</button>
             <button id="copy-log-btn">Copy Log</button>
         </div>
     </div>
@@ -270,7 +365,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta Version 27';
+        const APP_VERSION = 'Version 33';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -278,50 +373,7 @@
         const SHOW_ICON_SVG = `<svg class="hide-icon inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`;
         const MORE_OPTIONS_SVG = `<svg class="inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#606770"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;
         
-        document.getElementById('how-to-use-container').innerHTML = `
-            <h3><strong>Heads up! This software is still in development and can make mistakes.</strong></h3>
-            <h4><strong>HOW TO USE</strong></h4>
-            <ol>
-                <li><strong>Save Each Carrier's Inventory as a PDF</strong>
-                    <ul>
-                        <li>CRITICAL: You must open WARP in a new, separate window (Ctrl + N). The optimizer will not accept file inputs if WARP is only in a separate tab.</li>
-                        <li>In the new WARP window, navigate to: Inventory Management > View Available Inventory.</li>
-                        <li>Select AT&T, make sure the "Instock" box is checked, then click More Options (${MORE_OPTIONS_SVG}) and choose Print.</li>
-                        <li>Change the "Destination" printer from "CPR1" to Save as PDF.
-                            <ul><li>Note: For best results, use the original formatting (100% scale and default margins), as this has passed user testing.</li></ul>
-                        </li>
-                        <li>Name the file exactly "ATT.pdf". If a file with that name already exists, you must overwrite it.</li>
-                        <li>Repeat this exact process for Verizon, naming the file "VZW.pdf".</li>
-                        <li>Repeat one last time for T-Mobile, naming the file "TMO.pdf".</li>
-                        <li>To get the File Explorer ready for the next step, start to save the "TMO.pdf" file a second time, but don't actually save it. Just leave the File Explorer window open.</li>
-                    </ul>
-                </li>
-                <li><strong>Drag and Drop Files into the Optimizer</strong>
-                    <ul>
-                        <li>With the File Explorer window still open from the last step, locate the three PDF files you just created (ATT.pdf, VZW.pdf, TMO.pdf).</li>
-                        <li>Individually, click and hold each file and drag it directly into the optimizer window.
-                            <ul><li>Tip: While holding the file, you can use Alt + Tab or hover above the Chrome icon in your taskbar to switch from the File Explorer to the optimizer window to drop the file.</li></ul>
-                        </li>
-                    </ul>
-                </li>
-                <li><strong>Optional: Customize Your List</strong>
-                    <ul>
-                        <li>Partial Highlight (left checkbox): Highlights only the phone's name. (Recommended for good deals).</li>
-                        <li>Full Highlight (right checkbox): Highlights the entire row for that device. (Recommended for extra good deals).</li>
-                        <li>Hide (${HIDE_ICON_SVG} toggle): Use this to hide unwanted listings, such as demo-only or unlocked devices.</li>
-                        <li>Master Checkboxes: Use the main checkboxes at the top of the list to toggle partial or full highlights for the entire window at once.</li>
-                        <li>Click Done to save your customizations. Your highlight preferences are saved within the app, so you can adjust them anytime.</li>
-                    </ul>
-                </li>
-                <li><strong>Print the Combined PDF</strong>
-                    <ul>
-                        <li>Click the blue "Preview or Print" button.</li>
-                        <li>A preview pane showing the combined PDF will appear. Right-click anywhere on the PDF preview and choose Print.</li>
-                        <li>Important: Be sure to re-select your store's printer (e.g., "CPR1") as the destination so you print the combined file instead of saving it as a PDF again.</li>
-                    </ul>
-                </li>
-            </ol>
-        `;
+        document.getElementById('how-to-use-container').querySelector('ol').innerHTML = document.getElementById('how-to-use-container').querySelector('ol').innerHTML.replace(/\$\{MORE_OPTIONS_SVG\}/g, MORE_OPTIONS_SVG).replace(/\$\{HIDE_ICON_SVG\}/g, HIDE_ICON_SVG);
 
         // --- GLOBAL STATE ---
         let appState = { 
@@ -374,8 +426,8 @@
             'Moto G Stylus 2024 unloc ked 256GB': 'STYL24 Unlocked'
         };
 
-        // Snapshot Data (Generated Beta v25 with TMO Math Fix)
-        const EDLP_DATA = {
+        // Offline Backup Data (v25)
+        let EDLP_DATA = {
             att: {
                 'Classic': { total: 55, last_updated: 1764700686556 },
                 'Galaxy A11': { total: 36, last_updated: 1764449590527 },
@@ -427,7 +479,7 @@
                 'Galaxy Z Flip 4 5G': { total: 44, dp: 20, mo: 1, last_updated: 1764700989400 },
                 'Galaxy S24 Ultra 5G': { total: 0, dp: 0, last_updated: 1767474294959 },
                 'iPhone 15': { total: 299, dp: 227, mo: 3, last_updated: 1765144676354 },
-                'iPhone 16': { total: 629, dp: 0, mo: 26.21, last_updated: 1765144696336 },
+                'iPhone 16': { total: 629, dp: 0, last_updated: 1765144696336 },
                 'iPhone 16e': { total: 549, dp: 417, mo: 5.5, last_updated: 1767039334223 },
                 'iPhone 16 Plus': { total: 729, dp: 549, mo: 7.5, last_updated: 1765142386885 },
                 'iPhone 16 Pro': { total: 799, dp: 601, mo: 8.25, last_updated: 1765144735530 },
@@ -448,7 +500,7 @@
                 'Classic': { total: 0, last_updated: 1764700686556 },
                 'Flip 4 5G': { total: 0, last_updated: 1766772123050 },
                 'Galaxy S23 Ultra 5G': { total: 36, last_updated: 1766198104640 },
-                'Galaxy A03': { total: 36, last_updated: 1767474365814 },
+                'Galaxy A03': { total: 0, last_updated: 1767474365814 },
                 'Galaxy A11': { total: 36, last_updated: 1767472970733 },
                 'Galaxy A13 LTE': { total: 0, last_updated: 1767472968352 },
                 'Galaxy A15 5G': { total: 36, last_updated: 1767472964800 },
@@ -478,6 +530,94 @@
                 'Pixel 8a': { total: 72, last_updated: 1766792893463 }
             }
         };
+
+        // --- LIVE FETCH LOGIC (v33: Stable Repo) ---
+        const fetchLivePricing = () => {
+            const statusIcon = document.getElementById('status-icon');
+            const consoleOut = document.getElementById('dev-console-output');
+            
+            const log = (msg, type = 'sys') => {
+                const div = document.createElement('div');
+                div.className = `log-entry log-${type}`;
+                const ts = new Date().toLocaleTimeString();
+                div.textContent = `[${ts}] ${msg}`;
+                consoleOut.appendChild(div);
+                consoleOut.scrollTop = consoleOut.scrollHeight;
+            };
+
+            // v33: STABLE REPO
+            const url = 'https://cdn.jsdelivr.net/gh/spamfan/optimizer@main/edlp_data.json?t=' + Date.now();
+            log(`🔄 FETCH START: ${url}`, 'edlp');
+
+            fetch(url)
+                .then(res => {
+                    log(`📡 RESPONSE: Status ${res.status}`, 'edlp');
+                    if (!res.ok) throw new Error("Fetch failed");
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.devices) {
+                        const deviceCount = Object.keys(data.devices).length;
+                        log(`📦 DATA RECEIVED: ${deviceCount} devices found.`, 'edlp');
+
+                        const a03 = data.devices['galaxya03'];
+                        if(a03) {
+                            log(`🐤 CANARY: Galaxy A03 (VZW) -> Total: ${a03.vzw?.total}, LastUpd: ${a03.vzw?.last_updated}`, 'edlp');
+                            log(`🐤 CANARY: Galaxy A03 (ATT) -> Total: ${a03.att?.total}, LastUpd: ${a03.att?.last_updated}`, 'edlp');
+                        }
+
+                        log(`🔄 TRANSFORMING data...`, 'edlp');
+                        const newEdlp = { att: {}, vzw: {}, tmo: {} };
+                        Object.keys(data.devices).forEach(key => {
+                            const device = data.devices[key];
+                            const name = device.name;
+                            if (device.att) newEdlp.att[name] = device.att;
+                            if (device.vzw) newEdlp.vzw[name] = device.vzw;
+                            if (device.tmo) {
+                                newEdlp.tmo[name] = device.tmo;
+                                if (device.tmo.monthly !== undefined) {
+                                    newEdlp.tmo[name].mo = device.tmo.monthly;
+                                }
+                            }
+                        });
+
+                        EDLP_DATA = newEdlp;
+                        statusIcon.textContent = "✅☁"; // v33
+                        statusIcon.title = "Live Data Active (Cloud)";
+                        log(`✅ LIVE DATA APPLIED.`, 'edlp');
+                    }
+                })
+                .catch(err => {
+                    log(`❌ ERROR: ${err.message}`, 'edlp');
+                    statusIcon.textContent = "❌☁"; // v33
+                    statusIcon.title = "Offline / Connection Failed";
+                });
+        };
+
+        // --- BUTTON LISTENERS ---
+        document.getElementById('btn-force-fetch').addEventListener('click', fetchLivePricing);
+
+        // v33: Console Filters Logic (Fixed)
+        const consoleOut = document.getElementById('dev-console-output');
+        document.getElementById('cb-log-pdf').addEventListener('change', (e) => {
+             e.target.checked ? consoleOut.classList.remove('hide-pdf') : consoleOut.classList.add('hide-pdf');
+        });
+        document.getElementById('cb-log-edlp').addEventListener('change', (e) => {
+             e.target.checked ? consoleOut.classList.remove('hide-edlp') : consoleOut.classList.add('hide-edlp');
+        });
+
+        // v33: Tutorial Toggle
+        const tutToggle = document.getElementById('tutorial-toggle');
+        const tutContent = document.getElementById('tutorial-content');
+        tutToggle.addEventListener('click', () => {
+            if (tutContent.style.display === 'none') {
+                tutContent.style.display = 'block';
+                tutToggle.textContent = 'HOW TO USE 🔼';
+            } else {
+                tutContent.style.display = 'none';
+                tutToggle.textContent = 'HOW TO USE 🔽';
+            }
+        });
 
         // --- LOCALSTORAGE FUNCTIONS ---
         const saveSettings = () => {
@@ -596,6 +736,17 @@
                     postFilterList.push(item); 
                 }
             } 
+            
+            // v30u: Log PDF Input (Filtered View)
+            if(true) { // Always log
+                 const div = document.createElement('div');
+                 div.className = `log-entry log-pdf`;
+                 div.textContent = `[${new Date().toLocaleTimeString()}] PDF Parsed: ${preFilterList.length} items found, ${autoHidden.length} auto-hidden.`;
+                 // Append even if hidden
+                 document.getElementById('dev-console-output').appendChild(div);
+                 document.getElementById('dev-console-output').scrollTop = document.getElementById('dev-console-output').scrollHeight;
+            }
+
             return { preFilterList, postFilterList, autoHidden }; 
         };
         
@@ -736,7 +887,7 @@
                 return citationMap.get(shortDate);
             };
 
-            // --- HEADER (v22) ---
+            // --- HEADER (v26) ---
             const dateNow = new Date();
             const dateStr = dateNow.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
             const timeStr = dateNow.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
@@ -762,7 +913,7 @@
             doc.text(headerText2, sideMargin + w1, yPosition);
             yPosition += lineHeight;
 
-            // Line 2: Sources
+            // Line 2: Sources (v26 Grouping)
             const timeMap = new Map();
             const sourceDates = []; 
             ['att', 'vzw', 'tmo'].forEach(c => {
@@ -1276,6 +1427,15 @@
              edlpWarning.classList.add('visible');
         }
 
+        // v33: Console Filter Logic
+        const devConsole = document.getElementById('dev-console-output');
+        document.getElementById('cb-log-pdf').addEventListener('change', (e) => {
+             e.target.checked ? devConsole.classList.remove('hide-pdf') : devConsole.classList.add('hide-pdf');
+        });
+        document.getElementById('cb-log-edlp').addEventListener('change', (e) => {
+             e.target.checked ? devConsole.classList.remove('hide-edlp') : devConsole.classList.add('hide-edlp');
+        });
+
         copyLogBtn.addEventListener('click', () => { const logText = devConsoleOutput.textContent; if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(logText).then(() => { alert('Log copied to clipboard!'); }).catch(err => { console.warn('Modern clipboard API failed, trying fallback.', err); legacyCopy(logText); }); } else { legacyCopy(logText); } });
         const legacyCopy = (text) => { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.top = 0; textArea.style.left = 0; textArea.style.opacity = 0; document.body.appendChild(textArea); textArea.focus(); textArea.select(); try { const successful = document.execCommand('copy'); if (!successful) { alert('Failed to copy log.'); } } catch (err) { alert('Failed to copy log.'); } document.body.removeChild(textArea); };
         
@@ -1295,6 +1455,7 @@
 
         // Initial load of settings from localStorage
         loadSettings();
+        fetchLivePricing(); // v33: Fetch from Stable Repo
     });
     </script>
 
