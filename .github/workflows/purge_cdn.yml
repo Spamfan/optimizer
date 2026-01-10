@@ -1,0 +1,18 @@
+name: Purge JSDelivr CDN
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'edlp_data.json'
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait 60s for Raw Propagation
+        run: sleep 60
+      
+      - name: Trigger Purge
+        run: curl -I https://purge.jsdelivr.net/gh/spamfan/optimizer@main/edlp_data.json
