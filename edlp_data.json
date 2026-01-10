@@ -70,14 +70,14 @@
       "name": "Galaxy A03",
       "tmo": {
         "dp": 0,
-        "last_updated": 1767977076501,
+        "last_updated": 1768079389485,
         "monthly": 0,
         "total": 0
       },
       "vzw": {
-        "last_updated": 1768076151784,
-        "monthly": 33.33,
-        "total": 1200
+        "last_updated": 1768079389485,
+        "monthly": 55.56,
+        "total": 2000
       }
     },
     "galaxya11": {
