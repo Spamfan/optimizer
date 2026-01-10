@@ -18,5 +18,5 @@ jobs:
             echo "Iteration $i/10: Waiting 60s..."
             sleep 60
             echo "Triggering Purge..."
-            curl https://purge.jsdelivr.net/gh/spamfan/optimizer@main/edlp_data.json
+            curl -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" https://purge.jsdelivr.net/gh/spamfan/optimizer@main/edlp_data.json
           done
