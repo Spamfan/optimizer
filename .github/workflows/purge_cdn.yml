@@ -11,8 +11,12 @@ jobs:
   purge:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait 120s for Raw Propagation
-        run: sleep 120
-      
-      - name: Trigger Purge
-        run: curl -I https://purge.jsdelivr.net/gh/spamfan/optimizer@main/edlp_data.json
+      - name: Staggered Purge Loop (10m)
+        run: |
+          for i in {1..10}
+          do
+            echo "Iteration $i/10: Waiting 60s..."
+            sleep 60
+            echo "Triggering Purge..."
+            curl -I https://purge.jsdelivr.net/gh/spamfan/optimizer@main/edlp_data.json
+          done
