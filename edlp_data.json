@@ -649,9 +649,21 @@
       }
     },
     "tclflip3": {
+      "att": {
+        "last_updated": 1768261525286,
+        "monthly": 0,
+        "total": 0
+      },
       "last_updated": 1764448685542,
       "name": "TCL Flip 3",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1768261525286,
+        "monthly": 0,
+        "total": 0
+      },
       "vzw": {
+        "last_updated": 1768261525286,
         "monthly": 1,
         "total": 36
       }
