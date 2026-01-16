@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimizer (v33)</title>
+    <title>Optimizer (v34)</title>
     
     <!-- PDF.js and jsPDF library CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -251,7 +251,7 @@
 <body>
 
     <div id="version-wrapper">
-        <span id="version-text">Version 33</span>
+        <span id="version-text">Version 34</span>
         <span id="status-icon" title="Offline Mode">❌☁</span>
     </div>
 
@@ -277,7 +277,7 @@
             <div class="toggle-option" id="edlp-toggle-wrapper">
                 <div style="display: flex; align-items: center;">
                     <input type="checkbox" id="show-edlps-toggle">
-                    <label for="show-edlps-toggle">Show Likely EDLPs (experimental)</label>
+                    <label for="show-edlps-toggle">Show likely EDLPs</label>
                 </div>
             </div>
             <div class="toggle-option">
@@ -365,7 +365,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Version 33';
+        const APP_VERSION = 'Version 34';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -392,11 +392,13 @@
             'iPhone 17 Pro Max': 'IP17PM', 'iPhone 17 Pro': 'IP17PR', 'iPhone 17': 'IP17', 'iPhone Air': 'IP AIR',
             'Moto G 5G 2024': 'MG24', 'Moto G 5G 2025': 'MG25', 'Moto G Power 2024': 'PWR24', 'Moto G Power 2025': 'PWR25', 'Moto G Stylus 2024': 'STYL24', 'Moto G Stylus 2025': 'STYL25', 'One Ace 5G': 'ACE', 'REVVL 6': 'REV6', 'TCL Flip 3': 'Flip3',
             'Galaxy S24 Plus': 'S24+', 'Galaxy S23 Plus': 'S23+', 'Galaxy S22 Plus': 'S22+', 'Galaxy S21 Plus': 'S21+', 'Galaxy S20 Plus': 'S20+',
-            'Cingular Flip 4 4GB': 'Flip4 4GB', 'Galaxy A14 64GB': 'A14 64GB', 'Galaxy A23 64GB': 'A23 64GB', 'Galaxy A54 5G 128GB': 'A54 128GB', 'Moto G Play 2023 32GB': 'PLAY23 32GB'
+            'Cingular Flip 4 4GB': 'Flip4 4GB', 'Galaxy A14 64GB': 'A14 64GB', 'Galaxy A23 64GB': 'A23 64GB', 'Galaxy A54 5G 128GB': 'A54 128GB', 'Moto G Play 2023 32GB': 'PLAY23 32GB',
+            'iPhone 14 Plus': 'IP14+'
         };
 
         const COLOR_ABBREVIATIONS = {
-            'Beige': 'BGE', 'Black': 'BLK', 'Black Titanium': 'BLK', 'Blue': 'BLU', 'Cosmic Orange': 'ORNG', 'Deep Blue': 'BLU', 'Desert Titanium': 'DSRT', 'Graphite': 'BLK', 'Gray': 'GRY', 'Green': 'GRN', 'Mist Blue': 'BLU', 'Natural Titanium': 'NTRL', 'Navy': 'BLU', 'Sky Blue': 'BLU', 'Space Black': 'BLK', 'Titanium Black': 'BLK', 'Ultramarine': 'BLU', 'White': 'WHTE'
+            'Beige': 'BGE', 'Black': 'BLK', 'Black Titanium': 'BLK', 'Blue': 'BLU', 'Cosmic Orange': 'ORNG', 'Deep Blue': 'BLU', 'Desert Titanium': 'DSRT', 'Graphite': 'BLK', 'Gray': 'GRY', 'Green': 'GRN', 'Mist Blue': 'BLU', 'Natural Titanium': 'NTRL', 'Navy': 'BLU', 'Sky Blue': 'BLU', 'Space Black': 'BLK', 'Titanium Black': 'BLK', 'Ultramarine': 'BLU', 'White': 'WHTE',
+            'Onyx Black': 'BLK', 'Onyx BLK': 'BLK'
         };
 
         const HIDDEN_CLEANUP = {
@@ -426,108 +428,111 @@
             'Moto G Stylus 2024 unloc ked 256GB': 'STYL24 Unlocked'
         };
 
-        // Offline Backup Data (v25)
+        // Offline Backup Data (v34 Updated)
         let EDLP_DATA = {
             att: {
-                'Classic': { total: 55, last_updated: 1764700686556 },
-                'Galaxy A11': { total: 36, last_updated: 1764449590527 },
-                'Galaxy A15 5G': { total: 36, last_updated: 1767472964800 },
-                'Galaxy A16 5G': { total: 119, last_updated: 1766792781330 },
-                'Galaxy A35 5G': { total: 99, last_updated: 1764448685541 },
-                'Galaxy S24 FE': { total: 580, last_updated: 1764700915613 },
-                'Galaxy S25 FE': { total: 612, last_updated: 1764700930321 },
-                'Galaxy S25 Plus 5G': { total: 799, last_updated: 1764700953069 },
-                'Galaxy S25 Ultra 5G': { total: 999, last_updated: 1764700790604 },
-                'Galaxy Z Flip 4 5G': { total: 0, last_updated: 1764700989400 },
-                'Galaxy S24 Ultra 5G': { total: 299, last_updated: 1767474294959 },
-                'iPhone 15': { total: 299, last_updated: 1765144676354 },
-                'iPhone 16': { total: 629, last_updated: 1765144696336 },
-                'iPhone 16e': { total: 549, last_updated: 1767039334223 },
-                'iPhone 16 Plus': { total: 729, last_updated: 1765142386885 },
-                'iPhone 16 Pro': { total: 799, last_updated: 1765144735530 },
-                'iPhone 16 Pro Max': { total: 999, last_updated: 1765144749989 },
-                'iPhone 17': { total: 779, last_updated: 1764701687148 },
-                'iPhone 17 Pro': { total: 1049, last_updated: 1764701705290 },
-                'iPhone 17 Pro Max': { total: 1149, last_updated: 1764701731301 },
-                'iPhone Air': { total: 899, last_updated: 1765144806232 },
-                'Moto G 5G 2024': { total: 36, last_updated: 1766198011746 },
-                'Moto G 5G 2025': { last_updated: 1764701376302 },
-                'Moto G Power 2025': { total: 0, last_updated: 1764701374519 },
-                'Moto G Stylus 2025': { total: 180, last_updated: 1765054861213 },
-                'One Ace 5G': { total: 0, last_updated: 1764701048879 },
-                'REVVL 6': { last_updated: 1764701398907 },
-                'Galaxy A03': { last_updated: 1767474365814 },
-                'Galaxy A13 LTE': { last_updated: 1767472968352 },
-                'Galaxy S23 Ultra 5G': { total: 36, last_updated: 1766198104640 },
-                'Flip 4 5G': { total: 0, last_updated: 1766772123050 },
-                'Pixel 8a': { total: 72, last_updated: 1766792893463 },
-                'Galaxy A11': { total: 36, last_updated: 1767472970733 }
+                'Classic': { monthly: 1.53, total: 55, last_updated: 1768259874017 },
+                'Flip 4 5G': { monthly: 0, total: 0, last_updated: 1766772123050 },
+                'Galaxy S23 Ultra 5G': { monthly: 1, total: 36, last_updated: 1766198104640 },
+                'Galaxy A03': { monthly: 0, total: 0, last_updated: 1767653824335 },
+                'Galaxy A11': { monthly: 1, total: 36, last_updated: 1767472970733 },
+                'Galaxy A13 LTE': { monthly: 0, total: 0, last_updated: 1767472968352 },
+                'Galaxy A15 5G': { monthly: 1, total: 36, last_updated: 1768259990253 },
+                'Galaxy A16 5G': { monthly: 3.31, total: 119, last_updated: 1768260018386 },
+                'Galaxy A35 5G': { monthly: 2.75, total: 99 },
+                'Galaxy S24 FE': { monthly: 16.11, total: 580, last_updated: 1768260000065 },
+                'Galaxy S24 Plus': { monthly: 2.75, total: 99, last_updated: 1767657359333 },
+                'Galaxy S25 FE': { monthly: 17, total: 612, last_updated: 1768260003611 },
+                'Galaxy S25 Plus 5G': { monthly: 22.19, total: 799, last_updated: 1768260030299 },
+                'Galaxy S25 Ultra 5G': { monthly: 27.75, total: 999, last_updated: 1768260054877 },
+                'Galaxy Z Flip 4 5G': { monthly: 0, total: 0, last_updated: 1764700989400 },
+                'Galaxy S24 Ultra 5G': { monthly: 8.31, total: 299, last_updated: 1767474294959 },
+                'iPhone 15': { monthly: 8.31, total: 299, last_updated: 1765144676354 },
+                'iPhone 16': { monthly: 17.47, total: 629, last_updated: 1765144696336 },
+                'iPhone 16e': { monthly: 15.25, total: 549, last_updated: 1768260130093 },
+                'iPhone 16 Plus': { monthly: 20.25, total: 729, last_updated: 1768260111042 },
+                'iPhone 16 Pro': { monthly: 22.19, total: 799, last_updated: 1765144735530 },
+                'iPhone 16 Pro Max': { monthly: 27.75, total: 999, last_updated: 1768260121343 },
+                'iPhone 17': { monthly: 21.64, total: 779, last_updated: 1764701687148 },
+                'iPhone 17 Pro': { monthly: 29.14, total: 1049, last_updated: 1764701705290 },
+                'iPhone 17 Pro Max': { monthly: 31.92, total: 1149, last_updated: 1768260149459 },
+                'iPhone Air': { monthly: 24.97, total: 899, last_updated: 1768260166912 },
+                'Moto G 5G 2024': { monthly: 1, total: 36, last_updated: 1767641098493 },
+                'Moto G 5G 2025': { monthly: 0, total: 0, last_updated: 1764701376302 },
+                'Moto G Power 2025': { monthly: 0, total: 0, last_updated: 1764701374519 },
+                'Moto G Stylus 2025': { monthly: 5, total: 180, last_updated: 1768260087216 },
+                'One Ace 5G': { monthly: 0, total: 0, last_updated: 1764701048879 },
+                'Pixel 8a': { monthly: 2, total: 72, last_updated: 1766792893463 },
+                'REVVL 6': { monthly: 0, total: 0, last_updated: 1764701398907 },
+                'TCL Flip 3': { monthly: 0, total: 0, last_updated: 1768261525286 }
             },
             tmo: {
-                'Classic': { total: 0, dp: 0, last_updated: 1764700686556 },
-                'Flip 4 5G': { total: 44, dp: 20, mo: 1, last_updated: 1766772123050 },
-                'Galaxy S23 Ultra 5G': { total: 0, dp: 0, last_updated: 1766198104640 },
-                'Galaxy A03': { last_updated: 1767474365814 },
-                'Galaxy A11': { total: 0, dp: 0, last_updated: 1767472970733 },
-                'Galaxy A13 LTE': { total: 49, last_updated: 1767472968352 },
-                'Galaxy A15 5G': { total: 0, dp: 0, last_updated: 1767472964800 },
-                'Galaxy A16 5G': { total: 117, dp: 45, mo: 3, last_updated: 1766792781330 },
-                'Galaxy S24 FE': { total: 0, dp: 0, last_updated: 1764700915613 },
-                'Galaxy S25 FE': { total: 0, dp: 0, last_updated: 1764700930321 },
-                'Galaxy S25 Plus 5G': { total: 0, dp: 0, last_updated: 1764700953069 },
-                'Galaxy S25 Ultra 5G': { total: 0, dp: 0, last_updated: 1764630490975 },
-                'Galaxy Z Flip 4 5G': { total: 44, dp: 20, mo: 1, last_updated: 1764700989400 },
-                'Galaxy S24 Ultra 5G': { total: 0, dp: 0, last_updated: 1767474294959 },
-                'iPhone 15': { total: 299, dp: 227, mo: 3, last_updated: 1765144676354 },
-                'iPhone 16': { total: 629, dp: 0, last_updated: 1765144696336 },
-                'iPhone 16e': { total: 549, dp: 417, mo: 5.5, last_updated: 1767039334223 },
-                'iPhone 16 Plus': { total: 729, dp: 549, mo: 7.5, last_updated: 1765142386885 },
-                'iPhone 16 Pro': { total: 799, dp: 601, mo: 8.25, last_updated: 1765144735530 },
-                'iPhone 16 Pro Max': { total: 999, dp: 0, mo: 41.63, last_updated: 1765144749989 },
-                'iPhone 17': { total: 779, dp: 587, mo: 8, last_updated: 1764701687148 },
-                'iPhone 17 Pro': { total: 1049, dp: 791, mo: 10.75, last_updated: 1764701705290 },
-                'iPhone 17 Pro Max': { total: 1149, dp: 867, mo: 11.75, last_updated: 1764701731301 },
-                'iPhone Air': { total: 899, dp: 677, mo: 9.25, last_updated: 1765144806232 },
-                'Moto G 5G 2024': { total: 36, dp: 0, mo: 1.5, last_updated: 1766198011746 },
-                'Moto G 5G 2025': { total: 54, dp: 30, mo: 1, last_updated: 1764701376302 },
-                'Moto G Power 2025': { total: 88, dp: 40, mo: 2, last_updated: 1764701374519 },
-                'Moto G Stylus 2025': { total: 133, dp: 50, mo: 3.46, last_updated: 1764701373157 },
-                'One Ace 5G': { total: 0, dp: 0, last_updated: 1764701048879 },
-                'REVVL 6': { total: 36, dp: 30, mo: 0.25, last_updated: 1764701398907 },
-                'Pixel 8a': { total: 0, dp: 0, last_updated: 1766792893463 }
+                'Classic': { dp: 0, monthly: 0, total: 0, last_updated: 1764700686556 },
+                'Flip 4 5G': { dp: 20, monthly: 1, total: 44, last_updated: 1766772123050 },
+                'Galaxy S23 Ultra 5G': { dp: 0, monthly: 0, total: 0, last_updated: 1766198104640 },
+                'Galaxy A03': { dp: 0, monthly: 0, total: 0, last_updated: 1768079389485 },
+                'Galaxy A11': { dp: 0, monthly: 0, total: 0, last_updated: 1767722695655 },
+                'Galaxy A13 LTE': { dp: 30, monthly: 0.79, total: 49, last_updated: 1768583483015 },
+                'Galaxy A15 5G': { dp: 0, monthly: 0, total: 0, last_updated: 1767472964800 },
+                'Galaxy A16 5G': { dp: 45, monthly: 3, total: 117, last_updated: 1768261635548 },
+                'Galaxy S24 FE': { dp: 0, monthly: 0, total: 0, last_updated: 1764700915613 },
+                'Galaxy S24 Plus': { dp: 0, monthly: 0, total: 0, last_updated: 1767657359333 },
+                'Galaxy S25 FE': { dp: 0, monthly: 0, total: 0, last_updated: 1764700930321 },
+                'Galaxy S25 Plus 5G': { dp: 0, monthly: 0, total: 0, last_updated: 1764700953069 },
+                'Galaxy S25 Ultra 5G': { dp: 0, monthly: 0, total: 0, last_updated: 1764630490975 },
+                'Galaxy Z Flip 4 5G': { dp: 20, monthly: 1, total: 44, last_updated: 1764700989400 },
+                'Galaxy S24 Ultra 5G': { dp: 0, monthly: 0, total: 0, last_updated: 1767474294959 },
+                'iPhone 15': { dp: 227, monthly: 3, total: 299, last_updated: 1765144676354 },
+                'iPhone 16': { dp: 0, monthly: 0, total: 629, last_updated: 1765144696336 },
+                'iPhone 16e': { dp: 417, monthly: 5.5, total: 549, last_updated: 1767039334223 },
+                'iPhone 16 Plus': { dp: 549, monthly: 7.5, total: 729, last_updated: 1765142386885 },
+                'iPhone 16 Pro': { dp: 601, monthly: 8.25, total: 799, last_updated: 1765144735530 },
+                'iPhone 16 Pro Max': { dp: 0, monthly: 41.63, total: 999, last_updated: 1765144749989 },
+                'iPhone 17': { dp: 587, monthly: 8, total: 779, last_updated: 1764701687148 },
+                'iPhone 17 Pro': { dp: 791, monthly: 10.75, total: 1049, last_updated: 1764701705290 },
+                'iPhone 17 Pro Max': { dp: 867, monthly: 11.75, total: 1149, last_updated: 1764701731301 },
+                'iPhone Air': { dp: 677, monthly: 9.25, total: 899, last_updated: 1765144806232 },
+                'Moto G 5G 2024': { dp: 0, monthly: 0, total: 36, last_updated: 1768261825307 },
+                'Moto G 5G 2025': { dp: 0, monthly: 0, total: 54, last_updated: 1768261804610 },
+                'Moto G Power 2025': { dp: 40, monthly: 2, total: 88, last_updated: 1768261835668 },
+                'Moto G Stylus 2025': { dp: 50, monthly: 3.46, total: 133, last_updated: 1768583494223 },
+                'One Ace 5G': { dp: 0, monthly: 0, total: 0, last_updated: 1764701048879 },
+                'Pixel 8a': { dp: 0, monthly: 0, total: 0, last_updated: 1766792893463 },
+                'REVVL 6': { dp: 30, monthly: 0.25, total: 36, last_updated: 1767654814269 },
+                'TCL Flip 3': { dp: 0, monthly: 0, total: 0, last_updated: 1768261525286 }
             },
             vzw: {
-                'Classic': { total: 0, last_updated: 1764700686556 },
-                'Flip 4 5G': { total: 0, last_updated: 1766772123050 },
-                'Galaxy S23 Ultra 5G': { total: 36, last_updated: 1766198104640 },
-                'Galaxy A03': { total: 0, last_updated: 1767474365814 },
-                'Galaxy A11': { total: 36, last_updated: 1767472970733 },
-                'Galaxy A13 LTE': { total: 0, last_updated: 1767472968352 },
-                'Galaxy A15 5G': { total: 36, last_updated: 1767472964800 },
-                'Galaxy A16 5G': { total: 120, last_updated: 1766792781330 },
-                'Galaxy S24 FE': { total: 649, last_updated: 1764700915613 },
-                'Galaxy S25 FE': { total: 650, last_updated: 1764700930321 },
-                'Galaxy S25 Plus 5G': { total: 999, last_updated: 1764700958907 },
-                'Galaxy S25 Ultra 5G': { total: 1149, last_updated: 1764630886489 },
-                'Galaxy Z Flip 4 5G': { total: 650, last_updated: 1764700989400 },
-                'Galaxy S24 Ultra 5G': { total: 299, last_updated: 1767474294959 },
-                'iPhone 15': { total: 630, last_updated: 1765144676354 },
-                'iPhone 16': { total: 729, last_updated: 1765144696336 },
-                'iPhone 16e': { total: 600, last_updated: 1767039334223 },
-                'iPhone 16 Plus': { total: 721, last_updated: 1765142386885 },
-                'iPhone 16 Pro': { total: 899, last_updated: 1765144735530 },
-                'iPhone 16 Pro Max': { total: 1099, last_updated: 1765144749989 },
-                'iPhone 17': { total: 829, last_updated: 1764701687148 },
-                'iPhone 17 Pro': { total: 1099, last_updated: 1764701705290 },
-                'iPhone 17 Pro Max': { total: 1199, last_updated: 1764701741757 },
-                'iPhone Air': { total: 999, last_updated: 1765144806232 },
-                'Moto G 5G 2024': { total: 72, last_updated: 1764701008759 },
-                'Moto G 5G 2025': { total: 72, last_updated: 1764701376302 },
-                'Moto G Power 2025': { total: 108, last_updated: 1764701374519 },
-                'Moto G Stylus 2024': { total: 72, last_updated: 1764701374519 },
-                'One Ace 5G': { total: 36, last_updated: 1764701048879 },
-                'TCL Flip 3': { total: 36, last_updated: 1764448685542 },
-                'Pixel 8a': { total: 72, last_updated: 1766792893463 }
+                'Classic': { monthly: 0, total: 0, last_updated: 1764700686556 },
+                'Flip 4 5G': { monthly: 0, total: 0, last_updated: 1767815328914 },
+                'Galaxy S23 Ultra 5G': { monthly: 1, total: 36, last_updated: 1768261224699 },
+                'Galaxy A03': { monthly: 1, total: 36, last_updated: 1768260918352 },
+                'Galaxy A11': { monthly: 0, total: 0, last_updated: 1768261192025 },
+                'Galaxy A13 LTE': { monthly: 0, total: 0, last_updated: 1767472968352 },
+                'Galaxy A15 5G': { monthly: 1, total: 36, last_updated: 1768261207628 },
+                'Galaxy A16 5G': { monthly: 3.33, total: 120, last_updated: 1768261215031 },
+                'Galaxy S24 FE': { monthly: 11.67, total: 420, last_updated: 1768261240300 },
+                'Galaxy S24 Plus': { monthly: 0, total: 0, last_updated: 1767657359333 },
+                'Galaxy S25 FE': { monthly: 18.06, total: 650, last_updated: 1768261263304 },
+                'Galaxy S25 Plus 5G': { monthly: 27.75, total: 999, last_updated: 1768261269448 },
+                'Galaxy S25 Ultra 5G': { monthly: 36.08, total: 1299, last_updated: 1768261285717 },
+                'Galaxy Z Flip 4 5G': { monthly: 18.06, total: 650, last_updated: 1768261300001 },
+                'Galaxy S24 Ultra 5G': { monthly: 8.31, total: 299, last_updated: 1767474294959 },
+                'iPhone 15': { monthly: 17.5, total: 630, last_updated: 1768260787738 },
+                'iPhone 16': { monthly: 20.25, total: 729, last_updated: 1765144696336 },
+                'iPhone 16e': { monthly: 16.67, total: 600, last_updated: 1768260873895 },
+                'iPhone 16 Plus': { monthly: 23.03, total: 829, last_updated: 1768260809547 },
+                'iPhone 16 Pro': { monthly: 24.97, total: 899, last_updated: 1765144735530 },
+                'iPhone 16 Pro Max': { monthly: 30.53, total: 1099, last_updated: 1768260853000 },
+                'iPhone 17': { monthly: 23.03, total: 829, last_updated: 1764701687148 },
+                'iPhone 17 Pro': { monthly: 30.53, total: 1099, last_updated: 1764701705290 },
+                'iPhone 17 Pro Max': { monthly: 33.31, total: 1199, last_updated: 1768260887080 },
+                'iPhone Air': { monthly: 27.75, total: 999, last_updated: 1768260897249 },
+                'Moto G 5G 2024': { monthly: 1, total: 36, last_updated: 1768261408429 },
+                'Moto G 5G 2025': { monthly: 2, total: 72, last_updated: 1768261431322 },
+                'Moto G Power 2025': { monthly: 3, total: 108, last_updated: 1768261444330 },
+                'One Ace 5G': { monthly: 1, total: 36, last_updated: 1768261506323 },
+                'Pixel 8a': { monthly: 2, total: 72, last_updated: 1768261512458 },
+                'TCL Flip 3': { monthly: 1, total: 36, last_updated: 1768261525286 }
             }
         };
 
@@ -836,7 +841,7 @@
             let yPosition = topMargin;
             const showEdlps = showEdlpsToggle.checked;
             
-            // --- PASS 1: COLLECT CITATIONS ---
+            // --- PASS 1: COLLECT CITATIONS (v34 Refactor) ---
             const citationMap = new Map();
             const getPriceObj = (cData, mName) => {
                 if (!cData) return null;
@@ -847,7 +852,14 @@
                 return null;
             };
 
-            const uniqueDates = new Set();
+            const now = new Date();
+            const currentMonth = now.getMonth(); // 0-11
+            const currentYear = now.getFullYear();
+            
+            // Collection Set: Stores unique citation labels (e.g. "Dec 2025" or "1/16")
+            // We store objects: { label: string, sortValue: number }
+            const collectedCitations = new Map(); // label -> sortValue
+
             const collectDates = (carrier, list) => {
                 list.forEach(item => {
                     const isApple = carrier === 'apple';
@@ -856,16 +868,40 @@
                     const emphasisState = (appState[sourceCarrier].emphasis.get(rawModel) || {});
                     if (emphasisState.hidden) return;
 
+                    const addCitation = (ts) => {
+                        if (!ts) return;
+                        const d = new Date(ts);
+                        let label = "";
+                        let sortValue = 0;
+
+                        // Check if past month
+                        if (d.getFullYear() < currentYear || (d.getFullYear() === currentYear && d.getMonth() < currentMonth)) {
+                            // Format: MMM YYYY (e.g., Dec 2025)
+                            label = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                            // Sort value: First day of that month
+                            sortValue = new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+                        } else {
+                            // Current month/future: M/D (e.g., 1/16)
+                            label = `${d.getMonth() + 1}/${d.getDate()}`;
+                            // Sort value: exact timestamp
+                            sortValue = d.getTime();
+                        }
+
+                        if (!collectedCitations.has(label)) {
+                            collectedCitations.set(label, sortValue);
+                        }
+                    };
+
                     if (isApple) {
                         const pAtt = getPriceObj(EDLP_DATA.att, rawModel);
                         const pVzw = getPriceObj(EDLP_DATA.vzw, rawModel);
                         const pTmo = getPriceObj(EDLP_DATA.tmo, rawModel);
-                        if (pAtt && pAtt.total > 0 && pAtt.last_updated) uniqueDates.add(new Date(pAtt.last_updated).toDateString());
-                        if (pVzw && pVzw.total > 0 && pVzw.last_updated) uniqueDates.add(new Date(pVzw.last_updated).toDateString());
-                        if (pTmo && pTmo.total > 0 && pTmo.last_updated) uniqueDates.add(new Date(pTmo.last_updated).toDateString());
+                        if (pAtt && pAtt.total > 0 && pAtt.last_updated) addCitation(pAtt.last_updated);
+                        if (pVzw && pVzw.total > 0 && pVzw.last_updated) addCitation(pVzw.last_updated);
+                        if (pTmo && pTmo.total > 0 && pTmo.last_updated) addCitation(pTmo.last_updated);
                     } else {
                         const p = getPriceObj(EDLP_DATA[sourceCarrier], rawModel);
-                        if (p && p.total > 0 && p.last_updated) uniqueDates.add(new Date(p.last_updated).toDateString());
+                        if (p && p.total > 0 && p.last_updated) addCitation(p.last_updated);
                     }
                 });
             };
@@ -873,24 +909,31 @@
             const carriersForLayout = Object.keys(state).filter(c => state[c].consolidatedList && state[c].consolidatedList.length > 0);
             carriersForLayout.forEach(c => collectDates(c, state[c].consolidatedList));
 
-            const sortedDates = Array.from(uniqueDates).sort((a, b) => new Date(a) - new Date(b));
-            sortedDates.forEach((dateStr, index) => {
-                const shortDate = new Date(dateStr).toLocaleDateString('en-US', { month: 'numeric', day: '2-digit' });
-                if (!citationMap.has(shortDate)) {
-                    citationMap.set(shortDate, index + 1);
-                }
+            // Sort citations: Past months first, then current days
+            const sortedLabels = Array.from(collectedCitations.entries())
+                .sort((a, b) => a[1] - b[1])
+                .map(entry => entry[0]);
+
+            // Assign indices
+            sortedLabels.forEach((label, index) => {
+                citationMap.set(label, index + 1);
             });
 
             const getCitation = (ts) => {
                 if (!ts) return null;
-                const shortDate = new Date(ts).toLocaleDateString('en-US', { month: 'numeric', day: '2-digit' });
-                return citationMap.get(shortDate);
+                const d = new Date(ts);
+                let label = "";
+                if (d.getFullYear() < currentYear || (d.getFullYear() === currentYear && d.getMonth() < currentMonth)) {
+                    label = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                } else {
+                    label = `${d.getMonth() + 1}/${d.getDate()}`;
+                }
+                return citationMap.get(label);
             };
 
             // --- HEADER (v26) ---
-            const dateNow = new Date();
-            const dateStr = dateNow.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-            const timeStr = dateNow.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
+            const dateStr = now.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
             
             // Build Store String
             const storeSet = new Set();
@@ -913,7 +956,7 @@
             doc.text(headerText2, sideMargin + w1, yPosition);
             yPosition += lineHeight;
 
-            // Line 2: Sources (v26 Grouping)
+            // Line 2: Sources (v26 Grouping / v34 Compact Ranges)
             const timeMap = new Map();
             const sourceDates = []; 
             ['att', 'vzw', 'tmo'].forEach(c => {
@@ -956,6 +999,26 @@
 
             let sourcesContent = "";
             const formatTime = (d) => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
+            
+            // v34 Helper: Compact Range
+            const formatCompactRange = (start, end) => {
+                const sH = start.getHours();
+                const sM = start.getMinutes();
+                const eH = end.getHours();
+                const eM = end.getMinutes();
+                const sAmPm = sH >= 12 ? 'pm' : 'am';
+                const eAmPm = eH >= 12 ? 'pm' : 'am';
+                const sH12 = sH % 12 || 12;
+                
+                if (sH === eH) {
+                    // Same hour and meridian (implied)
+                    const sMStr = sM.toString().padStart(2, '0');
+                    const eMStr = eM.toString().padStart(2, '0');
+                    return `${sH12}:${sMStr}-${eMStr}${sAmPm}`;
+                } else {
+                    return `${formatTime(start)}-${formatTime(end)}`;
+                }
+            };
 
             groups.forEach((g, i) => {
                 let timeLabel = "N/A";
@@ -967,7 +1030,9 @@
                      if (startStr === endStr) {
                         timeLabel = (i === 0) ? `${datePart} ${startStr}` : `${startStr}`;
                      } else {
-                        timeLabel = (i === 0) ? `${datePart} ${startStr}-${endStr}` : `${startStr}-${endStr}`;
+                        // v34 Compact Logic
+                        const rangeStr = formatCompactRange(g.startTime, g.endTime);
+                        timeLabel = (i === 0) ? `${datePart} ${rangeStr}` : `${rangeStr}`;
                      }
                 }
                 sourcesContent += `${timeLabel}: ${g.carriers.join(", ")}`;
