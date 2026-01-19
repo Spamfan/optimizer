@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimizer (v40)</title>
+    <title>Optimizer (v41)</title>
     
     <!-- PDF.js and jsPDF library CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -262,7 +262,7 @@
 <body>
 
     <div id="version-wrapper">
-        <span id="version-text">Beta V40</span>
+        <span id="version-text">Beta V41</span>
         <span id="status-icon" title="Offline Mode">❌☁</span>
     </div>
 
@@ -377,7 +377,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta V40';
+        const APP_VERSION = 'Beta V41';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -423,12 +423,30 @@
             'Moto G 5G 2024': 'MG24', 'Moto G 5G 2025': 'MG25', 'Moto G Power 2024': 'PWR24', 'Moto G Power 2025': 'PWR25', 'Moto G Stylus 2024': 'STYL24', 'Moto G Stylus 2025': 'STYL25', 'One Ace 5G': 'ACE', 'REVVL 6': 'REV6', 'TCL Flip 3': 'Flip3',
             'Galaxy S24 Plus': 'S24+', 'Galaxy S23 Plus': 'S23+', 'Galaxy S22 Plus': 'S22+', 'Galaxy S21 Plus': 'S21+', 'Galaxy S20 Plus': 'S20+',
             'Cingular Flip 4 4GB': 'Flip4 4GB', 'Galaxy A14 64GB': 'A14 64GB', 'Galaxy A23 64GB': 'A23 64GB', 'Galaxy A54 5G 128GB': 'A54 128GB', 'Moto G Play 2023 32GB': 'PLAY23 32GB',
-            'iPhone 14 Plus': 'IP14+'
+            'iPhone 14 Plus': 'IP14+',
+            'Galaxy S21 FE': '21FE',
+            'Moto G Stylus 5G 2023': 'STYL23',
+            'iPhone 14': 'IP14',
+            'G Stylus 5G': 'STYL 5G',
+            'G Stylus': 'STYL',
+            'MOTO G Stylus 5G': 'STYL 5G',
+            'Galaxy A52 5G': 'A52 5G',
+            'Galaxy A13 5G': 'A13 5G',
+            'Galaxy A32 5G': 'A32 5G',
+            'Galaxy A23 5G': 'A23 5G',
+            'Galaxy A53 5G': 'A53 5G',
+            'iPhone SE 2nd Gen Rev': 'SE2 Rev',
+            'iPhone SE 3rd Gen': 'SE3',
+            'Moto G 5G 23': 'MG23',
+            'Galaxy S21 5G': 'S21 5G',
+            'Galaxy S24 Ultra 5G': 'S24U',
+            'Galaxy A35 128GB': 'A35'
         };
 
         const COLOR_ABBREVIATIONS = {
             'Beige': 'BGE', 'Black': 'BLK', 'Black Titanium': 'BLK', 'Blue': 'BLU', 'Cosmic Orange': 'ORNG', 'Deep Blue': 'BLU', 'Desert Titanium': 'DSRT', 'Graphite': 'BLK', 'Gray': 'GRY', 'Green': 'GRN', 'Mist Blue': 'BLU', 'Natural Titanium': 'NTRL', 'Navy': 'BLU', 'Sky Blue': 'BLU', 'Space Black': 'BLK', 'Titanium Black': 'BLK', 'Ultramarine': 'BLU', 'White': 'WHTE',
-            'Onyx Black': 'BLK', 'Onyx BLK': 'BLK'
+            'Onyx Black': 'BLK', 'Onyx BLK': 'BLK',
+            'Midnight': 'NAVY', 'Caramel Latte': 'BEIGE', 'Olive': 'GRN'
         };
 
         const HIDDEN_CLEANUP = {
@@ -577,7 +595,7 @@
                 const ts = new Date().toLocaleTimeString();
                 div.textContent = `[${ts}] ${msg}`;
                 consoleOut.appendChild(div);
-                consoleOut.scrollTop = consoleOut.scrollHeight;
+                // consoleOut.scrollTop = consoleOut.scrollHeight; // Auto-scroll
             };
 
             // v33: STABLE REPO
@@ -820,15 +838,14 @@
         };
         
         const abbreviateColor = (color) => {
-            for (const [fullColor, abbrev] of Object.entries(COLOR_ABBREVIATIONS)) {
-                if (color.toLowerCase() === fullColor.toLowerCase()) return abbrev;
+            // v41: Prioritize longest key match first to handle "Awesome Black" vs "Black"
+            const sortedKeys = Object.keys(COLOR_ABBREVIATIONS).sort((a, b) => b.length - a.length);
+            for (const key of sortedKeys) {
+                if (color.toLowerCase().includes(key.toLowerCase())) {
+                    return COLOR_ABBREVIATIONS[key]; // Return ONLY the abbreviation
+                }
             }
-            let processed = color;
-            for (const [fullColor, abbrev] of Object.entries(COLOR_ABBREVIATIONS)) {
-                const regex = new RegExp(`\\b${fullColor}\\b`, 'gi');
-                processed = processed.replace(regex, abbrev);
-            }
-            return processed;
+            return color;
         };
 
         const abbreviateModel = (model) => {
