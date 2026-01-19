@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimizer (v34)</title>
+    <title>Optimizer (v40)</title>
     
     <!-- PDF.js and jsPDF library CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -124,7 +124,7 @@
             margin-bottom: 20px;
         }
 
-        #highlight-btn, #process-btn, #copy-log-btn, #btn-force-fetch {
+        #highlight-btn, #process-btn, #copy-log-btn, #btn-force-fetch, #btn-reset-settings {
             flex-grow: 1;
             border: none;
             padding: 12px 20px;
@@ -139,6 +139,17 @@
         #process-btn { background-color: #1877f2; color: white; }
 
         #btn-force-fetch { font-size: 0.8em; padding: 8px 12px; margin-top: 5px; width: 100%; }
+        
+        #btn-reset-settings {
+            font-size: 0.8em; 
+            padding: 8px 12px; 
+            margin-top: 10px; 
+            width: 100%;
+            background-color: #fff;
+            color: #d93025;
+            border: 1px solid #d93025;
+        }
+        #btn-reset-settings:hover { background-color: #fce8e6; }
         
         #comments {
             width: 100%;
@@ -183,7 +194,7 @@
             max-height: 200px;
             overflow-y: auto;
             white-space: pre-wrap;
-            word-wrap: break-word;
+            word-break: break-all; /* v40: Fix mobile layout shift */
             font-family: monospace;
             font-size: 0.8em;
             margin-bottom: 10px;
@@ -251,7 +262,7 @@
 <body>
 
     <div id="version-wrapper">
-        <span id="version-text">Version 34</span>
+        <span id="version-text">Beta V40</span>
         <span id="status-icon" title="Offline Mode">❌☁</span>
     </div>
 
@@ -282,7 +293,7 @@
             </div>
             <div class="toggle-option">
                 <input type="checkbox" id="dev-console-toggle">
-                <label for="dev-console-toggle">Other experimental settings</label>
+                <label for="dev-console-toggle">Show developer options</label>
             </div>
         </div>
         
@@ -292,7 +303,7 @@
         </div>
 
         <div class="control-section">
-            <label for="comments">Comments (optional)</label>
+            <label for="comments">Optional - Add comments to your inventory paper</label>
             <textarea id="comments"></textarea>
             <p id="konami-message">Also try Tank Tycoon!</p>
         </div>
@@ -354,6 +365,7 @@
             <pre id="dev-console-output"></pre>
             <button id="btn-force-fetch">Force Refetch Data</button>
             <button id="copy-log-btn">Copy Log</button>
+            <button id="btn-reset-settings">Clear Optimizer Cache</button>
         </div>
     </div>
 
@@ -365,7 +377,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Version 34';
+        const APP_VERSION = 'Beta V40';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -375,6 +387,18 @@
         
         document.getElementById('how-to-use-container').querySelector('ol').innerHTML = document.getElementById('how-to-use-container').querySelector('ol').innerHTML.replace(/\$\{MORE_OPTIONS_SVG\}/g, MORE_OPTIONS_SVG).replace(/\$\{HIDE_ICON_SVG\}/g, HIDE_ICON_SVG);
 
+        // --- GLOBAL LOGGING HELPER (V38) ---
+        const debugLog = (msg, type = 'sys') => {
+            const consoleOut = document.getElementById('dev-console-output');
+            if (!consoleOut) return;
+            const div = document.createElement('div');
+            div.className = `log-entry log-${type}`;
+            const ts = new Date().toLocaleTimeString();
+            div.textContent = `[${ts}] ${msg}`;
+            consoleOut.appendChild(div);
+            // consoleOut.scrollTop = consoleOut.scrollHeight; // Auto-scroll
+        };
+
         // --- GLOBAL STATE ---
         let appState = { 
             att: { consolidatedList: [], emphasis: new Map(), fileDate: '', storeNumber: '', autoHidden: [] }, 
@@ -383,7 +407,13 @@
         };
         let devModalCloseable = { button: true, backdrop: true };
 
-        const STORE_NICKNAMES = { '1698': 'Hooksett', '2399': 'Manchester', '1762': 'Seabrook' };
+        const STORE_NICKNAMES = { 
+            '1698': 'Hooksett', '2399': 'Manchester', '1762': 'Seabrook',
+            '2758': 'Plymouth', '1753': 'Derry', '2639': 'Gilford', '3535': 'Epping', '1785': 'Hudson', '2369': 'Tilton', '1796': 'Amherst',
+            '2202': 'Windham', '1868': 'Auburn', '2143': 'Skowhegan', '2530': 'Rutland', '1856': 'Bangor', '1788': 'Scarborough',
+            '2222': 'Tewksbury', '2118': 'Lunenburg',
+            '2152': 'Albany'
+        };
 
         // --- EDLP DATA & ABBREVIATIONS ---
         const DEVICE_ABBREVIATIONS = {
@@ -611,6 +641,14 @@
              e.target.checked ? consoleOut.classList.remove('hide-edlp') : consoleOut.classList.add('hide-edlp');
         });
 
+        // v36.1: Reset Cache Button
+        document.getElementById('btn-reset-settings').addEventListener('click', () => {
+            if (confirm("Click OK to reset local preferences. This will wipe saved highlights/hidden items.")) {
+                localStorage.removeItem('betterInvSettings');
+                window.location.reload();
+            }
+        });
+
         // v33: Tutorial Toggle
         const tutToggle = document.getElementById('tutorial-toggle');
         const tutContent = document.getElementById('tutorial-content');
@@ -627,16 +665,20 @@
         // --- LOCALSTORAGE FUNCTIONS ---
         const saveSettings = () => {
             try {
+                // V38 Logging
+                debugLog("--- SAVE TRIGGERED ---", "sys");
+                
                 const cleanEmphasis = (emphasisMap) => {
                     const cleanEntries = Array.from(emphasisMap.entries()).map(([key, value]) => {
                         const { partial, full, hidden } = value; 
-                        return [key, { partial, full, hidden }];
+                        return [key, { partial: !!partial, full: !!full, hidden: !!hidden }]; // v36: Persistence Fix
                     });
                     return new Map(cleanEntries);
                 };
 
                 const settings = {
                     isolate: isolateIphonesCheckbox.checked,
+                    showEdlps: showEdlpsToggle.checked, // v35 Sticky Toggle
                     emphasis: {
                         att: Array.from(cleanEmphasis(appState.att.emphasis).entries()),
                         vzw: Array.from(cleanEmphasis(appState.vzw.emphasis).entries()),
@@ -644,18 +686,47 @@
                     }
                 };
                 localStorage.setItem('betterInvSettings', JSON.stringify(settings));
+                debugLog("SAVE COMPLETE", "sys");
             } catch (error) { console.error("Could not save settings:", error); }
         };
 
         const loadSettings = () => {
             try {
+                debugLog("--- LOAD SETTINGS START ---", "sys");
                 const savedSettings = localStorage.getItem('betterInvSettings');
+                
+                // V38 Logging
+                if (savedSettings) {
+                    debugLog(`RAW STORAGE FOUND: ${savedSettings.substring(0, 100)}...`, "sys");
+                } else {
+                    debugLog("RAW STORAGE: null/empty", "sys");
+                }
+
                 if (savedSettings) {
                     const settings = JSON.parse(savedSettings);
                     isolateIphonesCheckbox.checked = settings.isolate || false;
+                    
+                    // v35 Sticky Toggle
+                    if (settings.showEdlps !== undefined) {
+                        showEdlpsToggle.checked = settings.showEdlps;
+                        if(settings.showEdlps) edlpWarning.classList.add('visible');
+                    }
+
                     appState.att.emphasis = new Map(settings.emphasis.att || []);
                     appState.vzw.emphasis = new Map(settings.emphasis.vzw || []);
                     appState.tmo.emphasis = new Map(settings.emphasis.tmo || []);
+                    
+                    // V38: Log Hidden Counts
+                    ['att', 'vzw', 'tmo'].forEach(c => {
+                        let hiddenCount = 0;
+                        appState[c].emphasis.forEach((val, key) => {
+                            if (val.hidden) {
+                                debugLog(`LOAD HIDDEN [${c}]: '${key}'`, "sys");
+                                hiddenCount++;
+                            }
+                        });
+                        debugLog(`[${c}] Loaded: ${appState[c].emphasis.size} settings, ${hiddenCount} hidden.`, "sys");
+                    });
                 }
             } catch (error) { console.error("Could not load settings, using defaults:", error); }
         };
@@ -742,15 +813,8 @@
                 }
             } 
             
-            // v30u: Log PDF Input (Filtered View)
-            if(true) { // Always log
-                 const div = document.createElement('div');
-                 div.className = `log-entry log-pdf`;
-                 div.textContent = `[${new Date().toLocaleTimeString()}] PDF Parsed: ${preFilterList.length} items found, ${autoHidden.length} auto-hidden.`;
-                 // Append even if hidden
-                 document.getElementById('dev-console-output').appendChild(div);
-                 document.getElementById('dev-console-output').scrollTop = document.getElementById('dev-console-output').scrollHeight;
-            }
+            // v39: Log PDF Input (Filtered View) using debugLog
+            debugLog(`PDF Parsed: ${preFilterList.length} items found, ${autoHidden.length} auto-hidden.`, 'pdf');
 
             return { preFilterList, postFilterList, autoHidden }; 
         };
@@ -931,7 +995,7 @@
                 return citationMap.get(label);
             };
 
-            // --- HEADER (v26) ---
+            // --- HEADER (v35 Refactor) ---
             const dateStr = now.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
             const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
             
@@ -940,24 +1004,25 @@
             ['att', 'vzw', 'tmo'].forEach(c => {
                 if (appState[c].storeNumber) {
                     const nick = STORE_NICKNAMES[appState[c].storeNumber];
-                    storeSet.add(nick ? ` - ${nick} #${appState[c].storeNumber} -` : ` - #${appState[c].storeNumber} -`);
+                    storeSet.add(nick ? `${nick} #${appState[c].storeNumber}` : `#${appState[c].storeNumber}`);
                 }
             });
             const storeString = Array.from(storeSet).join(' '); 
 
-            // Line 1
-            const headerText1 = `${dateStr} ${timeStr}`;
-            const headerText2 = `${storeString} Inventory report made with Optimizer, an unofficial and experimental work app created by Abraham.`;
+            // Line 1 (v35: Bold Sentence)
+            const headerText1 = `${dateStr} ${timeStr} ${storeString} Inventory Report`;
+            const headerText2 = ` - Made with Optimizer, an unofficial work app created by Abraham Gable.`;
+            
             doc.setFontSize(8); 
             doc.setFont("helvetica", "bold");
             doc.text(headerText1, sideMargin, yPosition);
             const w1 = doc.getTextWidth(headerText1);
+            
             doc.setFont("helvetica", "normal");
             doc.text(headerText2, sideMargin + w1, yPosition);
             yPosition += lineHeight;
 
-            // Line 2: Sources (v26 Grouping / v34 Compact Ranges)
-            const timeMap = new Map();
+            // Line 2: Sources (v35 Source Formatting)
             const sourceDates = []; 
             ['att', 'vzw', 'tmo'].forEach(c => {
                 const rawDate = appState[c].fileDate;
@@ -1035,7 +1100,8 @@
                         timeLabel = (i === 0) ? `${datePart} ${rangeStr}` : `${rangeStr}`;
                      }
                 }
-                sourcesContent += `${timeLabel}: ${g.carriers.join(", ")}`;
+                // v35 Logic: Time (Sources)
+                sourcesContent += `${timeLabel} (${g.carriers.join(", ")})`;
                 if (i < groups.length - 1) sourcesContent += ", ";
             });
 
@@ -1047,14 +1113,13 @@
             doc.text(sourcesContent, sideMargin + wSources, yPosition);
             yPosition += lineHeight;
 
-            // Line 3: EDLP Citations
+            // Line 3: EDLP Citations (v35: Rephrase and Unbold)
             if (showEdlps && citationMap.size > 0) {
-                const edlpLabel = "EDLP values last verified on: ";
-                doc.setFont("helvetica", "bold");
+                const edlpLabel = "EDLP values were last verified on ";
+                doc.setFont("helvetica", "normal");
                 doc.text(edlpLabel, sideMargin, yPosition);
                 let currentX = sideMargin + doc.getTextWidth(edlpLabel);
                 
-                doc.setFont("helvetica", "normal");
                 const sortedCitations = Array.from(citationMap.entries()).sort((a, b) => a[1] - b[1]);
                 
                 sortedCitations.forEach(([date, index], i) => {
@@ -1184,7 +1249,11 @@
                         displayDetails = abbreviateDetails(rawDetails);
                         
                         const findPrice = (cData, mName) => getPriceObj(cData, mName);
-                        const formatCurrency = (val) => val !== undefined ? `$${val}` : '$??';
+                        // v35: Zero Filter (Includes 0, null, ???)
+                        const formatCurrency = (val) => {
+                            if (val === 0 || val === "0" || val === null || val === undefined || val === "???" || val === "??") return "___";
+                            return `$${val}`;
+                        };
 
                         if (isApple) {
                            const pAtt = findPrice(EDLP_DATA.att, rawModel);
@@ -1192,17 +1261,20 @@
                            const pTmo = findPrice(EDLP_DATA.tmo, rawModel);
                            
                            // Zero Filter (v26)
-                           const tAtt = (pAtt && pAtt.total > 0) ? `$${pAtt.total}` : "$???";
+                           // v36: Unknown Device Fallback (___ instead of $???)
+                           const tAtt = (pAtt && pAtt.total > 0) ? formatCurrency(pAtt.total) : "___";
                            const citAtt = (pAtt && pAtt.total > 0) ? getCitation(pAtt.last_updated) : null;
                            edlpSegments.push({ text: tAtt, citation: citAtt });
                            edlpSegments.push({ text: ", ", citation: null });
 
-                           const tVzw = (pVzw && pVzw.total > 0) ? `$${pVzw.total}` : "$???";
+                           // v36: Unknown Device Fallback
+                           const tVzw = (pVzw && pVzw.total > 0) ? formatCurrency(pVzw.total) : "___";
                            const citVzw = (pVzw && pVzw.total > 0) ? getCitation(pVzw.last_updated) : null;
                            edlpSegments.push({ text: tVzw, citation: citVzw });
                            edlpSegments.push({ text: ", ", citation: null });
                            
-                           let tTmoText = "$???";
+                           // v36: Unknown Device Fallback
+                           let tTmoText = "___";
                            let citTmo = null;
                            if (pTmo && pTmo.total > 0) {
                                citTmo = getCitation(pTmo.last_updated);
@@ -1226,7 +1298,7 @@
                                        txt = formatCurrency(priceData.total);
                                    }
                                } else {
-                                   txt = priceData.total !== undefined ? `$${priceData.total}` : "";
+                                   txt = priceData.total !== undefined ? formatCurrency(priceData.total) : "";
                                }
                                if (txt) edlpSegments.push({ text: txt, citation: cit });
                            }
@@ -1435,6 +1507,9 @@
                     appState[carrier].consolidatedList = consolidateInventory(postFilterList); 
                     appState[carrier].autoHidden = autoHidden; 
 
+                    // V38 Logging
+                    debugLog(`PARSED [${carrier}]: ${postFilterList.length} items found.`, "pdf");
+
                     const statusSection = document.getElementById(`${carrier}-status`); 
                     statusSection.querySelector('.status-filename').textContent = file.name; 
                     statusSection.style.display = 'block'; 
@@ -1443,14 +1518,29 @@
                         logContent += `== RAW TEXT EXTRACTED ==\n${text}\n\n`; 
                         logContent += `== ITEMS FOUND (PRE-FILTER) ==\n${preFilterList.map(item => item.join(' | ')).join('\n')}\n\n`; 
                         logContent += `== ITEMS KEPT (POST-FILTER) ==\n${postFilterList.map(item => item.join(' | ')).join('\n')}\n\n`; 
-                        devConsoleOutput.textContent += logContent; 
+                        
+                        // v39: Use debugLog for verbose output so it respects filters
+                        debugLog(logContent, 'pdf');
                     } 
                 } catch (error) { alert(`Failed to process file: ${file.name}`); console.error(error); } 
             } 
             uploadArea.querySelector('p').textContent = 'Drag & drop files here.'; 
         };
         
-        const openEmphasisModal = () => { const listContainer = document.getElementById('emphasis-list-container'); listContainer.innerHTML = ''; const processedData = prepareDataForDisplay(); const carriersToDisplay = Object.keys(processedData).filter(c => processedData[c].consolidatedList.length > 0); carriersToDisplay.forEach(carrier => { const header = document.createElement('div'); header.className = 'emphasis-list-carrier-header'; header.textContent = (carrier === 'apple') ? 'Apple Devices' : carrier.toUpperCase(); listContainer.appendChild(header); processedData[carrier].consolidatedList.forEach(item => { const isApple = carrier === 'apple'; const modelAndCapacity = isApple ? item.modelAndCapacity : item[0]; const details = isApple ? item.details : item[1]; const sourceCarrier = isApple ? item.sourceCarrier : carrier; const currentEmphasis = appState[sourceCarrier].emphasis.get(modelAndCapacity) || { partial: false, full: false, hidden: false }; const itemDiv = document.createElement('div'); itemDiv.className = 'emphasis-item'; if (currentEmphasis.hidden) itemDiv.classList.add('item-hidden'); const hideDiv = document.createElement('div'); hideDiv.className = 'emphasis-item-hide'; hideDiv.innerHTML = HIDE_ICON_SVG; hideDiv.dataset.key = modelAndCapacity; hideDiv.dataset.carrier = sourceCarrier; const partialCheckbox = document.createElement('input'); partialCheckbox.type = 'checkbox'; partialCheckbox.checked = currentEmphasis.partial; partialCheckbox.disabled = currentEmphasis.hidden; partialCheckbox.dataset.key = modelAndCapacity; partialCheckbox.dataset.carrier = sourceCarrier; partialCheckbox.dataset.type = 'partial'; const fullCheckbox = document.createElement('input'); fullCheckbox.type = 'checkbox'; fullCheckbox.checked = currentEmphasis.full; fullCheckbox.disabled = currentEmphasis.hidden; fullCheckbox.dataset.key = modelAndCapacity; fullCheckbox.dataset.carrier = sourceCarrier; fullCheckbox.dataset.type = 'full'; const textDiv = document.createElement('div'); textDiv.className = 'emphasis-item-text'; textDiv.textContent = `${modelAndCapacity} - ${details}`; itemDiv.appendChild(hideDiv); itemDiv.appendChild(partialCheckbox); itemDiv.appendChild(fullCheckbox); itemDiv.appendChild(textDiv); listContainer.appendChild(itemDiv); }); }); emphasisModal.style.display = 'flex'; };
+        const openEmphasisModal = () => { 
+            // V38 Logging
+            debugLog("--- OPENING MODAL (Key Lookup Check) ---", "sys");
+            
+            const listContainer = document.getElementById('emphasis-list-container'); listContainer.innerHTML = ''; const processedData = prepareDataForDisplay(); const carriersToDisplay = Object.keys(processedData).filter(c => processedData[c].consolidatedList.length > 0); carriersToDisplay.forEach(carrier => { const header = document.createElement('div'); header.className = 'emphasis-list-carrier-header'; header.textContent = (carrier === 'apple') ? 'Apple Devices' : carrier.toUpperCase(); listContainer.appendChild(header); processedData[carrier].consolidatedList.forEach(item => { const isApple = carrier === 'apple'; const modelAndCapacity = isApple ? item.modelAndCapacity : item[0]; const details = isApple ? item.details : item[1]; const sourceCarrier = isApple ? item.sourceCarrier : carrier; 
+            
+            // V38 Logging
+            const existingState = appState[sourceCarrier].emphasis.get(modelAndCapacity);
+            debugLog(`LOOKUP: Carrier [${sourceCarrier}] Key '[${modelAndCapacity}]' -> Found: ${existingState ? JSON.stringify(existingState) : 'undefined'}`, "sys");
+
+            // v40: Ensure full fallback object includes hidden:false
+            const currentEmphasis = existingState || { partial: false, full: false, hidden: false }; 
+            
+            const itemDiv = document.createElement('div'); itemDiv.className = 'emphasis-item'; if (currentEmphasis.hidden) itemDiv.classList.add('item-hidden'); const hideDiv = document.createElement('div'); hideDiv.className = 'emphasis-item-hide'; hideDiv.innerHTML = HIDE_ICON_SVG; hideDiv.dataset.key = modelAndCapacity; hideDiv.dataset.carrier = sourceCarrier; const partialCheckbox = document.createElement('input'); partialCheckbox.type = 'checkbox'; partialCheckbox.checked = currentEmphasis.partial; partialCheckbox.disabled = currentEmphasis.hidden; partialCheckbox.dataset.key = modelAndCapacity; partialCheckbox.dataset.carrier = sourceCarrier; partialCheckbox.dataset.type = 'partial'; const fullCheckbox = document.createElement('input'); fullCheckbox.type = 'checkbox'; fullCheckbox.checked = currentEmphasis.full; fullCheckbox.disabled = currentEmphasis.hidden; fullCheckbox.dataset.key = modelAndCapacity; fullCheckbox.dataset.carrier = sourceCarrier; fullCheckbox.dataset.type = 'full'; const textDiv = document.createElement('div'); textDiv.className = 'emphasis-item-text'; textDiv.textContent = `${modelAndCapacity} - ${details}`; itemDiv.appendChild(hideDiv); itemDiv.appendChild(partialCheckbox); itemDiv.appendChild(fullCheckbox); itemDiv.appendChild(textDiv); listContainer.appendChild(itemDiv); }); }); emphasisModal.style.display = 'flex'; };
 
         unhideAllBtn.addEventListener('click', () => {
             ['att', 'vzw', 'tmo'].forEach(c => {
@@ -1480,6 +1570,7 @@
         
         // Listener for EDLP toggle to show/hide warning
         showEdlpsToggle.addEventListener('change', () => {
+             saveSettings(); // v35 Save on Toggle
              if (showEdlpsToggle.checked) {
                  edlpWarning.classList.add('visible');
              } else {
@@ -1495,10 +1586,10 @@
         // v33: Console Filter Logic
         const devConsole = document.getElementById('dev-console-output');
         document.getElementById('cb-log-pdf').addEventListener('change', (e) => {
-             e.target.checked ? devConsole.classList.remove('hide-pdf') : devConsole.classList.add('hide-pdf');
+             e.target.checked ? consoleOut.classList.remove('hide-pdf') : consoleOut.classList.add('hide-pdf');
         });
         document.getElementById('cb-log-edlp').addEventListener('change', (e) => {
-             e.target.checked ? devConsole.classList.remove('hide-edlp') : devConsole.classList.add('hide-edlp');
+             e.target.checked ? consoleOut.classList.remove('hide-edlp') : consoleOut.classList.add('hide-edlp');
         });
 
         copyLogBtn.addEventListener('click', () => { const logText = devConsoleOutput.textContent; if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(logText).then(() => { alert('Log copied to clipboard!'); }).catch(err => { console.warn('Modern clipboard API failed, trying fallback.', err); legacyCopy(logText); }); } else { legacyCopy(logText); } });
@@ -1511,8 +1602,9 @@
         window.addEventListener('click', (event) => { if (event.target == previewModal) previewModal.style.display = 'none'; if (event.target == emphasisModal) emphasisModal.style.display = 'none'; if (event.target == devModeModal && devModalCloseable.backdrop) devModeModal.style.display = 'none'; });
         downloadBtn.addEventListener('click', () => { const link = document.createElement('a'); link.href = iframe.src; link.download = 'Combined_Inventory.pdf'; link.click(); });
         
-        emphasisModal.addEventListener('click', (e) => { const target = e.target.closest('.emphasis-item-hide'); if (!target) return; const { key, carrier } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false }; state.hidden = !state.hidden; appState[carrier].emphasis.set(key, state); const parentItem = target.closest('.emphasis-item'); parentItem.classList.toggle('item-hidden'); parentItem.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = state.hidden); saveSettings(); });
-        emphasisModal.addEventListener('change', (e) => { const target = e.target; if (target.type !== 'checkbox') return; const isMaster = target.id.startsWith('master-'); if (isMaster) { const masterType = target.id.includes('partial') ? 'partial' : 'full'; const isChecking = target.checked; const allItems = emphasisModal.querySelectorAll('.emphasis-item:not(.item-hidden)'); allItems.forEach(item => { const partialBox = item.querySelector('[data-type="partial"]'); const fullBox = item.querySelector('[data-type="full"]'); const key = partialBox.dataset.key; const carrier = partialBox.dataset.carrier; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false }; if (masterType === 'partial') { partialBox.checked = isChecking; state.partial = isChecking; if (!isChecking) { fullBox.checked = false; state.full = false; } } else { fullBox.checked = isChecking; state.full = isChecking; if (isChecking) { partialBox.checked = true; state.partial = true; } } appState[carrier].emphasis.set(key, state); }); const masterPartial = document.getElementById('master-partial-checkbox'); const masterFull = document.getElementById('master-full-checkbox'); if (masterType === 'full' && isChecking) masterPartial.checked = true; if (masterType === 'partial' && !isChecking) masterFull.checked = false; } else if (target.dataset.key) { const { key, carrier, type } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false }; state[type] = target.checked; const parentItem = target.closest('.emphasis-item'); if (parentItem) { const partialBox = parentItem.querySelector('[data-type="partial"]'); const fullBox = parentItem.querySelector('[data-type="full"]'); if (type === 'full' && target.checked) { state.partial = true; if (partialBox) partialBox.checked = true; } if (type === 'partial' && !target.checked) { state.full = false; if (fullBox) fullBox.checked = false; } } appState[carrier].emphasis.set(key, state); } saveSettings(); });
+        emphasisModal.addEventListener('click', (e) => { const target = e.target.closest('.emphasis-item-hide'); if (!target) return; const { key, carrier } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false, hidden: false }; state.hidden = !state.hidden; appState[carrier].emphasis.set(key, state); const parentItem = target.closest('.emphasis-item'); parentItem.classList.toggle('item-hidden'); parentItem.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = state.hidden); saveSettings(); });
+        // v40: Updated fallback object in change listener
+        emphasisModal.addEventListener('change', (e) => { const target = e.target; if (target.type !== 'checkbox') return; const isMaster = target.id.startsWith('master-'); if (isMaster) { const masterType = target.id.includes('partial') ? 'partial' : 'full'; const isChecking = target.checked; const allItems = emphasisModal.querySelectorAll('.emphasis-item:not(.item-hidden)'); allItems.forEach(item => { const partialBox = item.querySelector('[data-type="partial"]'); const fullBox = item.querySelector('[data-type="full"]'); const key = partialBox.dataset.key; const carrier = partialBox.dataset.carrier; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false, hidden: false }; if (masterType === 'partial') { partialBox.checked = isChecking; state.partial = isChecking; if (!isChecking) { fullBox.checked = false; state.full = false; } } else { fullBox.checked = isChecking; state.full = isChecking; if (isChecking) { partialBox.checked = true; state.partial = true; } } appState[carrier].emphasis.set(key, state); }); const masterPartial = document.getElementById('master-partial-checkbox'); const masterFull = document.getElementById('master-full-checkbox'); if (masterType === 'full' && isChecking) masterPartial.checked = true; if (masterType === 'partial' && !isChecking) masterFull.checked = false; } else if (target.dataset.key) { const { key, carrier, type } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false, hidden: false }; state[type] = target.checked; const parentItem = target.closest('.emphasis-item'); if (parentItem) { const partialBox = parentItem.querySelector('[data-type="partial"]'); const fullBox = parentItem.querySelector('[data-type="full"]'); if (type === 'full' && target.checked) { state.partial = true; if (partialBox) partialBox.checked = true; } if (type === 'partial' && !target.checked) { state.full = false; if (fullBox) fullBox.checked = false; } } appState[carrier].emphasis.set(key, state); } saveSettings(); });
         
         let clickCount = 0, lastClick = 0;
         versionText.addEventListener('click', () => { const now = Date.now(); if (now - lastClick > 500) { clickCount = 0; } lastClick = now; clickCount++; if (clickCount === 7) { devModalCloseable.button = false; devModalCloseable.backdrop = false; devModeModal.style.display = 'flex'; setTimeout(() => { devModalCloseable.button = true; }, 500); setTimeout(() => { devModalCloseable.backdrop = true; }, 1000); clickCount = 0; } });
