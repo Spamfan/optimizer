@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimizer (v41)</title>
+    <title>Optimizer (v45)</title>
     
     <!-- PDF.js and jsPDF library CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -124,7 +124,7 @@
             margin-bottom: 20px;
         }
 
-        #highlight-btn, #process-btn, #copy-log-btn, #btn-force-fetch, #btn-reset-settings {
+        #highlight-btn, #process-btn {
             flex-grow: 1;
             border: none;
             padding: 12px 20px;
@@ -135,21 +135,36 @@
             transition: background-color 0.2s;
         }
         
-        #highlight-btn, #copy-log-btn, #btn-force-fetch { background-color: #e4e6eb; color: #050505; }
+        #highlight-btn { background-color: #e4e6eb; color: #050505; }
         #process-btn { background-color: #1877f2; color: white; }
 
-        #btn-force-fetch { font-size: 0.8em; padding: 8px 12px; margin-top: 5px; width: 100%; }
-        
-        #btn-reset-settings {
+        /* Updated Button Styles for Console */
+        #copy-log-btn {
+            background-color: #e4e6eb; color: #050505;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px; /* Separation from danger buttons */
+        }
+
+        /* Danger Buttons (Red Outline) */
+        #btn-force-fetch, #btn-reset-settings {
             font-size: 0.8em; 
             padding: 8px 12px; 
-            margin-top: 10px; 
             width: 100%;
             background-color: #fff;
             color: #d93025;
             border: 1px solid #d93025;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
-        #btn-reset-settings:hover { background-color: #fce8e6; }
+        #btn-force-fetch:hover, #btn-reset-settings:hover { background-color: #fce8e6; }
         
         #comments {
             width: 100%;
@@ -262,7 +277,7 @@
 <body>
 
     <div id="version-wrapper">
-        <span id="version-text">Beta V41</span>
+        <span id="version-text">Beta V45</span>
         <span id="status-icon" title="Offline Mode">❌☁</span>
     </div>
 
@@ -363,8 +378,8 @@
             </div>
             
             <pre id="dev-console-output"></pre>
-            <button id="btn-force-fetch">Force Refetch Data</button>
             <button id="copy-log-btn">Copy Log</button>
+            <button id="btn-force-fetch">Force Refetch Data</button>
             <button id="btn-reset-settings">Clear Optimizer Cache</button>
         </div>
     </div>
@@ -377,7 +392,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta V41';
+        const APP_VERSION = 'Beta V45';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -648,7 +663,12 @@
         };
 
         // --- BUTTON LISTENERS ---
-        document.getElementById('btn-force-fetch').addEventListener('click', fetchLivePricing);
+        // v42: Added confirmation logic
+        document.getElementById('btn-force-fetch').addEventListener('click', () => {
+            if(confirm("Press OK to force refetch data.")) {
+                fetchLivePricing();
+            }
+        });
 
         // v33: Console Filters Logic (Fixed)
         const consoleOut = document.getElementById('dev-console-output');
@@ -805,7 +825,9 @@
             const dataStartIndex = text.indexOf('Quantity'); 
             if (dataStartIndex === -1) return { preFilterList: [], postFilterList: [] }; 
             const dataText = text.substring(dataStartIndex + 'Quantity'.length); 
-            const inventoryRegex = /(.+?)\s+(\d+\s?GB)\s+([a-zA-Z\s]+?)\s+(\d+\s+available)/g; 
+            
+            // v45: Updated Regex to allow N/A capacity and slash in color
+            const inventoryRegex = /(.+?)\s+(\d+\s?GB|N\/?A)\s+([a-zA-Z\s\/]+?)\s+(\d+\s+available)/g; 
             const matches = [...dataText.matchAll(inventoryRegex)]; 
             const preFilterList = []; 
             const postFilterList = []; 
@@ -816,11 +838,23 @@
             
             for (const match of matches) { 
                 const model = match[1].trim(); 
-                let capacity = match[2].trim();
-                capacity = capacity.replace(/\s+GB/i, 'GB'); 
+                let capacityRaw = match[2].trim();
+                let capacity = "";
+
+                // v45: Handle N/A capacity
+                if (!/^N\/?A$/i.test(capacityRaw)) {
+                    capacity = capacityRaw.replace(/\s+GB/i, 'GB');
+                }
                 
-                const modelAndCapacity = `${model} ${capacity}`; 
-                const color = match[3].trim(); 
+                // v45: Handle N/A color
+                let color = match[3].trim();
+                if (/^N\/?A$/i.test(color)) {
+                    color = "";
+                }
+
+                // v45: Trim result to avoid trailing space if capacity is empty
+                const modelAndCapacity = (capacity ? `${model} ${capacity}` : model).trim(); 
+                
                 const quantity = parseInt(match[4].match(/\d+/)[0], 10); 
                 const item = [modelAndCapacity, color, quantity]; 
                 
@@ -831,9 +865,6 @@
                 }
             } 
             
-            // v39: Log PDF Input (Filtered View) using debugLog
-            debugLog(`PDF Parsed: ${preFilterList.length} items found, ${autoHidden.length} auto-hidden.`, 'pdf');
-
             return { preFilterList, postFilterList, autoHidden }; 
         };
         
@@ -1501,7 +1532,7 @@
         const handleFileUploads = async (files) => { 
             if (!files || files.length === 0) return; 
             uploadArea.querySelector('p').textContent = 'Processing...'; 
-            if (devConsoleToggle.checked) devConsoleOutput.textContent = ''; 
+            
             for (const file of files) { 
                 try { 
                     const text = await getTextFromPdf(file); 
@@ -1524,22 +1555,24 @@
                     appState[carrier].consolidatedList = consolidateInventory(postFilterList); 
                     appState[carrier].autoHidden = autoHidden; 
 
-                    // V38 Logging
-                    debugLog(`PARSED [${carrier}]: ${postFilterList.length} items found.`, "pdf");
+                    // V44: Verbose Logging (Correct Location)
+                    let logContent = `--- DEBUG LOG FOR: ${file.name} (detected as ${carrier.toUpperCase()}) ---\n\n`; 
+                    logContent += `== RAW TEXT EXTRACTED ==\n${text}\n\n`; 
+                    logContent += `== ITEMS FOUND (PRE-FILTER) ==\n${preFilterList.map(item => item.join(' | ')).join('\n')}\n\n`; 
+                    logContent += `== ITEMS KEPT (POST-FILTER) ==\n${postFilterList.map(item => item.join(' | ')).join('\n')}\n\n`; 
+                    debugLog(logContent, 'pdf');
+                    debugLog(`PARSED [${carrier}]: ${postFilterList.length} items found.`, "sys"); // Summary log
 
                     const statusSection = document.getElementById(`${carrier}-status`); 
                     statusSection.querySelector('.status-filename').textContent = file.name; 
                     statusSection.style.display = 'block'; 
-                    if (devConsoleToggle.checked) { 
-                        let logContent = `--- DEBUG LOG FOR: ${file.name} (detected as ${carrier.toUpperCase()}) ---\n\n`; 
-                        logContent += `== RAW TEXT EXTRACTED ==\n${text}\n\n`; 
-                        logContent += `== ITEMS FOUND (PRE-FILTER) ==\n${preFilterList.map(item => item.join(' | ')).join('\n')}\n\n`; 
-                        logContent += `== ITEMS KEPT (POST-FILTER) ==\n${postFilterList.map(item => item.join(' | ')).join('\n')}\n\n`; 
-                        
-                        // v39: Use debugLog for verbose output so it respects filters
-                        debugLog(logContent, 'pdf');
-                    } 
-                } catch (error) { alert(`Failed to process file: ${file.name}`); console.error(error); } 
+                    
+                } catch (error) { 
+                    // v43: Explicit error logging
+                    debugLog("❌ CRASH: " + error.message, 'sys');
+                    alert(`Failed to process file: ${file.name}`); 
+                    console.error(error); 
+                } 
             } 
             uploadArea.querySelector('p').textContent = 'Drag & drop files here.'; 
         };
