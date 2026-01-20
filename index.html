@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimizer (v45)</title>
+    <title>Optimizer (v47)</title>
     
     <!-- PDF.js and jsPDF library CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -84,26 +84,20 @@
         .status-text { font-weight: 600; }
         .status-filename { font-weight: normal; font-style: italic; color: #606770; margin-left: 8px; }
         
-        .control-section { text-align: left; margin-bottom: 15px; }
-        .control-section label { display: block; margin-bottom: 8px; font-weight: 600; color: #606770; }
-        
-        .toggles-wrapper {
-            display: flex;
-            align-items: flex-start; 
-            justify-content: center;
+        /* v47: CSS Grid for Toggles */
+        .toggles-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
             margin-bottom: 20px;
-            gap: 20px;
-            flex-wrap: wrap;
+            text-align: left;
         }
         .toggle-option { display: flex; align-items: center; }
-        .toggle-option label { margin: 0 0 0 8px; font-weight: normal; }
+        .toggle-option label { margin: 0 0 0 8px; font-weight: normal; cursor: pointer; }
+        .toggle-option input { cursor: pointer; }
         
-        /* EDLP Toggle Styles */
-        #edlp-toggle-wrapper { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: flex-start; 
-        }
+        .toggle-option.disabled { opacity: 0.6; pointer-events: none; }
+
         #edlp-warning { 
             visibility: hidden; 
             font-size: 0.7em; 
@@ -138,7 +132,7 @@
         #highlight-btn { background-color: #e4e6eb; color: #050505; }
         #process-btn { background-color: #1877f2; color: white; }
 
-        /* Updated Button Styles for Console */
+        /* Console Buttons */
         #copy-log-btn {
             background-color: #e4e6eb; color: #050505;
             border: none;
@@ -148,10 +142,9 @@
             font-weight: bold;
             cursor: pointer;
             width: 100%;
-            margin-bottom: 15px; /* Separation from danger buttons */
+            margin-bottom: 15px;
         }
 
-        /* Danger Buttons (Red Outline) */
         #btn-force-fetch, #btn-reset-settings {
             font-size: 0.8em; 
             padding: 8px 12px; 
@@ -166,6 +159,7 @@
         }
         #btn-force-fetch:hover, #btn-reset-settings:hover { background-color: #fce8e6; }
         
+        .control-section { text-align: left; margin-bottom: 15px; display: none; /* Hidden by default v47 */ }
         #comments {
             width: 100%;
             padding: 10px;
@@ -196,10 +190,18 @@
         #how-to-use-container ul { margin-top: 5px; }
         .inline-svg { width: 1em; height: 1em; vertical-align: middle; margin: 0 2px; }
 
+        /* v47: Dev Options at bottom */
+        #dev-options-wrapper {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            text-align: left;
+        }
+
         #dev-console-container {
             display: none;
             text-align: left;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         #dev-console-output {
             background-color: #f5f5f5;
@@ -209,7 +211,7 @@
             max-height: 200px;
             overflow-y: auto;
             white-space: pre-wrap;
-            word-break: break-all; /* v40: Fix mobile layout shift */
+            word-break: break-all;
             font-family: monospace;
             font-size: 0.8em;
             margin-bottom: 10px;
@@ -217,13 +219,11 @@
             flex-direction: column;
         }
         
-        /* Log Styles & View Filtering */
         .log-entry { margin-bottom: 2px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
-        .log-pdf { color: #0056b3; } /* Blueish */
-        .log-edlp { color: #d93025; } /* Reddish */
+        .log-pdf { color: #0056b3; } 
+        .log-edlp { color: #d93025; } 
         .log-sys { color: #333; }
         
-        /* Filter Classes applied to parent */
         #dev-console-output.hide-pdf .log-pdf { display: none !important; }
         #dev-console-output.hide-edlp .log-edlp { display: none !important; }
         
@@ -242,9 +242,7 @@
             align-items: center;
             margin: 0;
         }
-        #console-filters input {
-            margin-right: 5px;
-        }
+        #console-filters input { margin-right: 5px; }
 
         /* Modal Styles */
         .modal-container { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
@@ -277,7 +275,7 @@
 <body>
 
     <div id="version-wrapper">
-        <span id="version-text">Beta V45</span>
+        <span id="version-text">Beta V47</span>
         <span id="status-icon" title="Offline Mode">❌☁</span>
     </div>
 
@@ -295,10 +293,11 @@
             <div class="status-section" id="tmo-status"><div><span class="status-text">T-Mobile:</span><span class="status-filename"></span></div></div>
         </div>
 
-        <div class="toggles-wrapper">
+        <!-- v47 Grid Layout -->
+        <div class="toggles-grid">
             <div class="toggle-option">
                 <input type="checkbox" id="isolate-iphones">
-                <label for="isolate-iphones">Isolate iPhones</label>
+                <label for="isolate-iphones">Isolate Apple Devices</label>
             </div>
             <div class="toggle-option" id="edlp-toggle-wrapper">
                 <div style="display: flex; align-items: center;">
@@ -307,8 +306,12 @@
                 </div>
             </div>
             <div class="toggle-option">
-                <input type="checkbox" id="dev-console-toggle">
-                <label for="dev-console-toggle">Show developer options</label>
+                <input type="checkbox" id="show-comments-toggle">
+                <label for="show-comments-toggle">Add comments to printout</label>
+            </div>
+            <div class="toggle-option" id="wearables-wrapper">
+                <input type="checkbox" id="show-wearables-toggle" checked>
+                <label for="show-wearables-toggle" id="wearables-label">Show wearables</label>
             </div>
         </div>
         
@@ -317,9 +320,8 @@
             <button id="process-btn">Preview or Print</button>
         </div>
 
-        <div class="control-section">
-            <label for="comments">Optional - Add comments to your inventory paper</label>
-            <textarea id="comments"></textarea>
+        <div class="control-section" id="comments-section">
+            <textarea id="comments" placeholder="Add your print out comments here."></textarea>
             <p id="konami-message">Also try Tank Tycoon!</p>
         </div>
 
@@ -369,18 +371,25 @@
             </div>
         </div>
 
-        <!-- Developer Console -->
-        <div id="dev-console-container">
-            <!-- Log Filters -->
-            <div id="console-filters">
-                <label><input type="checkbox" id="cb-log-pdf" checked> Show PDF Inputs</label>
-                <label><input type="checkbox" id="cb-log-edlp" checked> Show EDLP Fetches</label>
+        <!-- Developer Console (Moved to bottom v47) -->
+        <div id="dev-options-wrapper">
+            <div class="toggle-option">
+                <input type="checkbox" id="dev-console-toggle">
+                <label for="dev-console-toggle">Show developer options</label>
             </div>
             
-            <pre id="dev-console-output"></pre>
-            <button id="copy-log-btn">Copy Log</button>
-            <button id="btn-force-fetch">Force Refetch Data</button>
-            <button id="btn-reset-settings">Clear Optimizer Cache</button>
+            <div id="dev-console-container">
+                <!-- Log Filters -->
+                <div id="console-filters">
+                    <label><input type="checkbox" id="cb-log-pdf" checked> Show PDF Inputs</label>
+                    <label><input type="checkbox" id="cb-log-edlp" checked> Show EDLP Fetches</label>
+                </div>
+                
+                <pre id="dev-console-output"></pre>
+                <button id="copy-log-btn">Copy Log</button>
+                <button id="btn-force-fetch">Force Refetch Data</button>
+                <button id="btn-reset-settings">Clear Optimizer Cache</button>
+            </div>
         </div>
     </div>
 
@@ -392,7 +401,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta V45';
+        const APP_VERSION = 'Beta V47';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -411,7 +420,6 @@
             const ts = new Date().toLocaleTimeString();
             div.textContent = `[${ts}] ${msg}`;
             consoleOut.appendChild(div);
-            // consoleOut.scrollTop = consoleOut.scrollHeight; // Auto-scroll
         };
 
         // --- GLOBAL STATE ---
@@ -421,6 +429,7 @@
             tmo: { consolidatedList: [], emphasis: new Map(), fileDate: '', storeNumber: '', autoHidden: [] } 
         };
         let devModalCloseable = { button: true, backdrop: true };
+        let hasWatches = false; // v47 Track global watch presence
 
         const STORE_NICKNAMES = { 
             '1698': 'Hooksett', '2399': 'Manchester', '1762': 'Seabrook',
@@ -455,13 +464,24 @@
             'Moto G 5G 23': 'MG23',
             'Galaxy S21 5G': 'S21 5G',
             'Galaxy S24 Ultra 5G': 'S24U',
-            'Galaxy A35 128GB': 'A35'
+            'Galaxy A35 128GB': 'A35',
+            'Apple Watch S10': 'AW S10',
+            'Apple Watch S9': 'AW S9',
+            'Apple Watch S8': 'AW S8',
+            'Apple Watch S7': 'AW S7',
+            'Apple Watch S6': 'AW S6',
+            'Apple Watch SE2 Rev': 'AW SE2 Rev',
+            'Apple Watch SE2': 'AW SE2',
+            'Apple Watch SE': 'AW SE',
+            'Apple Watch Ultra 2': 'AW ULT2',
+            'Apple Watch Ultra': 'AW ULT'
         };
 
         const COLOR_ABBREVIATIONS = {
             'Beige': 'BGE', 'Black': 'BLK', 'Black Titanium': 'BLK', 'Blue': 'BLU', 'Cosmic Orange': 'ORNG', 'Deep Blue': 'BLU', 'Desert Titanium': 'DSRT', 'Graphite': 'BLK', 'Gray': 'GRY', 'Green': 'GRN', 'Mist Blue': 'BLU', 'Natural Titanium': 'NTRL', 'Navy': 'BLU', 'Sky Blue': 'BLU', 'Space Black': 'BLK', 'Titanium Black': 'BLK', 'Ultramarine': 'BLU', 'White': 'WHTE',
             'Onyx Black': 'BLK', 'Onyx BLK': 'BLK',
-            'Midnight': 'NAVY', 'Caramel Latte': 'BEIGE', 'Olive': 'GRN'
+            'Midnight': 'NAVY', 'Caramel Latte': 'BEIGE', 'Olive': 'GRN',
+            'Silver': 'SLVR'
         };
 
         const HIDDEN_CLEANUP = {
@@ -700,6 +720,32 @@
             }
         });
 
+        // v47: Toggle Listeners
+        const isolateIphonesCheckbox = document.getElementById('isolate-iphones');
+        const showEdlpsToggle = document.getElementById('show-edlps-toggle');
+        const showCommentsToggle = document.getElementById('show-comments-toggle');
+        const showWearablesToggle = document.getElementById('show-wearables-toggle');
+        const edlpWarning = document.getElementById('edlp-warning');
+        const commentsSection = document.getElementById('comments-section');
+
+        [isolateIphonesCheckbox, showEdlpsToggle, showCommentsToggle, showWearablesToggle].forEach(el => {
+            el.addEventListener('change', () => {
+                saveSettings();
+                // UI Updates
+                if (el === showEdlpsToggle) edlpWarning.classList.toggle('visible', el.checked);
+                if (el === showCommentsToggle) commentsSection.style.display = el.checked ? 'block' : 'none';
+            });
+        });
+
+        // v47: Dev Console Toggle Logic
+        const devConsoleToggle = document.getElementById('dev-console-toggle');
+        const devConsoleContainer = document.getElementById('dev-console-container');
+        devConsoleToggle.addEventListener('change', () => { 
+            const isChecked = devConsoleToggle.checked;
+            devConsoleContainer.style.display = isChecked ? 'block' : 'none';
+            // Download button handled in CSS or not present in v47 HTML structure (removed for simplicity as it was hidden)
+        });
+
         // --- LOCALSTORAGE FUNCTIONS ---
         const saveSettings = () => {
             try {
@@ -717,6 +763,8 @@
                 const settings = {
                     isolate: isolateIphonesCheckbox.checked,
                     showEdlps: showEdlpsToggle.checked, // v35 Sticky Toggle
+                    showComments: showCommentsToggle.checked, // v47
+                    showWearables: showWearablesToggle.checked, // v47
                     emphasis: {
                         att: Array.from(cleanEmphasis(appState.att.emphasis).entries()),
                         vzw: Array.from(cleanEmphasis(appState.vzw.emphasis).entries()),
@@ -750,6 +798,15 @@
                         if(settings.showEdlps) edlpWarning.classList.add('visible');
                     }
 
+                    // v47 Sticky Toggles
+                    if (settings.showComments !== undefined) {
+                        showCommentsToggle.checked = settings.showComments;
+                        commentsSection.style.display = settings.showComments ? 'block' : 'none';
+                    }
+                    if (settings.showWearables !== undefined) {
+                        showWearablesToggle.checked = settings.showWearables;
+                    }
+
                     appState.att.emphasis = new Map(settings.emphasis.att || []);
                     appState.vzw.emphasis = new Map(settings.emphasis.vzw || []);
                     appState.tmo.emphasis = new Map(settings.emphasis.tmo || []);
@@ -773,17 +830,11 @@
         const versionText = document.getElementById('version-text');
         const uploadArea = document.getElementById('upload-area');
         const uploadInput = document.getElementById('upload-input');
-        const isolateIphonesCheckbox = document.getElementById('isolate-iphones');
         const highlightBtn = document.getElementById('highlight-btn');
         const processBtn = document.getElementById('process-btn');
         const commentsInput = document.getElementById('comments');
         const konamiMessage = document.getElementById('konami-message');
-        const devConsoleToggle = document.getElementById('dev-console-toggle');
-        const devConsoleContainer = document.getElementById('dev-console-container');
-        const devConsoleOutput = document.getElementById('dev-console-output');
         const copyLogBtn = document.getElementById('copy-log-btn');
-        const showEdlpsToggle = document.getElementById('show-edlps-toggle');
-        const edlpWarning = document.getElementById('edlp-warning');
 
         // --- DYNAMIC HTML INJECTION ---
         document.getElementById('preview-modal').innerHTML = `
@@ -827,7 +878,8 @@
             const dataText = text.substring(dataStartIndex + 'Quantity'.length); 
             
             // v45: Updated Regex to allow N/A capacity and slash in color
-            const inventoryRegex = /(.+?)\s+(\d+\s?GB|N\/?A)\s+([a-zA-Z\s\/]+?)\s+(\d+\s+available)/g; 
+            // v46: Updated Regex to allow 'mm' for watches
+            const inventoryRegex = /(.+?)\s+(\d+\s?GB|N\/?A|\d+\s?mm)\s+([a-zA-Z\s\/]+?)\s+(\d+\s+available)/g; 
             const matches = [...dataText.matchAll(inventoryRegex)]; 
             const preFilterList = []; 
             const postFilterList = []; 
@@ -843,7 +895,8 @@
 
                 // v45: Handle N/A capacity
                 if (!/^N\/?A$/i.test(capacityRaw)) {
-                    capacity = capacityRaw.replace(/\s+GB/i, 'GB');
+                    // v46: Handle mm as well as GB
+                    capacity = capacityRaw.replace(/\s+GB/i, 'GB').replace(/\s+mm/i, 'mm');
                 }
                 
                 // v45: Handle N/A color
@@ -855,7 +908,10 @@
                 // v45: Trim result to avoid trailing space if capacity is empty
                 const modelAndCapacity = (capacity ? `${model} ${capacity}` : model).trim(); 
                 
-                const quantity = parseInt(match[4].match(/\d+/)[0], 10); 
+                // v47: Fix for "Blu" bug. If regex fails to parse quantity, default to 1.
+                const quantityMatch = match[4].match(/\d+/);
+                const quantity = quantityMatch ? parseInt(quantityMatch[0], 10) : 1;
+
                 const item = [modelAndCapacity, color, quantity]; 
                 
                 if (excludeRegex.test(match[0])) { 
@@ -865,14 +921,31 @@
                 }
             } 
             
+            // v44: Logging removed from here to prevent crash
             return { preFilterList, postFilterList, autoHidden }; 
         };
         
-        const abbreviateColor = (color) => {
-            // v41: Prioritize longest key match first to handle "Awesome Black" vs "Black"
+        const abbreviateColor = (color, modelName = '') => {
+            // v47: Context-aware abbreviations
+            const isWatch = modelName.includes('AW ') || modelName.includes('Apple Watch');
+            const cLower = color.toLowerCase();
+            
+            // Global overrides
+            if (cLower.includes('silver')) return 'SLVR';
+
+            // Watch specific overrides
+            if (isWatch) {
+                if (cLower.includes('starlight')) return 'BEIGE';
+                if (cLower.includes('midnight')) return 'MDNGHT';
+            } else {
+                // Non-watch specific
+                if (cLower.includes('midnight')) return 'NAVY';
+            }
+
+            // v41: Prioritize longest key match
             const sortedKeys = Object.keys(COLOR_ABBREVIATIONS).sort((a, b) => b.length - a.length);
             for (const key of sortedKeys) {
-                if (color.toLowerCase().includes(key.toLowerCase())) {
+                if (cLower.includes(key.toLowerCase())) {
                     return COLOR_ABBREVIATIONS[key]; // Return ONLY the abbreviation
                 }
             }
@@ -887,28 +960,53 @@
             return model;
         };
 
-        const abbreviateDetails = (details) => {
-            return abbreviateColor(details); 
+        const abbreviateDetails = (details, modelName) => {
+            return abbreviateColor(details, modelName); 
         };
 
-        const consolidateInventory = (inventoryList) => { const consolidationMap = new Map(); for (const [modelAndCapacity, color, quantity] of inventoryList) { const key = modelAndCapacity; if (!consolidationMap.has(key)) { consolidationMap.set(key, { modelAndCapacity, details: [] }); } const abbreviated = abbreviateColor(color); consolidationMap.get(key).details.push({ color: abbreviated, quantity }); } const consolidatedList = []; for (const value of consolidationMap.values()) { const detailsString = value.details.map(d => `${d.quantity} ${d.color}`).join(', '); consolidatedList.push([value.modelAndCapacity, detailsString]); } return consolidatedList; };
+        const consolidateInventory = (inventoryList) => { const consolidationMap = new Map(); for (const [modelAndCapacity, color, quantity] of inventoryList) { const key = modelAndCapacity; if (!consolidationMap.has(key)) { consolidationMap.set(key, { modelAndCapacity, details: [] }); } const abbreviated = abbreviateColor(color, modelAndCapacity); consolidationMap.get(key).details.push({ color: abbreviated, quantity }); } const consolidatedList = []; for (const value of consolidationMap.values()) { const detailsString = value.details.map(d => `${d.quantity} ${d.color}`).join(', '); consolidatedList.push([value.modelAndCapacity, detailsString]); } return consolidatedList; };
         
         const categorizePdf = (text) => { const lowerCaseText = text.toLowerCase(); if (lowerCaseText.includes('at&t')) return 'att'; if (lowerCaseText.includes('verizon') || lowerCaseText.includes('vzw')) return 'vzw'; if (lowerCaseText.includes('t-mobile') || lowerCaseText.includes('tmo')) return 'tmo'; return 'unknown'; };
         
         const prepareDataForDisplay = () => { 
             const preparedState = { att: {}, vzw: {}, tmo: {} }; 
+            // v47: Isolate Apple Devices (Includes Watches)
             if (isolateIphonesCheckbox.checked) { 
                 const priorityOrder = ['att', 'vzw', 'tmo']; 
                 let iphoneSource = null; 
                 for (const carrier of priorityOrder) { 
-                    if (appState[carrier].consolidatedList.some(item => item[0].toLowerCase().startsWith('iphone'))) { iphoneSource = carrier; break; } 
+                    // Check for iPhones OR Watches
+                    if (appState[carrier].consolidatedList.some(item => 
+                        item[0].toLowerCase().startsWith('iphone') || 
+                        item[0].startsWith('AW ') || 
+                        item[0].toLowerCase().includes('apple watch')
+                    )) { iphoneSource = carrier; break; } 
                 } 
                 preparedState.apple = { consolidatedList: [] }; 
                 for (const carrier of ['att', 'vzw', 'tmo']) { 
-                    preparedState[carrier].consolidatedList = appState[carrier].consolidatedList.filter(item => !item[0].toLowerCase().startsWith('iphone')); 
+                    // Filter out BOTH iPhones and Watches from carrier lists
+                    preparedState[carrier].consolidatedList = appState[carrier].consolidatedList.filter(item => 
+                        !item[0].toLowerCase().startsWith('iphone') &&
+                        !item[0].startsWith('AW ') &&
+                        !item[0].toLowerCase().includes('apple watch')
+                    ); 
                     if (carrier === iphoneSource) { 
-                        const iphones = appState[carrier].consolidatedList.filter(item => item[0].toLowerCase().startsWith('iphone')).map(item => ({ modelAndCapacity: item[0], details: item[1], sourceCarrier: carrier })); 
-                        preparedState.apple.consolidatedList = iphones; 
+                        const appleItems = appState[carrier].consolidatedList.filter(item => 
+                            item[0].toLowerCase().startsWith('iphone') || 
+                            item[0].startsWith('AW ') || 
+                            item[0].toLowerCase().includes('apple watch')
+                        ).map(item => ({ modelAndCapacity: item[0], details: item[1], sourceCarrier: carrier })); 
+                        
+                        // v47: Sort Watches to TOP
+                        appleItems.sort((a, b) => {
+                            const isWatchA = a.modelAndCapacity.startsWith('AW ') || a.modelAndCapacity.toLowerCase().includes('watch');
+                            const isWatchB = b.modelAndCapacity.startsWith('AW ') || b.modelAndCapacity.toLowerCase().includes('watch');
+                            if (isWatchA && !isWatchB) return -1;
+                            if (!isWatchA && isWatchB) return 1;
+                            return a.modelAndCapacity.localeCompare(b.modelAndCapacity);
+                        });
+
+                        preparedState.apple.consolidatedList = appleItems; 
                     } 
                 } 
             } else { 
@@ -916,6 +1014,22 @@
                 preparedState.vzw.consolidatedList = appState.vzw.consolidatedList; 
                 preparedState.tmo.consolidatedList = appState.tmo.consolidatedList; 
             } 
+            
+            // v47: Wearables Filter (Remove from display if toggled off)
+            if (!showWearablesToggle.checked) {
+                // Helper to check if item is a watch
+                const isWatch = (name) => name.startsWith('AW ') || name.toLowerCase().includes('apple watch');
+                
+                // Filter Apple list
+                if (preparedState.apple) {
+                    preparedState.apple.consolidatedList = preparedState.apple.consolidatedList.filter(item => !isWatch(item.modelAndCapacity));
+                }
+                // Filter Carrier lists
+                ['att', 'vzw', 'tmo'].forEach(c => {
+                    preparedState[c].consolidatedList = preparedState[c].consolidatedList.filter(item => !isWatch(item[0]));
+                });
+            }
+
             return preparedState; 
         };
         
@@ -1238,7 +1352,8 @@
 
             const drawSection = (carrier, data, currentX) => { 
                 doc.setFont("helvetica", "bold").setFontSize(10); 
-                const headerText = (carrier === 'apple') ? 'Apple Devices' : carrier.toUpperCase(); 
+                // v47: Apple header update
+                const headerText = (carrier === 'apple') ? 'Apple Ecosystem' : carrier.toUpperCase(); 
                 const headerWidth = doc.getTextWidth(headerText); 
                 doc.text(headerText, currentX, yPosition); 
                 doc.setLineWidth(0.2).line(currentX, yPosition + 0.5, currentX + headerWidth, yPosition + 0.5); 
@@ -1294,7 +1409,7 @@
 
                     if (showEdlps) {
                         displayModel = abbreviateModel(rawModel);
-                        displayDetails = abbreviateDetails(rawDetails);
+                        displayDetails = abbreviateDetails(rawDetails, rawModel); // v47: Pass model name
                         
                         const findPrice = (cData, mName) => getPriceObj(cData, mName);
                         // v35: Zero Filter (Includes 0, null, ???)
@@ -1446,6 +1561,24 @@
             // Generate Auto-Hidden List
             const autoHiddenSegments = [];
             
+            // v47: Add Wearables if hidden by toggle
+            if (!showWearablesToggle.checked) {
+                const isWatch = (name) => name.startsWith('AW ') || name.toLowerCase().includes('apple watch');
+                ['att', 'vzw', 'tmo'].forEach(c => {
+                    appState[c].consolidatedList.forEach(item => {
+                        const name = item[0];
+                        if (isWatch(name)) {
+                            // Extract quantity from details string "1 SLVR, 2 MDNGHT"
+                            const quantity = item[1].split(', ').reduce((acc, part) => acc + parseInt(part.split(' ')[0]), 0);
+                             // Consolidate similar watches? For now just list them.
+                             // Actually, autoHidden list usually has {name, count}.
+                             // Let's match that format.
+                             autoHiddenSegments.push({ text: `${quantity}x ${name} (${c.toUpperCase()})`, bold: false });
+                        }
+                    });
+                });
+            }
+
             // Demos
             ['att', 'vzw', 'tmo'].forEach(c => {
                 const demos = appState[c].autoHidden.filter(i => i.type === 'demo');
@@ -1487,6 +1620,11 @@
                 appState[c].consolidatedList.forEach(item => {
                     const name = item[0];
                     const emphasis = appState[c].emphasis.get(name);
+                    
+                    // v47: Don't double list watches if they are already hidden by toggle
+                    const isWatch = name.startsWith('AW ') || name.toLowerCase().includes('apple watch');
+                    if (!showWearablesToggle.checked && isWatch) return;
+
                     if (emphasis && emphasis.hidden) {
                         const quantity = item[1].split(', ').reduce((acc, part) => acc + parseInt(part.split(' ')[0]), 0);
                         const isIphone = name.toLowerCase().startsWith('iphone');
@@ -1567,6 +1705,12 @@
                     statusSection.querySelector('.status-filename').textContent = file.name; 
                     statusSection.style.display = 'block'; 
                     
+                    // v47: Check for watches
+                    const fileHasWatches = postFilterList.some(item => 
+                        item[0].startsWith('AW ') || item[0].toLowerCase().includes('apple watch')
+                    );
+                    if (fileHasWatches) hasWatches = true;
+
                 } catch (error) { 
                     // v43: Explicit error logging
                     debugLog("❌ CRASH: " + error.message, 'sys');
@@ -1574,6 +1718,21 @@
                     console.error(error); 
                 } 
             } 
+
+            // v47: Update Wearables Toggle
+            const wearablesToggle = document.getElementById('show-wearables-toggle');
+            const wearablesLabel = document.getElementById('wearables-label');
+            if (hasWatches) {
+                wearablesToggle.disabled = false;
+                wearablesLabel.textContent = "Show wearables";
+                wearablesToggle.parentElement.classList.remove('disabled');
+            } else {
+                wearablesToggle.checked = true;
+                wearablesToggle.disabled = true;
+                wearablesLabel.textContent = "Show wearables (not applicable)";
+                wearablesToggle.parentElement.classList.add('disabled');
+            }
+
             uploadArea.querySelector('p').textContent = 'Drag & drop files here.'; 
         };
         
@@ -1581,7 +1740,7 @@
             // V38 Logging
             debugLog("--- OPENING MODAL (Key Lookup Check) ---", "sys");
             
-            const listContainer = document.getElementById('emphasis-list-container'); listContainer.innerHTML = ''; const processedData = prepareDataForDisplay(); const carriersToDisplay = Object.keys(processedData).filter(c => processedData[c].consolidatedList.length > 0); carriersToDisplay.forEach(carrier => { const header = document.createElement('div'); header.className = 'emphasis-list-carrier-header'; header.textContent = (carrier === 'apple') ? 'Apple Devices' : carrier.toUpperCase(); listContainer.appendChild(header); processedData[carrier].consolidatedList.forEach(item => { const isApple = carrier === 'apple'; const modelAndCapacity = isApple ? item.modelAndCapacity : item[0]; const details = isApple ? item.details : item[1]; const sourceCarrier = isApple ? item.sourceCarrier : carrier; 
+            const listContainer = document.getElementById('emphasis-list-container'); listContainer.innerHTML = ''; const processedData = prepareDataForDisplay(); const carriersToDisplay = Object.keys(processedData).filter(c => processedData[c].consolidatedList.length > 0); carriersToDisplay.forEach(carrier => { const header = document.createElement('div'); header.className = 'emphasis-list-carrier-header'; header.textContent = (carrier === 'apple') ? 'Apple Ecosystem' : carrier.toUpperCase(); listContainer.appendChild(header); processedData[carrier].consolidatedList.forEach(item => { const isApple = carrier === 'apple'; const modelAndCapacity = isApple ? item.modelAndCapacity : item[0]; const details = isApple ? item.details : item[1]; const sourceCarrier = isApple ? item.sourceCarrier : carrier; 
             
             // V38 Logging
             const existingState = appState[sourceCarrier].emphasis.get(modelAndCapacity);
@@ -1615,7 +1774,7 @@
         devConsoleToggle.addEventListener('change', () => { 
             const isChecked = devConsoleToggle.checked;
             devConsoleContainer.style.display = isChecked ? 'block' : 'none';
-            downloadBtn.style.display = isChecked ? 'inline-block' : 'none';
+            // Download button handled in CSS or not present in v47 HTML structure (removed for simplicity as it was hidden)
         });
         
         // Listener for EDLP toggle to show/hide warning
