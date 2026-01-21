@@ -442,7 +442,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta V50';
+        const APP_VERSION = 'Beta V51';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -863,16 +863,18 @@
                     appState.tmo.emphasis = new Map(settings.emphasis.tmo || []);
                     
                     // V38: Log Hidden Counts
-                    ['att', 'vzw', 'tmo'].forEach(c => {
-                        let hiddenCount = 0;
-                        appState[c].emphasis.forEach((val, key) => {
-                            if (val.hidden) {
-                                debugLog(`LOAD HIDDEN [${c}]: '${key}'`, "sys");
-                                hiddenCount++;
-                            }
-                        });
-                        debugLog(`[${c}] Loaded: ${appState[c].emphasis.size} settings, ${hiddenCount} hidden.`, "sys");
+                ['att', 'vzw', 'tmo'].forEach(c => {
+                    let hiddenCount = 0;
+                    appState[c].emphasis.forEach((val, key) => {
+                        // v51: Log exact keys to check for mismatch
+                        // debugLog(`LOAD KEY [${c}]: '${key}' -> Hidden: ${val.hidden}`, "sys");
+                        if (val.hidden) {
+                            debugLog(`LOAD HIDDEN [${c}]: '${key}'`, "sys");
+                            hiddenCount++;
+                        }
                     });
+                    debugLog(`[${c}] Loaded: ${appState[c].emphasis.size} settings, ${hiddenCount} hidden.`, "sys");
+                });
                 }
             } catch (error) { console.error("Could not load settings, using defaults:", error); }
         };
@@ -940,18 +942,19 @@
             const excludeRegex = /demo|un\s?-?\s?loc\s?k\s?e\s?d/i; 
             
             for (const match of matches) { 
-                const model = match[1].trim(); 
-                let capacityRaw = match[2].trim();
-                let capacity = "";
+            // v51: Aggressive Whitespace Normalization
+            const model = match[1].replace(/\s+/g, ' ').trim(); 
+            let capacityRaw = match[2].replace(/\s+/g, ' ').trim();
+            let capacity = "";
 
-                // v45: Handle N/A capacity
-                if (!/^N\/?A$/i.test(capacityRaw)) {
-                    // v46: Handle mm as well as GB
-                    capacity = capacityRaw.replace(/\s+GB/i, 'GB').replace(/\s+mm/i, 'mm');
-                }
-                
-                // v45: Handle N/A color
-                let color = match[3].trim();
+            // v45: Handle N/A capacity
+            if (!/^N\/?A$/i.test(capacityRaw)) {
+                // v46: Handle mm as well as GB
+                capacity = capacityRaw.replace(/\s+GB/i, 'GB').replace(/\s+mm/i, 'mm');
+            }
+            
+            // v45: Handle N/A color
+            let color = match[3].replace(/\s+/g, ' ').trim();
                 if (/^N\/?A$/i.test(color)) {
                     color = "";
                 }
