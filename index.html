@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimizer (v47)</title>
+    <title>Optimizer (v49)</title>
     
     <!-- PDF.js and jsPDF library CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -13,14 +13,31 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
+            min-height: 100vh;
         }
+
+        /* v50: Split Layout Wrapper (Hard Left Desktop) */
+    #main-wrapper {
+        display: flex;
+        flex-direction: row;
+        justify-content: center; /* Mobile: Centered */
+        align-items: flex-start;
+        gap: 20px;
+        flex-wrap: wrap;
+        width: 100%;
+        /* Removed max-width and margin:0 auto to stop centering */
+    }
+
+    /* Desktop: Float STRICTLY LEFT */
+    @media (min-width: 900px) {
+        #main-wrapper {
+            justify-content: flex-start;
+            padding-left: 0; /* Hug the left edge */
+        }
+    }
 
         #version-wrapper {
             position: absolute;
@@ -33,6 +50,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            z-index: 100; /* v49: Ensure visibility above app card */
         }
 
         #status-icon {
@@ -47,6 +65,21 @@
             width: 100%;
             max-width: 500px;
             text-align: center;
+            flex: 0 0 auto; /* Keep fixed width */
+            position: relative;
+        }
+
+        /* v48: Sidebar for Dev Tools */
+        #dev-sidebar {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: none; /* Hidden by default */
+            text-align: left;
         }
 
         h1 {
@@ -84,7 +117,6 @@
         .status-text { font-weight: 600; }
         .status-filename { font-weight: normal; font-style: italic; color: #606770; margin-left: 8px; }
         
-        /* v47: CSS Grid for Toggles */
         .toggles-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -159,7 +191,8 @@
         }
         #btn-force-fetch:hover, #btn-reset-settings:hover { background-color: #fce8e6; }
         
-        .control-section { text-align: left; margin-bottom: 15px; display: none; /* Hidden by default v47 */ }
+        /* v48: Moved comments above buttons */
+        .control-section { text-align: left; margin-bottom: 15px; display: none; }
         #comments {
             width: 100%;
             padding: 10px;
@@ -190,7 +223,7 @@
         #how-to-use-container ul { margin-top: 5px; }
         .inline-svg { width: 1em; height: 1em; vertical-align: middle; margin: 0 2px; }
 
-        /* v47: Dev Options at bottom */
+        /* v48: Dev Options Toggle Area */
         #dev-options-wrapper {
             margin-top: 20px;
             border-top: 1px solid #ddd;
@@ -199,16 +232,15 @@
         }
 
         #dev-console-container {
-            display: none;
+            /* Now inside sidebar */
             text-align: left;
-            margin-top: 10px;
         }
         #dev-console-output {
             background-color: #f5f5f5;
             border: 1px solid #ddd;
             border-radius: 4px;
             padding: 10px;
-            max-height: 200px;
+            max-height: 400px; /* Taller for sidebar */
             overflow-y: auto;
             white-space: pre-wrap;
             word-break: break-all;
@@ -235,6 +267,7 @@
             gap: 15px;
             font-size: 0.85em;
             color: #606770;
+            flex-wrap: wrap;
         }
         #console-filters label {
             font-weight: normal;
@@ -275,79 +308,82 @@
 <body>
 
     <div id="version-wrapper">
-        <span id="version-text">Beta V47</span>
+        <span id="version-text">Beta V49</span>
         <span id="status-icon" title="Offline Mode">❌☁</span>
     </div>
 
-    <div id="app-container">
-        <h1>Optimizer</h1>
+    <!-- v48: Split Layout Wrapper -->
+    <div id="main-wrapper">
         
-        <div id="upload-area">
-            <input type="file" id="upload-input" multiple accept=".pdf">
-            <p>Drag & drop files here.</p>
-        </div>
-
-        <div id="status-container">
-            <div class="status-section" id="att-status"><div><span class="status-text">AT&T:</span><span class="status-filename"></span></div></div>
-            <div class="status-section" id="vzw-status"><div><span class="status-text">Verizon:</span><span class="status-filename"></span></div></div>
-            <div class="status-section" id="tmo-status"><div><span class="status-text">T-Mobile:</span><span class="status-filename"></span></div></div>
-        </div>
-
-        <!-- v47 Grid Layout -->
-        <div class="toggles-grid">
-            <div class="toggle-option">
-                <input type="checkbox" id="isolate-iphones">
-                <label for="isolate-iphones">Isolate Apple Devices</label>
+        <div id="app-container">
+            <h1>Optimizer</h1>
+            
+            <div id="upload-area">
+                <input type="file" id="upload-input" multiple accept=".pdf">
+                <p>Drag & drop files here.</p>
             </div>
-            <div class="toggle-option" id="edlp-toggle-wrapper">
-                <div style="display: flex; align-items: center;">
-                    <input type="checkbox" id="show-edlps-toggle">
-                    <label for="show-edlps-toggle">Show likely EDLPs</label>
+
+            <div id="status-container">
+                <div class="status-section" id="att-status"><div><span class="status-text">AT&T:</span><span class="status-filename"></span></div></div>
+                <div class="status-section" id="vzw-status"><div><span class="status-text">Verizon:</span><span class="status-filename"></span></div></div>
+                <div class="status-section" id="tmo-status"><div><span class="status-text">T-Mobile:</span><span class="status-filename"></span></div></div>
+            </div>
+
+            <div class="toggles-grid">
+                <div class="toggle-option">
+                    <input type="checkbox" id="isolate-iphones">
+                    <label for="isolate-iphones">Isolate Apple Devices</label>
+                </div>
+                <div class="toggle-option" id="edlp-toggle-wrapper">
+                    <div style="display: flex; align-items: center;">
+                        <input type="checkbox" id="show-edlps-toggle">
+                        <label for="show-edlps-toggle">Show likely EDLPs</label>
+                    </div>
+                </div>
+                <div class="toggle-option">
+                    <input type="checkbox" id="show-comments-toggle">
+                    <label for="show-comments-toggle">Add comments to printout</label>
+                </div>
+                <div class="toggle-option" id="wearables-wrapper">
+                    <input type="checkbox" id="show-wearables-toggle" checked disabled>
+                    <label for="show-wearables-toggle" id="wearables-label">Show wearables (not applicable)</label>
                 </div>
             </div>
-            <div class="toggle-option">
-                <input type="checkbox" id="show-comments-toggle">
-                <label for="show-comments-toggle">Add comments to printout</label>
+            
+            <!-- v48: Comments moved above buttons -->
+            <div class="control-section" id="comments-section">
+                <textarea id="comments" placeholder="Add your print out comments here."></textarea>
+                <p id="konami-message">Also try Tank Tycoon!</p>
             </div>
-            <div class="toggle-option" id="wearables-wrapper">
-                <input type="checkbox" id="show-wearables-toggle" checked>
-                <label for="show-wearables-toggle" id="wearables-label">Show wearables</label>
+
+            <div class="action-buttons">
+                <button id="highlight-btn">Customize</button>
+                <button id="process-btn">Preview or Print</button>
             </div>
-        </div>
-        
-        <div class="action-buttons">
-            <button id="highlight-btn">Customize</button>
-            <button id="process-btn">Preview or Print</button>
-        </div>
 
-        <div class="control-section" id="comments-section">
-            <textarea id="comments" placeholder="Add your print out comments here."></textarea>
-            <p id="konami-message">Also try Tank Tycoon!</p>
-        </div>
-
-        <div id="how-to-use-container">
-            <h4 id="tutorial-toggle" style="cursor:pointer; user-select:none;">HOW TO USE 🔽</h4>
-            <div id="tutorial-content" style="display:none;">
-                <ol>
-                    <li><strong>Save Each Carrier's Inventory as a PDF</strong>
-                        <ul>
-                            <li>CRITICAL: You must open WARP in a new, separate window (Ctrl + N). The optimizer will not accept file inputs if WARP is only in a separate tab.</li>
-                            <li>In the new WARP window, navigate to: Inventory Management > View Available Inventory.</li>
-                            <li>Select AT&T, make sure the "Instock" box is checked, then click More Options (${MORE_OPTIONS_SVG}) and choose Print.</li>
-                            <li>Change the "Destination" printer from "CPR1" to Save as PDF.
-                                <ul><li>Note: For best results, use the original formatting (100% scale and default margins), as this has passed user testing.</li></ul>
-                            </li>
-                            <li>Name the file exactly "ATT.pdf". If a file with that name already exists, you must overwrite it.</li>
-                            <li>Repeat this exact process for Verizon, naming the file "VZW.pdf".</li>
-                            <li>Repeat one last time for T-Mobile, naming the file "TMO.pdf".</li>
-                            <li>To get the File Explorer ready for the next step, start to save the "TMO.pdf" file a second time, but don't actually save it. Just leave the File Explorer window open.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Drag and Drop Files into the Optimizer</strong>
-                        <ul>
-                            <li>With the File Explorer window still open from the last step, locate the three PDF files you just created (ATT.pdf, VZW.pdf, TMO.pdf).</li>
-                            <li>Individually, click and hold each file and drag it directly into the optimizer window.
-                                <ul><li>Tip: While holding the file, you can use Alt + Tab or hover above the Chrome icon in your taskbar to switch from the File Explorer to the optimizer window to drop the file.</li></ul>
+            <div id="how-to-use-container">
+                <h4 id="tutorial-toggle" style="cursor:pointer; user-select:none;">HOW TO USE 🔽</h4>
+                <div id="tutorial-content" style="display:none;">
+                    <ol>
+                        <li><strong>Save Each Carrier's Inventory as a PDF</strong>
+                            <ul>
+                                <li>CRITICAL: You must open WARP in a new, separate window (Ctrl + N). The optimizer will not accept file inputs if WARP is only in a separate tab.</li>
+                                <li>In the new WARP window, navigate to: Inventory Management > View Available Inventory.</li>
+                                <li>Select AT&T, make sure the "Instock" box is checked, then click More Options (${MORE_OPTIONS_SVG}) and choose Print.</li>
+                                <li>Change the "Destination" printer from "CPR1" to Save as PDF.
+                                    <ul><li>Note: For best results, use the original formatting (100% scale and default margins), as this has passed user testing.</li></ul>
+                                </li>
+                                <li>Name the file exactly "ATT.pdf". If a file with that name already exists, you must overwrite it.</li>
+                                <li>Repeat this exact process for Verizon, naming the file "VZW.pdf".</li>
+                                <li>Repeat one last time for T-Mobile, naming the file "TMO.pdf".</li>
+                                <li>To get the File Explorer ready for the next step, start to save the "TMO.pdf" file a second time, but don't actually save it. Just leave the File Explorer window open.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Drag and Drop Files into the Optimizer</strong>
+                            <ul>
+                                <li>With the File Explorer window still open from the last step, locate the three PDF files you just created (ATT.pdf, VZW.pdf, TMO.pdf).</li>
+                                <li>Individually, click and hold each file and drag it directly into the optimizer window.
+                                    <ul><li>Tip: While holding the file, you can use Alt + Tab or hover above the Chrome icon in your taskbar to switch from the File Explorer to the optimizer window to drop the file.</li></ul>
                             </li>
                         </ul>
                     </li>
@@ -371,27 +407,32 @@
             </div>
         </div>
 
-        <!-- Developer Console (Moved to bottom v47) -->
+        <!-- v48: Dev Toggle stays here -->
         <div id="dev-options-wrapper">
             <div class="toggle-option">
                 <input type="checkbox" id="dev-console-toggle">
                 <label for="dev-console-toggle">Show developer options</label>
             </div>
-            
-            <div id="dev-console-container">
-                <!-- Log Filters -->
-                <div id="console-filters">
-                    <label><input type="checkbox" id="cb-log-pdf" checked> Show PDF Inputs</label>
-                    <label><input type="checkbox" id="cb-log-edlp" checked> Show EDLP Fetches</label>
-                </div>
-                
-                <pre id="dev-console-output"></pre>
-                <button id="copy-log-btn">Copy Log</button>
-                <button id="btn-force-fetch">Force Refetch Data</button>
-                <button id="btn-reset-settings">Clear Optimizer Cache</button>
-            </div>
         </div>
     </div>
+
+    <!-- v48: Dev Console Sidebar -->
+    <div id="dev-sidebar">
+        <div id="dev-console-container">
+            <!-- Log Filters -->
+            <div id="console-filters">
+                <label><input type="checkbox" id="cb-log-pdf" checked> Show PDF Inputs</label>
+                <label><input type="checkbox" id="cb-log-edlp" checked> Show EDLP Fetches</label>
+            </div>
+            
+            <pre id="dev-console-output"></pre>
+            <button id="copy-log-btn">Copy Log</button>
+            <button id="btn-force-fetch">Force Refetch Data</button>
+            <button id="btn-reset-settings">Clear Optimizer Cache</button>
+        </div>
+    </div>
+
+    </div> <!-- End main-wrapper -->
 
     <!-- Modals are empty here, populated by script -->
     <div id="preview-modal" class="modal-container"></div>
@@ -401,7 +442,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta V47';
+        const APP_VERSION = 'Beta V50';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -429,7 +470,7 @@
             tmo: { consolidatedList: [], emphasis: new Map(), fileDate: '', storeNumber: '', autoHidden: [] } 
         };
         let devModalCloseable = { button: true, backdrop: true };
-        let hasWatches = false; // v47 Track global watch presence
+        let hasWatches = false; 
 
         const STORE_NICKNAMES = { 
             '1698': 'Hooksett', '2399': 'Manchester', '1762': 'Seabrook',
@@ -474,7 +515,8 @@
             'Apple Watch SE2': 'AW SE2',
             'Apple Watch SE': 'AW SE',
             'Apple Watch Ultra 2': 'AW ULT2',
-            'Apple Watch Ultra': 'AW ULT'
+            'Apple Watch Ultra': 'AW ULT',
+            'Galaxy S23 128GB': 'S23'
         };
 
         const COLOR_ABBREVIATIONS = {
@@ -737,13 +779,12 @@
             });
         });
 
-        // v47: Dev Console Toggle Logic
+        // v48: Dev Console Toggle Logic (Sidebar)
         const devConsoleToggle = document.getElementById('dev-console-toggle');
-        const devConsoleContainer = document.getElementById('dev-console-container');
+        const devSidebar = document.getElementById('dev-sidebar');
         devConsoleToggle.addEventListener('change', () => { 
             const isChecked = devConsoleToggle.checked;
-            devConsoleContainer.style.display = isChecked ? 'block' : 'none';
-            // Download button handled in CSS or not present in v47 HTML structure (removed for simplicity as it was hidden)
+            devSidebar.style.display = isChecked ? 'block' : 'none';
         });
 
         // --- LOCALSTORAGE FUNCTIONS ---
@@ -764,7 +805,8 @@
                     isolate: isolateIphonesCheckbox.checked,
                     showEdlps: showEdlpsToggle.checked, // v35 Sticky Toggle
                     showComments: showCommentsToggle.checked, // v47
-                    showWearables: showWearablesToggle.checked, // v47
+                    // v48: Save wearables preference even if disabled (unless locked by logic, but we trust user pref here)
+                    showWearables: showWearablesToggle.disabled ? (localStorage.getItem('betterInvSettings') ? JSON.parse(localStorage.getItem('betterInvSettings')).showWearables : true) : showWearablesToggle.checked,
                     emphasis: {
                         att: Array.from(cleanEmphasis(appState.att.emphasis).entries()),
                         vzw: Array.from(cleanEmphasis(appState.vzw.emphasis).entries()),
@@ -772,7 +814,16 @@
                     }
                 };
                 localStorage.setItem('betterInvSettings', JSON.stringify(settings));
-                debugLog("SAVE COMPLETE", "sys");
+                
+                // v48: Persistence Debug Log
+                let totalHidden = 0;
+                ['att', 'vzw', 'tmo'].forEach(c => {
+                    let count = 0;
+                    appState[c].emphasis.forEach(v => { if(v.hidden) count++; });
+                    totalHidden += count;
+                });
+                debugLog(`SAVE COMPLETE. Total Hidden Items: ${totalHidden}`, "sys");
+
             } catch (error) { console.error("Could not save settings:", error); }
         };
 
@@ -803,9 +854,9 @@
                         showCommentsToggle.checked = settings.showComments;
                         commentsSection.style.display = settings.showComments ? 'block' : 'none';
                     }
-                    if (settings.showWearables !== undefined) {
-                        showWearablesToggle.checked = settings.showWearables;
-                    }
+                    // v48: Wearables state is loaded but UI is locked until file drop
+                    // We store the preference in a temp variable if needed, or just let the toggle sit.
+                    // The toggle is forced disabled/checked on load by HTML default.
 
                     appState.att.emphasis = new Map(settings.emphasis.att || []);
                     appState.vzw.emphasis = new Map(settings.emphasis.vzw || []);
@@ -942,10 +993,10 @@
                 if (cLower.includes('midnight')) return 'NAVY';
             }
 
-            // v41: Prioritize longest key match
+            // v41: Prioritize longest key match first to handle "Awesome Black" vs "Black"
             const sortedKeys = Object.keys(COLOR_ABBREVIATIONS).sort((a, b) => b.length - a.length);
             for (const key of sortedKeys) {
-                if (cLower.includes(key.toLowerCase())) {
+                if (color.toLowerCase().includes(key.toLowerCase())) {
                     return COLOR_ABBREVIATIONS[key]; // Return ONLY the abbreviation
                 }
             }
@@ -1719,14 +1770,21 @@
                 } 
             } 
 
-            // v47: Update Wearables Toggle
+            // v48: Update Wearables Toggle (Smart Logic)
             const wearablesToggle = document.getElementById('show-wearables-toggle');
             const wearablesLabel = document.getElementById('wearables-label');
+            
             if (hasWatches) {
+                // If watches exist, unlock the toggle
                 wearablesToggle.disabled = false;
                 wearablesLabel.textContent = "Show wearables";
                 wearablesToggle.parentElement.classList.remove('disabled');
+                
+                // Restore user preference if it exists, otherwise default to true
+                const savedSettings = JSON.parse(localStorage.getItem('betterInvSettings') || '{}');
+                wearablesToggle.checked = (savedSettings.showWearables !== undefined) ? savedSettings.showWearables : true;
             } else {
+                // If no watches, lock it to "Checked" (Standard behavior) but Disabled
                 wearablesToggle.checked = true;
                 wearablesToggle.disabled = true;
                 wearablesLabel.textContent = "Show wearables (not applicable)";
@@ -1771,11 +1829,6 @@
         uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); });
         uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); handleFileUploads(e.dataTransfer.files); });
         isolateIphonesCheckbox.addEventListener('change', saveSettings);
-        devConsoleToggle.addEventListener('change', () => { 
-            const isChecked = devConsoleToggle.checked;
-            devConsoleContainer.style.display = isChecked ? 'block' : 'none';
-            // Download button handled in CSS or not present in v47 HTML structure (removed for simplicity as it was hidden)
-        });
         
         // Listener for EDLP toggle to show/hide warning
         showEdlpsToggle.addEventListener('change', () => {
@@ -1811,7 +1864,13 @@
         window.addEventListener('click', (event) => { if (event.target == previewModal) previewModal.style.display = 'none'; if (event.target == emphasisModal) emphasisModal.style.display = 'none'; if (event.target == devModeModal && devModalCloseable.backdrop) devModeModal.style.display = 'none'; });
         downloadBtn.addEventListener('click', () => { const link = document.createElement('a'); link.href = iframe.src; link.download = 'Combined_Inventory.pdf'; link.click(); });
         
-        emphasisModal.addEventListener('click', (e) => { const target = e.target.closest('.emphasis-item-hide'); if (!target) return; const { key, carrier } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false, hidden: false }; state.hidden = !state.hidden; appState[carrier].emphasis.set(key, state); const parentItem = target.closest('.emphasis-item'); parentItem.classList.toggle('item-hidden'); parentItem.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = state.hidden); saveSettings(); });
+        // v48 Persistence Debug: Added logging to the click listener
+        emphasisModal.addEventListener('click', (e) => { const target = e.target.closest('.emphasis-item-hide'); if (!target) return; const { key, carrier } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false, hidden: false }; 
+        
+        // V48 Log
+        debugLog(`HIDE CLICK: Key '${key}' | Pre-State: ${JSON.stringify(state)}`, "sys");
+
+        state.hidden = !state.hidden; appState[carrier].emphasis.set(key, state); const parentItem = target.closest('.emphasis-item'); parentItem.classList.toggle('item-hidden'); parentItem.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = state.hidden); saveSettings(); });
         // v40: Updated fallback object in change listener
         emphasisModal.addEventListener('change', (e) => { const target = e.target; if (target.type !== 'checkbox') return; const isMaster = target.id.startsWith('master-'); if (isMaster) { const masterType = target.id.includes('partial') ? 'partial' : 'full'; const isChecking = target.checked; const allItems = emphasisModal.querySelectorAll('.emphasis-item:not(.item-hidden)'); allItems.forEach(item => { const partialBox = item.querySelector('[data-type="partial"]'); const fullBox = item.querySelector('[data-type="full"]'); const key = partialBox.dataset.key; const carrier = partialBox.dataset.carrier; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false, hidden: false }; if (masterType === 'partial') { partialBox.checked = isChecking; state.partial = isChecking; if (!isChecking) { fullBox.checked = false; state.full = false; } } else { fullBox.checked = isChecking; state.full = isChecking; if (isChecking) { partialBox.checked = true; state.partial = true; } } appState[carrier].emphasis.set(key, state); }); const masterPartial = document.getElementById('master-partial-checkbox'); const masterFull = document.getElementById('master-full-checkbox'); if (masterType === 'full' && isChecking) masterPartial.checked = true; if (masterType === 'partial' && !isChecking) masterFull.checked = false; } else if (target.dataset.key) { const { key, carrier, type } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false, hidden: false }; state[type] = target.checked; const parentItem = target.closest('.emphasis-item'); if (parentItem) { const partialBox = parentItem.querySelector('[data-type="partial"]'); const fullBox = parentItem.querySelector('[data-type="full"]'); if (type === 'full' && target.checked) { state.partial = true; if (partialBox) partialBox.checked = true; } if (type === 'partial' && !target.checked) { state.full = false; if (fullBox) fullBox.checked = false; } } appState[carrier].emphasis.set(key, state); } saveSettings(); });
         
