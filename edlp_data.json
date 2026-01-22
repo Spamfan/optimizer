@@ -70,14 +70,14 @@
       "name": "Galaxy A03",
       "tmo": {
         "dp": 0,
-        "last_updated": 1768079389485,
+        "last_updated": 1769038272967,
         "monthly": 0,
         "total": 0
       },
       "vzw": {
-        "last_updated": 1768260918352,
-        "monthly": 1,
-        "total": 36
+        "last_updated": 1769052679764,
+        "monthly": 26.39,
+        "total": 950
       }
     },
     "galaxya11": {
@@ -306,6 +306,46 @@
         "last_updated": 1767474294959,
         "monthly": 8.31,
         "total": 299
+      }
+    },
+    "iphone13": {
+      "att": {
+        "last_updated": 1768937172988,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1768937172988,
+      "name": "iPhone 13",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1768937172988,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1768937172988,
+        "monthly": 0,
+        "total": 0
+      }
+    },
+    "iphone14": {
+      "att": {
+        "last_updated": 1768937166870,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1768937166870,
+      "name": "iPhone 14",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1768937166870,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1768937166870,
+        "monthly": 0,
+        "total": 0
       }
     },
     "iphone15": {
