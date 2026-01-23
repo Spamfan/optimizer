@@ -162,11 +162,23 @@
     },
     "galaxya355g": {
       "att": {
-        "monthly": 2.75,
-        "total": 99
+        "last_updated": 1769188095938,
+        "monthly": 1,
+        "total": 36
       },
       "last_updated": 1764448685541,
-      "name": "Galaxy A35 5G"
+      "name": "Galaxy A35 5G",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1769188095938,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1769188095938,
+        "monthly": 0,
+        "total": 0
+      }
     },
     "galaxys24fe": {
       "att": {
