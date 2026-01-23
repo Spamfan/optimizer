@@ -330,9 +330,9 @@
     },
     "iphone14": {
       "att": {
-        "last_updated": 1768937166870,
-        "monthly": 0,
-        "total": 0
+        "last_updated": 1769187940346,
+        "monthly": 5.53,
+        "total": 199
       },
       "last_updated": 1768937166870,
       "name": "iPhone 14",
@@ -343,9 +343,9 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1768937166870,
-        "monthly": 0,
-        "total": 0
+        "last_updated": 1769187940346,
+        "monthly": 5.53,
+        "total": 199
       }
     },
     "iphone15": {
