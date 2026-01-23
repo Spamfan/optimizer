@@ -230,9 +230,9 @@
     },
     "galaxys25plus5g": {
       "att": {
-        "last_updated": 1768260030299,
-        "monthly": 22.19,
-        "total": 799
+        "last_updated": 1769181675873,
+        "monthly": 13.86,
+        "total": 499
       },
       "last_updated": 1764448685541,
       "name": "Galaxy S25 Plus 5G",
@@ -243,9 +243,9 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1768261269448,
-        "monthly": 27.75,
-        "total": 999
+        "last_updated": 1769181675873,
+        "monthly": 13.86,
+        "total": 499
       }
     },
     "galaxys25ultra5g": {
