@@ -310,9 +310,9 @@
     },
     "iphone13": {
       "att": {
-        "last_updated": 1769187928110,
-        "monthly": 5.53,
-        "total": 199
+        "last_updated": 1769187936022,
+        "monthly": 0,
+        "total": 0
       },
       "last_updated": 1768937172988,
       "name": "iPhone 13",
@@ -323,9 +323,9 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1769187928110,
-        "monthly": 5.53,
-        "total": 199
+        "last_updated": 1769187936022,
+        "monthly": 0,
+        "total": 0
       }
     },
     "iphone14": {
