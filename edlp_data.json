@@ -250,9 +250,9 @@
     },
     "galaxys25ultra5g": {
       "att": {
-        "last_updated": 1768260054877,
-        "monthly": 27.75,
-        "total": 999
+        "last_updated": 1769181716629,
+        "monthly": 24.97,
+        "total": 899
       },
       "last_updated": 1764448685541,
       "name": "Galaxy S25 Ultra 5G",
@@ -263,9 +263,9 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1768261285717,
-        "monthly": 36.08,
-        "total": 1299
+        "last_updated": 1769181716629,
+        "monthly": 24.97,
+        "total": 899
       }
     },
     "galaxyzflip45g": {
