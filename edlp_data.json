@@ -348,6 +348,26 @@
         "total": 199
       }
     },
+    "iphone14plus": {
+      "att": {
+        "last_updated": 1769187998117,
+        "monthly": 5.53,
+        "total": 199
+      },
+      "last_updated": 1769187998117,
+      "name": "iPhone 14 Plus",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1769187998117,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1769188002526,
+        "monthly": 5.53,
+        "total": 199
+      }
+    },
     "iphone15": {
       "att": {
         "last_updated": 1765144676354,
