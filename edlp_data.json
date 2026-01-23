@@ -290,9 +290,9 @@
     },
     "galazys24ultra5g": {
       "att": {
-        "last_updated": 1767474294959,
-        "monthly": 8.31,
-        "total": 299
+        "last_updated": 1769188068892,
+        "monthly": 2.75,
+        "total": 99
       },
       "last_updated": 1766198073687,
       "name": "Galaxy S24 Ultra 5G",
@@ -303,9 +303,9 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1767474294959,
-        "monthly": 8.31,
-        "total": 299
+        "last_updated": 1769188068892,
+        "monthly": 2.75,
+        "total": 99
       }
     },
     "iphone13": {
