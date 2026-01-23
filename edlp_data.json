@@ -700,6 +700,26 @@
         "total": 36
       }
     },
+    "pixel7a": {
+      "att": {
+        "last_updated": 1769188128529,
+        "monthly": 1,
+        "total": 36
+      },
+      "last_updated": 1769188125226,
+      "name": "Pixel 7a",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1769188125226,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1769188128529,
+        "monthly": 1,
+        "total": 36
+      }
+    },
     "pixel8a": {
       "att": {
         "last_updated": 1769188115860,
