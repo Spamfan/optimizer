@@ -120,6 +120,26 @@
         "total": 0
       }
     },
+    "galaxya14": {
+      "att": {
+        "last_updated": 1769531228286,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1769531228286,
+      "name": "Galaxy A14",
+      "tmo": {
+        "dp": 40,
+        "last_updated": 1769531240471,
+        "monthly": 0.25,
+        "total": 46
+      },
+      "vzw": {
+        "last_updated": 1769531228286,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "galaxya155g": {
       "att": {
         "last_updated": 1768259990253,
