@@ -800,6 +800,26 @@
         "total": 0
       }
     },
+    "revvl6x5g": {
+      "att": {
+        "last_updated": 1769531291650,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1769531291650,
+      "name": "Revvl 6X 5G",
+      "tmo": {
+        "dp": 50,
+        "last_updated": 1769531300887,
+        "monthly": 2,
+        "total": 98
+      },
+      "vzw": {
+        "last_updated": 1769531291650,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "tclflip3": {
       "att": {
         "last_updated": 1768261525286,
