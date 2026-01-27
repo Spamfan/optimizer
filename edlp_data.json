@@ -129,10 +129,10 @@
       "last_updated": 1764448807949,
       "name": "Galaxy A15 5G",
       "tmo": {
-        "dp": 0,
-        "last_updated": 1767472964800,
-        "monthly": 0,
-        "total": 0
+        "dp": 20,
+        "last_updated": 1769531123760,
+        "monthly": 0.67,
+        "total": 36.08
       },
       "vzw": {
         "last_updated": 1768261207628,
