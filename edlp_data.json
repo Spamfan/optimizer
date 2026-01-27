@@ -160,6 +160,26 @@
         "total": 50
       }
     },
+    "galaxya175g": {
+      "att": {
+        "last_updated": 1769197187330,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1769197187330,
+      "name": "Galaxy A17 5G",
+      "tmo": {
+        "dp": 45,
+        "last_updated": 1769530437063,
+        "monthly": 3,
+        "total": 117
+      },
+      "vzw": {
+        "last_updated": 1769197187330,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "galaxya355g": {
       "att": {
         "last_updated": 1769188095938,
