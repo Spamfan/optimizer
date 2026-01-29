@@ -209,10 +209,10 @@
       "last_updated": 1764448685541,
       "name": "Galaxy A35 5G",
       "tmo": {
-        "dp": 0,
-        "last_updated": 1769188095938,
-        "monthly": 0,
-        "total": 0
+        "dp": 30,
+        "last_updated": 1769711173546,
+        "monthly": 0.25,
+        "total": 36
       },
       "vzw": {
         "last_updated": 1769188095938,
