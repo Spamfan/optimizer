@@ -669,10 +669,10 @@
       "last_updated": 1764448685542,
       "name": "Moto G 5G 2025",
       "tmo": {
-        "dp": 0,
-        "last_updated": 1769531094385,
-        "monthly": 0,
-        "total": 0
+        "dp": 30,
+        "last_updated": 1769703375801,
+        "monthly": 1,
+        "total": 54
       },
       "vzw": {
         "last_updated": 1768261431322,
