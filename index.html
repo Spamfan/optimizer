@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimizer (v51)</title>
+    <title>Optimizer (v52)</title>
     
     <!-- PDF.js and jsPDF library CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -20,24 +20,23 @@
         }
 
         /* v50: Split Layout Wrapper (Hard Left Desktop) */
-    #main-wrapper {
-        display: flex;
-        flex-direction: row;
-        justify-content: center; /* Mobile: Centered */
-        align-items: flex-start;
-        gap: 20px;
-        flex-wrap: wrap;
-        width: 100%;
-        /* Removed max-width and margin:0 auto to stop centering */
-    }
-
-    /* Desktop: Float STRICTLY LEFT */
-    @media (min-width: 900px) {
         #main-wrapper {
-            justify-content: flex-start;
-            padding-left: 0; /* Hug the left edge */
+            display: flex;
+            flex-direction: row;
+            justify-content: center; /* Mobile: Centered */
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+            width: 100%;
         }
-    }
+
+        /* Desktop: Float STRICTLY LEFT */
+        @media (min-width: 900px) {
+            #main-wrapper {
+                justify-content: flex-start;
+                padding-left: 0; /* Hug the left edge */
+            }
+        }
 
         #version-wrapper {
             position: absolute;
@@ -50,7 +49,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            z-index: 100; /* v49: Ensure visibility above app card */
+            z-index: 100;
         }
 
         #status-icon {
@@ -308,7 +307,7 @@
 <body>
 
     <div id="version-wrapper">
-        <span id="version-text">Beta V49</span>
+        <span id="version-text">Beta V52</span>
         <span id="status-icon" title="Offline Mode">❌☁</span>
     </div>
 
@@ -339,6 +338,8 @@
                         <input type="checkbox" id="show-edlps-toggle">
                         <label for="show-edlps-toggle">Show likely EDLPs</label>
                     </div>
+                    <!-- v52: This element is retained for code compatibility but safely handled if missing -->
+                    <div id="edlp-warning"></div>
                 </div>
                 <div class="toggle-option">
                     <input type="checkbox" id="show-comments-toggle">
@@ -442,7 +443,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta V51';
+        const APP_VERSION = 'Beta V52';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -775,7 +776,10 @@
             el.addEventListener('change', () => {
                 saveSettings();
                 // UI Updates
-                if (el === showEdlpsToggle) edlpWarning.classList.toggle('visible', el.checked);
+                if (el === showEdlpsToggle) {
+                    // v52: Safety check for missing element
+                    if (edlpWarning) edlpWarning.classList.toggle('visible', el.checked);
+                }
                 if (el === showCommentsToggle) commentsSection.style.display = el.checked ? 'block' : 'none';
             });
         });
@@ -796,6 +800,8 @@
                 
                 const cleanEmphasis = (emphasisMap) => {
                     const cleanEntries = Array.from(emphasisMap.entries()).map(([key, value]) => {
+                        // v52: Safety check for null value
+                        if (!value) return [key, { partial: false, full: false, hidden: false }];
                         const { partial, full, hidden } = value; 
                         return [key, { partial: !!partial, full: !!full, hidden: !!hidden }]; // v36: Persistence Fix
                     });
@@ -820,7 +826,10 @@
                 let totalHidden = 0;
                 ['att', 'vzw', 'tmo'].forEach(c => {
                     let count = 0;
-                    appState[c].emphasis.forEach(v => { if(v.hidden) count++; });
+                    appState[c].emphasis.forEach(v => { 
+                        // v52: Safety check
+                        if(v && v.hidden) count++; 
+                    });
                     totalHidden += count;
                 });
                 debugLog(`SAVE COMPLETE. Total Hidden Items: ${totalHidden}`, "sys");
@@ -835,7 +844,8 @@
                 
                 // V38 Logging
                 if (savedSettings) {
-                    debugLog(`RAW STORAGE FOUND: ${savedSettings.substring(0, 100)}...`, "sys");
+                    // v52: Removed substring limit for better debugging
+                    debugLog(`RAW STORAGE FOUND: ${savedSettings}`, "sys");
                 } else {
                     debugLog("RAW STORAGE: null/empty", "sys");
                 }
@@ -847,7 +857,8 @@
                     // v35 Sticky Toggle
                     if (settings.showEdlps !== undefined) {
                         showEdlpsToggle.checked = settings.showEdlps;
-                        if(settings.showEdlps) edlpWarning.classList.add('visible');
+                        // v52: Safety check for missing element
+                        if(settings.showEdlps && edlpWarning) edlpWarning.classList.add('visible');
                     }
 
                     // v47 Sticky Toggles
@@ -864,18 +875,19 @@
                     appState.tmo.emphasis = new Map(settings.emphasis.tmo || []);
                     
                     // V38: Log Hidden Counts
-                ['att', 'vzw', 'tmo'].forEach(c => {
-                    let hiddenCount = 0;
-                    appState[c].emphasis.forEach((val, key) => {
-                        // v51: Log exact keys to check for mismatch
-                        // debugLog(`LOAD KEY [${c}]: '${key}' -> Hidden: ${val.hidden}`, "sys");
-                        if (val.hidden) {
-                            debugLog(`LOAD HIDDEN [${c}]: '${key}'`, "sys");
-                            hiddenCount++;
-                        }
+                    ['att', 'vzw', 'tmo'].forEach(c => {
+                        let hiddenCount = 0;
+                        appState[c].emphasis.forEach((val, key) => {
+                            // v51: Log exact keys to check for mismatch
+                            // debugLog(`LOAD KEY [${c}]: '${key}' -> Hidden: ${val.hidden}`, "sys");
+                            // v52: Safety check for null value
+                            if (val && val.hidden) {
+                                debugLog(`LOAD HIDDEN [${c}]: '${key}'`, "sys");
+                                hiddenCount++;
+                            }
+                        });
+                        debugLog(`[${c}] Loaded: ${appState[c].emphasis.size} settings, ${hiddenCount} hidden.`, "sys");
                     });
-                    debugLog(`[${c}] Loaded: ${appState[c].emphasis.size} settings, ${hiddenCount} hidden.`, "sys");
-                });
                 }
             } catch (error) { console.error("Could not load settings, using defaults:", error); }
         };
@@ -1838,15 +1850,18 @@
         showEdlpsToggle.addEventListener('change', () => {
              saveSettings(); // v35 Save on Toggle
              if (showEdlpsToggle.checked) {
-                 edlpWarning.classList.add('visible');
+                 // v52: Safety check for missing element
+                 if(edlpWarning) edlpWarning.classList.add('visible');
              } else {
-                 edlpWarning.classList.remove('visible');
+                 // v52: Safety check for missing element
+                 if(edlpWarning) edlpWarning.classList.remove('visible');
              }
         });
         
         // Initialize EDLP warning state based on default or loaded setting
         if (showEdlpsToggle.checked) {
-             edlpWarning.classList.add('visible');
+             // v52: Safety check for missing element
+             if(edlpWarning) edlpWarning.classList.add('visible');
         }
 
         // v33: Console Filter Logic
@@ -1858,7 +1873,15 @@
              e.target.checked ? consoleOut.classList.remove('hide-edlp') : consoleOut.classList.add('hide-edlp');
         });
 
-        copyLogBtn.addEventListener('click', () => { const logText = devConsoleOutput.textContent; if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(logText).then(() => { alert('Log copied to clipboard!'); }).catch(err => { console.warn('Modern clipboard API failed, trying fallback.', err); legacyCopy(logText); }); } else { legacyCopy(logText); } });
+        // v52: Fixed Copy Log Button (Specific Selector)
+        copyLogBtn.addEventListener('click', () => { 
+            const logText = document.getElementById('dev-console-output').textContent; 
+            if (navigator.clipboard && navigator.clipboard.writeText) { 
+                navigator.clipboard.writeText(logText).then(() => { alert('Log copied to clipboard!'); }).catch(err => { console.warn('Modern clipboard API failed, trying fallback.', err); legacyCopy(logText); }); 
+            } else { 
+                legacyCopy(logText); 
+            } 
+        });
         const legacyCopy = (text) => { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.top = 0; textArea.style.left = 0; textArea.style.opacity = 0; document.body.appendChild(textArea); textArea.focus(); textArea.select(); try { const successful = document.execCommand('copy'); if (!successful) { alert('Failed to copy log.'); } } catch (err) { alert('Failed to copy log.'); } document.body.removeChild(textArea); };
         
         previewCloseBtn.addEventListener('click', () => previewModal.style.display = 'none');
