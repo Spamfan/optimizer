@@ -2,7 +2,7 @@
   "devices": {
     "classic": {
       "att": {
-        "last_updated": 1768259874017,
+        "last_updated": 1771177642254,
         "monthly": 1.53,
         "total": 55
       },
@@ -10,7 +10,7 @@
       "name": "Classic",
       "tmo": {
         "dp": 0,
-        "last_updated": 1771177631587,
+        "last_updated": 1771177642254,
         "monthly": 0,
         "total": 0
       },
