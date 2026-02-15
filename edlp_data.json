@@ -10,7 +10,7 @@
       "name": "Classic",
       "tmo": {
         "dp": 0,
-        "last_updated": 1764700686556,
+        "last_updated": 1771177631587,
         "monthly": 0,
         "total": 0
       },
@@ -318,6 +318,46 @@
         "last_updated": 1769181716629,
         "monthly": 24.97,
         "total": 899
+      }
+    },
+    "galaxys26plus5g": {
+      "att": {
+        "last_updated": 1770329521331,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1770329521331,
+      "name": "Galaxy S26 Plus 5G",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1770329521331,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1770329521331,
+        "monthly": 0,
+        "total": 0
+      }
+    },
+    "galaxys26ultra5g": {
+      "att": {
+        "last_updated": 1770329475722,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1770329475722,
+      "name": "Galaxy S26 Ultra 5G",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1770329475722,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1770329475722,
+        "monthly": 0,
+        "total": 0
       }
     },
     "galaxyzflip45g": {
