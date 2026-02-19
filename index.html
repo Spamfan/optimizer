@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimizer (v58)</title>
+    <title>Optimizer (v59)</title>
     
     <!-- PDF.js and jsPDF library CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -293,7 +293,7 @@
 <body>
 
     <div id="version-wrapper">
-        <span id="version-text">Beta V58</span>
+        <span id="version-text">Beta V59</span>
         <span id="status-icon" title="Offline Mode">❌☁</span>
     </div>
 
@@ -426,7 +426,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta V58';
+        const APP_VERSION = 'Beta V59';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -1148,12 +1148,17 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const topMargin = 12.7, sideMargin = 6.35, bottomMargin = 6.35;
-            const pageHeight = 297, lineHeight = 4.5, sectionSpacing = 3; // v57: Reduced Spacing
-            const headerHeight = 6, listTopMargin = 2;
+            const pageHeight = 297, lineHeight = 4.5, sectionSpacing = 3; 
+            const headerHeight = 6;
             let yPosition = topMargin;
             const showEdlps = showEdlpsToggle.checked;
             
-            // --- PASS 1: COLLECT CITATIONS (v34 Refactor) ---
+            // --- HEADER (v59: Spacing Fixes) ---
+            // ... (Sources logic remains same) ...
+            
+            // ... (Skipping to drawSmartLayout implementation) ...
+
+            // --- PASS 1: COLLECT CITATIONS ---
             const citationMap = new Map();
             const getPriceObj = (cData, mName) => {
                 if (!cData) return null;
@@ -1168,9 +1173,8 @@
             const currentMonth = now.getMonth(); // 0-11
             const currentYear = now.getFullYear();
             
-            // Collection Set: Stores unique citation labels (e.g. "Dec 2025" or "1/16")
-            // We store objects: { label: string, sortValue: number }
-            const collectedCitations = new Map(); // label -> sortValue
+            // Collection Set
+            const collectedCitations = new Map();
 
             const collectDates = (carrier, list) => {
                 list.forEach(item => {
@@ -1186,16 +1190,11 @@
                         let label = "";
                         let sortValue = 0;
 
-                        // Check if past month
                         if (d.getFullYear() < currentYear || (d.getFullYear() === currentYear && d.getMonth() < currentMonth)) {
-                            // v57: Changed to MM/YYYY
                             label = d.toLocaleDateString('en-US', { month: '2-digit', year: 'numeric' });
-                            // Sort value: First day of that month
                             sortValue = new Date(d.getFullYear(), d.getMonth(), 1).getTime();
                         } else {
-                            // Current month/future: M/D (e.g., 1/16)
                             label = `${d.getMonth() + 1}/${d.getDate()}`;
-                            // Sort value: exact timestamp
                             sortValue = d.getTime();
                         }
 
@@ -1221,12 +1220,10 @@
             const carriersForLayout = Object.keys(state).filter(c => state[c].consolidatedList && state[c].consolidatedList.length > 0);
             carriersForLayout.forEach(c => collectDates(c, state[c].consolidatedList));
 
-            // Sort citations: Past months first, then current days
             const sortedLabels = Array.from(collectedCitations.entries())
                 .sort((a, b) => a[1] - b[1])
                 .map(entry => entry[0]);
 
-            // Assign indices
             sortedLabels.forEach((label, index) => {
                 citationMap.set(label, index + 1);
             });
@@ -1243,11 +1240,10 @@
                 return citationMap.get(label);
             };
 
-            // --- HEADER (v58: Added padding space) ---
+            // --- HEADER RENDER ---
             const dateStr = now.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
             const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
             
-            // Build Store String
             const storeSet = new Set();
             ['att', 'vzw', 'tmo'].forEach(c => {
                 if (appState[c].storeNumber) {
@@ -1270,8 +1266,8 @@
             doc.text(headerText2, sideMargin + w1, yPosition);
             yPosition += lineHeight;
 
-            // Line 2: Merged Sources + EDLPs
-            const sourceDates = []; 
+            // Line 2
+            const sourceDates = [];
             ['att', 'vzw', 'tmo'].forEach(c => {
                 const rawDate = appState[c].fileDate;
                 if (rawDate) {
@@ -1349,7 +1345,6 @@
                 if (i < groups.length - 1) sourcesContent += ", ";
             });
 
-            // Construct Line 2
             let line2X = sideMargin;
             doc.setFont("helvetica", "bold");
             doc.text("Sources: ", line2X, yPosition);
@@ -1359,8 +1354,8 @@
             doc.text(sourcesContent, line2X, yPosition);
             line2X += doc.getTextWidth(sourcesContent);
             
-            // v58: Explicit padding space
-            line2X += doc.getTextWidth(" ");
+            // v59: 4 spaces padding
+            line2X += doc.getTextWidth("    ");
 
             if (showEdlps && citationMap.size > 0) {
                 doc.setFont("helvetica", "bold");
@@ -1394,7 +1389,7 @@
             yPosition += sectionSpacing;
             const contentStartY = yPosition;
 
-            // --- MAIN TABLE RENDERING (v58: Section Keep-Together Logic) ---
+            // --- v59: SMART FLOW ENGINE ---
             let startRightX = 100;
             if (showEdlps) {
                 if (isolateIphonesCheckbox.checked) {
@@ -1404,258 +1399,275 @@
                 }
             }
 
-            const leftColumnCarriers = carriersForLayout.filter(c => c !== 'apple' && c !== 'tmo');
-            const rightColumnCarriers = carriersForLayout.filter(c => c === 'apple' || c === 'tmo');
-            
-            // Helper to Draw a Column
-            const drawColumn = (carriers, xPos, initialY, initialPage) => {
-                let cursorY = initialY;
-                let cursorPage = initialPage;
-                
-                doc.setPage(cursorPage);
+            // Define Layout State
+            let cursors = {
+                left: { page: 1, y: contentStartY },
+                right: { page: 1, y: contentStartY }
+            };
+            let maxPage = 1;
 
-                carriers.forEach(carrier => {
-                    const data = state[carrier];
-                    
-                    // v58: "Lookahead" - Calculate total height of this carrier section
-                    // We must filter first to know exactly how many items will print
-                    let visibleCount = 0;
-                    data.consolidatedList.forEach(item => {
-                        const model = (carrier === 'apple') ? item.modelAndCapacity : item[0];
-                        const source = (carrier === 'apple') ? item.sourceCarrier : carrier;
-                        const emphasis = appState[source].emphasis.get(model) || {};
-                        if (!emphasis.hidden) visibleCount++;
-                    });
+            // Queue: ATT -> TMO -> VZW -> Apple
+            const processQueue = [];
+            if (state.att) processQueue.push({ id: 'att', pref: 'left', alt: 'right' });
+            if (state.tmo) processQueue.push({ id: 'tmo', pref: 'right', alt: 'left' });
+            if (state.vzw) processQueue.push({ id: 'vzw', pref: 'left', alt: 'right' });
+            if (state.apple) processQueue.push({ id: 'apple', pref: 'right', alt: 'left' });
 
-                    // Determine Legend Height
-                    let legendH = lineHeight; // Default
-                    if (showEdlps) {
-                        if (carrier === 'apple' && isolateIphonesCheckbox.checked) legendH = lineHeight * 2;
-                    }
+            // Helper: Draw Carrier Block
+            const drawCarrierBlock = (carrier, xPos, startY, pageNum) => {
+                doc.setPage(pageNum);
+                let cursorY = startY;
+                const data = state[carrier];
 
-                    const sectionHeight = headerHeight + legendH + (visibleCount * lineHeight) + sectionSpacing;
-                    const remainingHeight = pageHeight - bottomMargin - cursorY;
+                // Header
+                doc.setFont("helvetica", "bold").setFontSize(10);
+                const headerText = (carrier === 'apple') ? 'Apple Devices' : carrier.toUpperCase();
+                const headerWidth = doc.getTextWidth(headerText);
+                doc.text(headerText, xPos, cursorY);
+                doc.setLineWidth(0.2).line(xPos, cursorY + 0.5, xPos + headerWidth, cursorY + 0.5);
+                cursorY += 6; // headerHeight
 
-                    // Decision: Does it fit?
-                    // Only force break if it fits on a blank page but not here.
-                    // Also ensure we aren't already at the top (cursorY > topMargin).
-                    if (sectionHeight > remainingHeight && cursorY > topMargin) {
-                        // Move to next page
-                        cursorPage++;
-                        if (cursorPage > doc.internal.getNumberOfPages()) doc.addPage();
-                        doc.setPage(cursorPage);
-                        cursorY = topMargin;
-                    }
-
-                    // Draw Header
-                    doc.setFont("helvetica", "bold").setFontSize(10);
-                    // v54: Header Update
-                    const headerText = (carrier === 'apple') ? 'Apple Devices' : carrier.toUpperCase();
-                    const headerWidth = doc.getTextWidth(headerText);
-                    doc.text(headerText, xPos, cursorY);
-                    doc.setLineWidth(0.2).line(xPos, cursorY + 0.5, xPos + headerWidth, cursorY + 0.5);
-                    cursorY += headerHeight;
-
-                    // Draw Legend
-                    if (showEdlps) {
-                        doc.setFontSize(6).setFont("helvetica", "bold");
-                        if (carrier === 'apple') {
-                            const curEdlpX = xPos + 30;
-                            const curDetailsX = xPos + 85;
-                            doc.text("EDLPs", curEdlpX, cursorY);
-                            cursorY += lineHeight;
-                            doc.text("ITEM", xPos, cursorY);
-                            doc.text("ATT, VZW, TMO (dp + /mo)", curEdlpX, cursorY);
-                            doc.text("QTY", curDetailsX, cursorY);
-                            cursorY += lineHeight;
-                        } else if (carrier === 'tmo') {
-                            const curEdlpX = xPos + 30; 
-                            const curDetailsX = xPos + (isolateIphonesCheckbox.checked ? 85 : 65);
-                            doc.text("ITEM", xPos, cursorY);
-                            doc.text("EDLP (dp + /mo)", curEdlpX, cursorY);
-                            doc.text("QTY", curDetailsX, cursorY);
-                            cursorY += lineHeight;
-                        } else {
-                            const curEdlpX = xPos + 28;
-                            const curDetailsX = xPos + 38; 
-                            doc.text("ITEM", xPos, cursorY);
-                            doc.text("EDLP", curEdlpX, cursorY);
-                            doc.text("QTY", curDetailsX, cursorY); 
-                            cursorY += lineHeight;
-                        }
-                    } else {
-                        doc.setFontSize(6).setFont("helvetica", "bold");
+                // Legend
+                if (showEdlps) {
+                    doc.setFontSize(6).setFont("helvetica", "bold");
+                    if (carrier === 'apple') {
+                        const curEdlpX = xPos + 30;
+                        const curDetailsX = xPos + 85;
+                        doc.text("EDLPs", curEdlpX, cursorY);
+                        cursorY += lineHeight;
                         doc.text("ITEM", xPos, cursorY);
-                        doc.text("QTY", xPos + 50, cursorY); 
+                        doc.text("ATT, VZW, TMO (dp + /mo)", curEdlpX, cursorY);
+                        doc.text("QTY", curDetailsX, cursorY);
+                        cursorY += lineHeight;
+                    } else if (carrier === 'tmo') {
+                        const curEdlpX = xPos + 30; 
+                        const curDetailsX = xPos + (isolateIphonesCheckbox.checked ? 85 : 65);
+                        doc.text("ITEM", xPos, cursorY);
+                        doc.text("EDLP (dp + /mo)", curEdlpX, cursorY);
+                        doc.text("QTY", curDetailsX, cursorY);
+                        cursorY += lineHeight;
+                    } else {
+                        const curEdlpX = xPos + 28;
+                        const curDetailsX = xPos + 38; 
+                        doc.text("ITEM", xPos, cursorY);
+                        doc.text("EDLP", curEdlpX, cursorY);
+                        doc.text("QTY", curDetailsX, cursorY); 
                         cursorY += lineHeight;
                     }
+                } else {
+                    doc.setFontSize(6).setFont("helvetica", "bold");
+                    doc.text("ITEM", xPos, cursorY);
+                    doc.text("QTY", xPos + 50, cursorY); 
+                    cursorY += lineHeight;
+                }
 
-                    doc.setFontSize(8); 
+                doc.setFontSize(8);
+
+                // Items
+                data.consolidatedList.forEach(item => {
+                    const rawModel = (carrier === 'apple') ? item.modelAndCapacity : item[0];
+                    const rawDetails = (carrier === 'apple') ? item.details : item[1];
+                    const sourceCarrier = (carrier === 'apple') ? item.sourceCarrier : carrier;
+                    const emphasisState = (appState[sourceCarrier].emphasis.get(rawModel) || {});
                     
-                    data.consolidatedList.forEach(item => { 
-                        const isApple = carrier === 'apple';
-                        const rawModel = isApple ? item.modelAndCapacity : item[0];
-                        const rawDetails = isApple ? item.details : item[1];
-                        const sourceCarrier = isApple ? item.sourceCarrier : carrier;
-                        const emphasisState = (appState[sourceCarrier].emphasis.get(rawModel) || {}); 
-                        
-                        if (emphasisState.hidden) return; 
+                    if (emphasisState.hidden) return;
 
-                        // Check Page Break (Still needed for massive lists that span multiple pages)
-                        if (cursorY + lineHeight > pageHeight - bottomMargin) {
-                            cursorPage++;
-                            if (cursorPage > doc.internal.getNumberOfPages()) doc.addPage();
-                            doc.setPage(cursorPage);
-                            cursorY = topMargin;
-                        }
+                    // Page Break Check inside block
+                    if (cursorY + lineHeight > pageHeight - bottomMargin) {
+                        pageNum++;
+                        if (pageNum > doc.internal.getNumberOfPages()) doc.addPage();
+                        doc.setPage(pageNum);
+                        cursorY = topMargin;
+                        if (pageNum > maxPage) maxPage = pageNum;
+                    }
 
-                        let displayModel = rawModel;
-                        let displayDetails = rawDetails;
-                        let edlpSegments = []; 
+                    // Render Item (Same Logic as v58)
+                    let displayModel = rawModel;
+                    let displayDetails = rawDetails;
+                    let edlpSegments = []; 
 
-                        if (showEdlps) {
-                            displayModel = abbreviateModel(rawModel);
-                            displayDetails = abbreviateDetails(rawDetails, rawModel); 
-                            
-                            const findPrice = (cData, mName) => getPriceObj(cData, mName);
-                            const formatCurrency = (val) => {
-                                if (val === 0 || val === "0" || val === null || val === undefined || val === "???" || val === "??") return "___";
-                                return `$${val}`;
-                            };
+                    if (showEdlps) {
+                        displayModel = abbreviateModel(rawModel);
+                        displayDetails = abbreviateDetails(rawDetails, rawModel); 
+                        const findPrice = (cData, mName) => getPriceObj(cData, mName);
+                        const formatCurrency = (val) => {
+                            if (val === 0 || val === "0" || val === null || val === undefined || val === "???" || val === "??") return "___";
+                            return `$${val}`;
+                        };
 
-                            if (isApple) {
-                               const pAtt = findPrice(EDLP_DATA.att, rawModel);
-                               const pVzw = findPrice(EDLP_DATA.vzw, rawModel);
-                               const pTmo = findPrice(EDLP_DATA.tmo, rawModel);
-                               
-                               const tAtt = (pAtt && pAtt.total > 0) ? formatCurrency(pAtt.total) : "___";
-                               const citAtt = (pAtt && pAtt.total > 0) ? getCitation(pAtt.last_updated) : null;
-                               edlpSegments.push({ text: tAtt, citation: citAtt });
-                               edlpSegments.push({ text: ", ", citation: null });
+                        if (carrier === 'apple') {
+                           const pAtt = findPrice(EDLP_DATA.att, rawModel);
+                           const pVzw = findPrice(EDLP_DATA.vzw, rawModel);
+                           const pTmo = findPrice(EDLP_DATA.tmo, rawModel);
+                           
+                           const tAtt = (pAtt && pAtt.total > 0) ? formatCurrency(pAtt.total) : "___";
+                           const citAtt = (pAtt && pAtt.total > 0) ? getCitation(pAtt.last_updated) : null;
+                           edlpSegments.push({ text: tAtt, citation: citAtt });
+                           edlpSegments.push({ text: ", ", citation: null });
 
-                               const tVzw = (pVzw && pVzw.total > 0) ? formatCurrency(pVzw.total) : "___";
-                               const citVzw = (pVzw && pVzw.total > 0) ? getCitation(pVzw.last_updated) : null;
-                               edlpSegments.push({ text: tVzw, citation: citVzw });
-                               edlpSegments.push({ text: ", ", citation: null });
-                               
-                               let tTmoText = "___";
-                               let citTmo = null;
-                               if (pTmo && pTmo.total > 0) {
-                                   citTmo = getCitation(pTmo.last_updated);
-                                   if (pTmo.dp !== undefined) {
-                                       tTmoText = `${formatCurrency(pTmo.total)} (${formatCurrency(pTmo.dp)} + ${formatCurrency(pTmo.mo)}/mo)`;
-                                   } else {
-                                       tTmoText = formatCurrency(pTmo.total);
-                                   }
+                           const tVzw = (pVzw && pVzw.total > 0) ? formatCurrency(pVzw.total) : "___";
+                           const citVzw = (pVzw && pVzw.total > 0) ? getCitation(pVzw.last_updated) : null;
+                           edlpSegments.push({ text: tVzw, citation: citVzw });
+                           edlpSegments.push({ text: ", ", citation: null });
+                           
+                           let tTmoText = "___";
+                           let citTmo = null;
+                           if (pTmo && pTmo.total > 0) {
+                               citTmo = getCitation(pTmo.last_updated);
+                               if (pTmo.dp !== undefined) {
+                                   tTmoText = `${formatCurrency(pTmo.total)} (${formatCurrency(pTmo.dp)} + ${formatCurrency(pTmo.mo)}/mo)`;
+                               } else {
+                                   tTmoText = formatCurrency(pTmo.total);
                                }
-                               edlpSegments.push({ text: tTmoText, citation: citTmo });
+                           }
+                           edlpSegments.push({ text: tTmoText, citation: citTmo });
 
-                            } else {
-                               const priceData = findPrice(EDLP_DATA[sourceCarrier], rawModel);
-                               if (priceData && priceData.total > 0) {
-                                   const cit = getCitation(priceData.last_updated);
-                                   let txt = "";
-                                   if (sourceCarrier === 'tmo') {
-                                       if (priceData.dp !== undefined) {
-                                           txt = `${formatCurrency(priceData.total)} (${formatCurrency(priceData.dp)} + ${formatCurrency(priceData.mo)}/mo)`;
-                                       } else {
-                                           txt = formatCurrency(priceData.total);
-                                       }
-                                   } else {
-                                       txt = priceData.total !== undefined ? formatCurrency(priceData.total) : "";
-                                   }
-                                   if (txt) edlpSegments.push({ text: txt, citation: cit });
-                               }
-                            }
-                        }
-
-                        doc.setFont('helvetica', 'normal'); 
-                        
-                        let curModelX = xPos;
-                        let curEdlpX = 0;
-                        let curDetailsX = 0;
-
-                        if (showEdlps) {
-                            if (isApple) {
-                                curEdlpX = xPos + 30; 
-                                curDetailsX = xPos + 85; 
-                            } else if (carrier === 'tmo') {
-                                curEdlpX = xPos + 30; 
-                                curDetailsX = xPos + (isolateIphonesCheckbox.checked ? 85 : 65);
-                            } else {
-                                curEdlpX = xPos + 28;
-                                curDetailsX = xPos + 38;
-                            }
                         } else {
-                            curDetailsX = xPos + 50; 
+                           const priceData = findPrice(EDLP_DATA[sourceCarrier], rawModel);
+                           if (priceData && priceData.total > 0) {
+                               const cit = getCitation(priceData.last_updated);
+                               let txt = "";
+                               if (sourceCarrier === 'tmo') {
+                                   if (priceData.dp !== undefined) {
+                                       txt = `${formatCurrency(priceData.total)} (${formatCurrency(priceData.dp)} + ${formatCurrency(priceData.mo)}/mo)`;
+                                   } else {
+                                       txt = formatCurrency(priceData.total);
+                                   }
+                               } else {
+                                   txt = priceData.total !== undefined ? formatCurrency(priceData.total) : "";
+                               }
+                               if (txt) edlpSegments.push({ text: txt, citation: cit });
+                           }
                         }
+                    }
 
-                        if (emphasisState.full || emphasisState.partial) { 
-                            doc.setFillColor(150, 150, 150); 
-                            const textDimensions = doc.getTextDimensions(displayDetails, { fontSize: 8 }); 
-                            const rectY = cursorY - textDimensions.h + 0.2; 
-                            const rectHeight = textDimensions.h + 0.5; 
-                            let widthSpan = 75;
-                            if (showEdlps) {
-                                if (carrier === 'att' || carrier === 'vzw') widthSpan = 60; 
-                                else if (isApple) widthSpan = 110; 
-                                else if (carrier === 'tmo') widthSpan = isolateIphonesCheckbox.checked ? 110 : 90; 
-                            }
-                            let rectWidth = widthSpan; 
-                            if (!emphasisState.full) {
-                                 const modelDimensions = doc.getTextDimensions(displayModel, { fontSize: 8 }); 
-                                 rectWidth = modelDimensions.w + 2; 
-                            }
-                            doc.rect(curModelX - 1, rectY, rectWidth, rectHeight, 'F'); 
-                        } 
-                        
-                        doc.setFont('helvetica', 'normal');
-                        doc.text(displayModel, curModelX, cursorY); 
-                        
-                        if (showEdlps) {
-                            doc.setFontSize(7); 
-                            let segX = curEdlpX;
-                            edlpSegments.forEach(seg => {
-                                doc.text(seg.text, segX, cursorY);
-                                const w = doc.getTextWidth(seg.text);
-                                if (seg.citation) {
-                                    doc.setFontSize(5);
-                                    doc.text(`[${seg.citation}]`, segX + w + 0.5, cursorY - 1); 
-                                    doc.setFontSize(7); 
-                                    segX += w + 2.5; 
-                                } else {
-                                    segX += w;
-                                }
-                            });
-                            doc.setFontSize(8);
+                    doc.setFont('helvetica', 'normal'); 
+                    let curModelX = xPos;
+                    let curEdlpX = 0;
+                    let curDetailsX = 0;
+
+                    if (showEdlps) {
+                        if (carrier === 'apple') {
+                            curEdlpX = xPos + 30; curDetailsX = xPos + 85; 
+                        } else if (carrier === 'tmo') {
+                            curEdlpX = xPos + 30; curDetailsX = xPos + (isolateIphonesCheckbox.checked ? 85 : 65);
+                        } else {
+                            curEdlpX = xPos + 28; curDetailsX = xPos + 38;
                         }
-                        doc.text(displayDetails, curDetailsX, cursorY); 
-                        cursorY += lineHeight; 
-                    }); 
-                    cursorY += sectionSpacing; 
+                    } else {
+                        curDetailsX = xPos + 50; 
+                    }
+
+                    if (emphasisState.full || emphasisState.partial) { 
+                        doc.setFillColor(150, 150, 150); 
+                        const textDimensions = doc.getTextDimensions(displayDetails, { fontSize: 8 }); 
+                        const rectY = cursorY - textDimensions.h + 0.2; 
+                        const rectHeight = textDimensions.h + 0.5; 
+                        let widthSpan = 75;
+                        if (showEdlps) {
+                            if (carrier === 'att' || carrier === 'vzw') widthSpan = 60; 
+                            else if (carrier === 'apple') widthSpan = 110; 
+                            else if (carrier === 'tmo') widthSpan = isolateIphonesCheckbox.checked ? 110 : 90; 
+                        }
+                        let rectWidth = widthSpan; 
+                        if (!emphasisState.full) {
+                             const modelDimensions = doc.getTextDimensions(displayModel, { fontSize: 8 }); 
+                             rectWidth = modelDimensions.w + 2; 
+                        }
+                        doc.rect(curModelX - 1, rectY, rectWidth, rectHeight, 'F'); 
+                    } 
+                    
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(displayModel, curModelX, cursorY); 
+                    
+                    if (showEdlps) {
+                        doc.setFontSize(7); 
+                        let segX = curEdlpX;
+                        edlpSegments.forEach(seg => {
+                            doc.text(seg.text, segX, cursorY);
+                            const w = doc.getTextWidth(seg.text);
+                            if (seg.citation) {
+                                doc.setFontSize(5);
+                                doc.text(`[${seg.citation}]`, segX + w + 0.5, cursorY - 1); 
+                                doc.setFontSize(7); 
+                                segX += w + 2.5; 
+                            } else {
+                                segX += w;
+                            }
+                        });
+                        doc.setFontSize(8);
+                    }
+                    doc.text(displayDetails, curDetailsX, cursorY); 
+                    cursorY += lineHeight; 
                 });
-                return { page: cursorPage, y: cursorY };
+                
+                cursorY += sectionSpacing;
+                return { y: cursorY, page: pageNum };
             };
 
-            // 1. Draw Left Column
-            const leftResult = drawColumn(leftColumnCarriers, sideMargin, contentStartY, 1);
+            // Process Queue
+            processQueue.forEach(item => {
+                const data = state[item.id];
+                if (!data.consolidatedList || data.consolidatedList.length === 0) return;
 
-            // 2. Draw Right Column (Reset to Page 1)
-            const rightResult = drawColumn(rightColumnCarriers, startRightX, contentStartY, 1);
+                // Calculate Height
+                let visibleCount = 0;
+                data.consolidatedList.forEach(i => {
+                    const m = (item.id === 'apple') ? i.modelAndCapacity : i[0];
+                    const s = (item.id === 'apple') ? i.sourceCarrier : item.id;
+                    if (!(appState[s].emphasis.get(m) || {}).hidden) visibleCount++;
+                });
+                
+                let legendH = lineHeight;
+                if (showEdlps && item.id === 'apple' && isolateIphonesCheckbox.checked) legendH = lineHeight * 2;
+                const height = 6 + legendH + (visibleCount * lineHeight) + sectionSpacing;
 
-            if (carriersForLayout.length === 0) { doc.setFont("helvetica", "normal").setFontSize(12).text("No inventory found.", sideMargin, contentStartY); } 
+                // Decision Logic
+                let targetCol = item.pref;
+                let targetX = (targetCol === 'left') ? sideMargin : startRightX;
+                let cursor = cursors[targetCol];
+                let remainingSpace = pageHeight - bottomMargin - cursor.y;
+
+                if (height < remainingSpace) {
+                    // Fits in Preferred
+                } else {
+                    // Try Alternate
+                    let altCol = item.alt;
+                    let altCursor = cursors[altCol];
+                    let altRemaining = pageHeight - bottomMargin - altCursor.y;
+                    
+                    // Only switch to alt if it fits on the CURRENT page
+                    // And only if the alternate column isn't way behind (on a previous page)
+                    if (height < altRemaining && altCursor.page === cursor.page) {
+                        targetCol = altCol;
+                        targetX = (targetCol === 'left') ? sideMargin : startRightX;
+                        cursor = altCursor;
+                    } else {
+                        // Force New Page on Preferred
+                        cursor.page++;
+                        cursor.y = topMargin;
+                        if (cursor.page > maxPage) maxPage = cursor.page;
+                        if (cursor.page > doc.internal.getNumberOfPages()) doc.addPage();
+                    }
+                }
+
+                // Draw
+                const result = drawCarrierBlock(item.id, targetX, cursor.y, cursor.page);
+                cursors[targetCol] = result;
+                if (result.page > maxPage) maxPage = result.page;
+            });
+
+            if (processQueue.length === 0) { doc.setFont("helvetica", "normal").setFontSize(12).text("No inventory found.", sideMargin, contentStartY); } 
             
             // --- FOOTER (Hidden Items v57 Dynamic Position) ---
-            const finalPage = Math.max(leftResult.page, rightResult.page);
-            doc.setPage(finalPage);
+            doc.setPage(maxPage);
             
-            // Calculate Max Y on the final page
-            let maxY = topMargin;
-            if (leftResult.page === finalPage) maxY = Math.max(maxY, leftResult.y);
-            if (rightResult.page === finalPage) maxY = Math.max(maxY, rightResult.y);
+            // Find lowest Y on the final page
+            let finalY = topMargin;
+            if (cursors.left.page === maxPage) finalY = Math.max(finalY, cursors.left.y);
+            if (cursors.right.page === maxPage) finalY = Math.max(finalY, cursors.right.y);
             
-            // 1 line buffer
-            const footerY = maxY + lineHeight;
+            const footerY = finalY + lineHeight;
 
             doc.setFontSize(7);
             
