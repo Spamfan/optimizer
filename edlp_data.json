@@ -169,10 +169,10 @@
       "last_updated": 1764448685541,
       "name": "Galaxy A16 5G",
       "tmo": {
-        "dp": 45,
-        "last_updated": 1769531264782,
-        "monthly": 3,
-        "total": 117
+        "dp": 35,
+        "last_updated": 1771689518749,
+        "monthly": 0.63,
+        "total": 50.120000000000005
       },
       "vzw": {
         "last_updated": 1771178074333,
@@ -462,7 +462,7 @@
     },
     "iphone15": {
       "att": {
-        "last_updated": 1765144676354,
+        "last_updated": 1771178696950,
         "monthly": 8.31,
         "total": 299
       },
@@ -482,7 +482,7 @@
     },
     "iphone16": {
       "att": {
-        "last_updated": 1765144696336,
+        "last_updated": 1771178698902,
         "monthly": 17.47,
         "total": 629
       },
@@ -502,7 +502,7 @@
     },
     "iphone16e": {
       "att": {
-        "last_updated": 1769181734584,
+        "last_updated": 1771178708172,
         "monthly": 12.47,
         "total": 449
       },
@@ -522,7 +522,7 @@
     },
     "iphone16plus": {
       "att": {
-        "last_updated": 1768260111042,
+        "last_updated": 1771178700885,
         "monthly": 20.25,
         "total": 729
       },
@@ -562,7 +562,7 @@
     },
     "iphone16promax": {
       "att": {
-        "last_updated": 1768260121343,
+        "last_updated": 1771178705991,
         "monthly": 27.75,
         "total": 999
       },
@@ -582,7 +582,7 @@
     },
     "iphone17": {
       "att": {
-        "last_updated": 1764701687148,
+        "last_updated": 1771178724759,
         "monthly": 21.64,
         "total": 779
       },
@@ -602,7 +602,7 @@
     },
     "iphone17pro": {
       "att": {
-        "last_updated": 1764701705290,
+        "last_updated": 1771178714165,
         "monthly": 29.14,
         "total": 1049
       },
@@ -622,7 +622,7 @@
     },
     "iphone17promax": {
       "att": {
-        "last_updated": 1768260149459,
+        "last_updated": 1771178716257,
         "monthly": 31.92,
         "total": 1149
       },
@@ -642,7 +642,7 @@
     },
     "iphoneair": {
       "att": {
-        "last_updated": 1768260166912,
+        "last_updated": 1771178718025,
         "monthly": 24.97,
         "total": 899
       },
@@ -662,7 +662,7 @@
     },
     "iphonese3rdgen": {
       "att": {
-        "last_updated": 1769187971630,
+        "last_updated": 1771178719603,
         "monthly": 1,
         "total": 36
       },
