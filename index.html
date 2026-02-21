@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimizer (v59)</title>
+    <title>Optimizer (v60)</title>
     
     <!-- PDF.js and jsPDF library CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -293,7 +293,7 @@
 <body>
 
     <div id="version-wrapper">
-        <span id="version-text">Beta V59</span>
+        <span id="version-text">Beta V60</span>
         <span id="status-icon" title="Offline Mode">❌☁</span>
     </div>
 
@@ -426,7 +426,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'Beta V59';
+        const APP_VERSION = 'Beta V60';
         document.getElementById('version-text').textContent = APP_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
@@ -925,10 +925,13 @@
             const postFilterList = []; 
             const autoHidden = []; 
 
-            // v25: Updated regex to catch "unloc ked"
+           // v25: Updated regex to catch "unloc ked"
             const excludeRegex = /demo|un\s?-?\s?loc\s?k\s?e\s?d/i; 
+            // v60: Vaporize legacy iPhones
+            const vaporizeRegex = /iPhone\s*(11|12|13)(?!\d)/i; 
             
             for (const match of matches) { 
+                if (vaporizeRegex.test(match[0])) continue; // Erase from existence
             // v51: Aggressive Whitespace Normalization
             const model = match[1].replace(/\s+/g, ' ').trim(); 
             let capacityRaw = match[2].replace(/\s+/g, ' ').trim();
@@ -1671,46 +1674,24 @@
 
             doc.setFontSize(7);
             
-            // Buckets
+            // v60: Smart Footer Buckets
             const buckets = {
                 unlocked: { att: new Map(), vzw: new Map(), tmo: new Map() },
-                wearables: { att: [], vzw: [], tmo: [] },
-                demos: { att: [], vzw: [], tmo: [] },
                 manual: { att: [], vzw: [], tmo: [] }
             };
 
-            // 1. Process Auto-Hidden
             const isWatchCheck = (name) => name.startsWith('AW ') || name.toLowerCase().includes('apple watch');
 
-            // If wearables toggle OFF, add them to wearables bucket
-            if (!showWearablesToggle.checked) {
-                ['att', 'vzw', 'tmo'].forEach(c => {
-                    appState[c].consolidatedList.forEach(item => {
-                        if (isWatchCheck(item[0])) {
-                            const quantity = item[1].split(', ').reduce((acc, part) => acc + parseInt(part.split(' ')[0]), 0);
-                            const formatted = formatHiddenName(item[0]);
-                            buckets.wearables[c].push({ name: formatted.name, count: quantity });
-                        }
-                    });
-                });
-            }
-
-            // Other Auto-Hidden (Demos / Unlocked)
+            // 1. Process Auto-Hidden (Unlocked only, skip Demos & Watches)
             ['att', 'vzw', 'tmo'].forEach(c => {
                 appState[c].autoHidden.forEach(item => {
-                    // Skip watches here as they are handled by toggle logic primarily
-                    if (isWatchCheck(item.name)) return;
+                    if (isWatchCheck(item.name)) return; // Skip watches
 
                     const formatted = formatHiddenName(item.name);
                     if (formatted.category === 'unlocked') {
-                        // v56: Add to specific carrier map for priority logic
                         buckets.unlocked[c].set(formatted.name, (buckets.unlocked[c].get(formatted.name) || 0) + item.count);
-                    } else if (formatted.category === 'demo') {
-                        buckets.demos[c].push({ name: formatted.name, count: item.count });
-                    } else {
-                        // Fallback
-                        buckets.demos[c].push({ name: formatted.name, count: item.count });
                     }
+                    // Demos are intentionally ignored in v60
                 });
             });
 
@@ -1720,44 +1701,24 @@
                     const name = item[0];
                     const emphasis = appState[c].emphasis.get(name);
                     
-                    // Skip watches if handled by toggle
-                    if (!showWearablesToggle.checked && isWatchCheck(name)) return;
+                    if (isWatchCheck(name)) return; // Skip watches for footer
+                    
+                    const formatted = formatHiddenName(name);
+                    if (formatted.category === 'demo') return; // v60: Never show demos in manual list
 
                     if (emphasis && emphasis.hidden) {
-                        const quantity = item[1].split(', ').reduce((acc, part) => acc + parseInt(part.split(' ')[0]), 0);
-                        const formatted = formatHiddenName(name);
-                        buckets.manual[c].push({ name: formatted.name, count: quantity });
+                        buckets.manual[c].push(formatted.name); // Ignore quantity
                     }
                 });
             });
 
-            // 3. Consolidate and Build Strings
-            const consolidate = (arr) => {
-                const map = new Map();
-                arr.forEach(i => {
-                    map.set(i.name, (map.get(i.name) || 0) + i.count);
-                });
-                return Array.from(map.entries()).map(([n, c]) => (c > 1 ? `${c}x ${n}` : n));
-            };
-
-            const buildCarrierGroupString = (bucketObj) => {
-                const groups = [];
-                ['att', 'vzw', 'tmo'].forEach(c => {
-                    const list = consolidate(bucketObj[c]);
-                    if (list.length > 0) {
-                        groups.push(`${c.toUpperCase()}: ${list.join(", ")}`);
-                    }
-                });
-                return groups.join(", ");
-            };
-
             const richSegments = [];
             const addSegment = (boldText, normalText) => {
                 richSegments.push({ text: boldText, bold: true });
-                richSegments.push({ text: normalText + ". ", bold: false });
+                richSegments.push({ text: normalText + " ", bold: false });
             };
 
-            // v56: Unlocked (Priority Merge: ATT > VZW > TMO)
+            // 3. Consolidate Unlocked (Priority Merge: ATT > VZW > TMO)
             const allUnlockedNames = new Set([
                 ...buckets.unlocked.att.keys(),
                 ...buckets.unlocked.vzw.keys(),
@@ -1766,28 +1727,34 @@
             
             const unlockedList = [];
             allUnlockedNames.forEach(name => {
-                // Priority Logic: Trust ATT, then VZW, then TMO
                 const count = buckets.unlocked.att.get(name) || buckets.unlocked.vzw.get(name) || buckets.unlocked.tmo.get(name) || 0;
                 if (count > 0) {
-                    unlockedList.push(count > 1 ? `${count}x ${name}` : name);
+                    unlockedList.push({ name: name, count: count });
                 }
             });
+
+            // Sort by count descending
+            unlockedList.sort((a, b) => b.count - a.count);
             
             if (unlockedList.length > 0) {
-                addSegment("Auto-hid unlocked phones: ", unlockedList.join(", "));
+                const formattedUnlocked = unlockedList.map(i => `${i.count}x ${i.name}`);
+                addSegment("Unlocked phones: ", formattedUnlocked.join(", "));
             }
 
-            // Wearables (Grouped)
-            const wearStr = buildCarrierGroupString(buckets.wearables);
-            if (wearStr) addSegment("Auto-hid wearables: ", wearStr);
+            // 4. Format Manual (Smart Grouping)
+            const manualStrings = [];
+            ['att', 'vzw', 'tmo'].forEach(c => {
+                const uniqueItems = [...new Set(buckets.manual[c])];
+                if (uniqueItems.length === 1) {
+                    manualStrings.push(`${uniqueItems[0]} (${c.toUpperCase()})`);
+                } else if (uniqueItems.length > 1) {
+                    manualStrings.push(`${c.toUpperCase()}: ${uniqueItems.join(", ")}`);
+                }
+            });
 
-            // Demos (Grouped)
-            const demoStr = buildCarrierGroupString(buckets.demos);
-            if (demoStr) addSegment("Auto-hid demo phones: ", demoStr);
-
-            // Manual (Grouped)
-            const manualStr = buildCarrierGroupString(buckets.manual);
-            if (manualStr) addSegment("Manually hid: ", manualStr);
+            if (manualStrings.length > 0) {
+                addSegment("Manually hidden devices: ", manualStrings.join(", "));
+            }
 
             if (richSegments.length === 0) {
                 richSegments.push({ text: "No phones were hidden for this report.", bold: true });
@@ -1795,7 +1762,8 @@
 
             drawRichText(doc, sideMargin, footerY, richSegments, 190, 3.5);
 
-            return doc.output('datauristring'); 
+            return doc.output('datauristring');
+
         };
 
         // --- EVENT HANDLER FUNCTIONS ---
