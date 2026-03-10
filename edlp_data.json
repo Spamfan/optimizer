@@ -600,6 +600,26 @@
         "total": 779
       }
     },
+    "iphone17e": {
+      "att": {
+        "last_updated": 1773178227547,
+        "monthly": 15.25,
+        "total": 549
+      },
+      "last_updated": 1773178203206,
+      "name": "iPhone 17e",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1773178203206,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1773178203206,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "iphone17pro": {
       "att": {
         "last_updated": 1771178714165,
