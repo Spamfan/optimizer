@@ -310,8 +310,8 @@
 <body>
 
     <div id="version-wrapper">
-        <span id="version-text">Loading...</span>
         <span id="status-icon" title="Offline Mode">❌☁</span>
+        <span id="version-text" style="font-size: 0.5em; margin-top: 3px; opacity: 0.7;">Loading...</span>
     </div>
 
     <!-- v48: Split Layout Wrapper -->
@@ -323,6 +323,11 @@
             <div id="upload-area">
                 <input type="file" id="upload-input" multiple accept=".pdf">
                 <p style="text-decoration: underline;">upload files</p>
+            </div>
+
+            <div id="global-outdated-warning" style="display: none; color: #d93025; font-weight: 600; font-size: 0.9em; margin-bottom: 15px; align-items: center; justify-content: center; gap: 8px;">
+                <svg style="width: 18px; height: 18px; fill: #d93025;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                Some file(s) could be outdated.
             </div>
 
             <div id="status-container">
@@ -508,16 +513,15 @@
     </div> <!-- End main-wrapper -->
 
     <!-- Modals are empty here, populated by script -->
-    <div id="preview-modal" class="modal-container"></div>
     <div id="emphasis-modal" class="modal-container"></div>
     <div id="dev-mode-modal" class="modal-container"></div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'RC 3';
+        const APP_VERSION = 'v105';
         document.getElementById('version-text').textContent = APP_VERSION;
-        document.title = `Optimizer (${APP_VERSION})`;
+        document.title = 'Optimizer';
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
         // Standard SVG
         const HIDE_ICON_SVG = `<svg class="hide-icon inline-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/><line x1="2" y1="2" x2="22" y2="22" stroke="#606770" stroke-width="2"/></svg>`;
@@ -986,43 +990,15 @@
         const copyLogBtn = document.getElementById('copy-log-btn');
 
         // --- DYNAMIC HTML INJECTION ---
-        document.getElementById('preview-modal').innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
-                    <h2></h2><span class="close-btn" id="preview-close-btn">&times;</span>
-                </div>
-                <div class="modal-body" style="padding-top: 0;">
-                    <div style="text-align: left; margin-bottom: 10px; color: #333; padding-left: 20px; padding-right: 20px;">
-                        <div id="print-help-toggle" style="color: #1877f2; text-decoration: underline; cursor: pointer; font-weight: 600; display: flex; align-items: center; font-size: 0.9em; margin-bottom: 5px;">
-                            <svg style="width: 16px; height: 16px; fill: #1877f2; margin-right: 5px;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
-                            Print button not working?
-                        </div>
-                        <ul id="print-help-content" style="display: none; margin: 5px 0 10px 0; padding-left: 20px; font-size: 0.85em; color: #606770;">
-                            <li>If the print button isn't working, right click the PDF preview below and click print. If there is currently no PDF preview showing, please try optimizer on another Walmart computer instead.</li>
-                            <br>
-                            </ul>
-                    </div>
-                    <iframe id="pdf-preview-iframe" frameborder="0"></iframe>
-                </div>
-                <div class="modal-footer">
-                    <button id="print-btn">Print</button>
-                </div>
-            </div>`;
         document.getElementById('emphasis-modal').innerHTML = `<div class="modal-content"><div class="modal-header"><h2 id="emphasis-modal-title">Highlight Inventory</h2><span class="close-btn" id="emphasis-close-btn">&times;</span></div><div class="modal-body"><div class="emphasis-header"><div class="emphasis-header-unhide" id="unhide-all-btn" title="Unhide All">${SHOW_ICON_SVG}</div><div class="emphasis-header-hide"></div><div class="emphasis-header-partial"><input type="checkbox" id="master-partial-checkbox" title="Select/Deselect All Partial"></div><div class="emphasis-header-full"><input type="checkbox" id="master-full-checkbox" title="Select/Deselect All Full"></div><div class="emphasis-header-text">(Highlight partial/full)</div></div><div id="emphasis-list-container"></div></div><div class="modal-footer"><button id="emphasis-done-btn">Done</button></div></div>`;
         document.getElementById('dev-mode-modal').innerHTML = `<div class="modal-content"><div class="modal-header"><h2>Dev Mode</h2><span class="close-btn" id="dev-mode-close-btn">&times;</span></div><div class="modal-body"><div id="dev-mode-text"><p><strong>developer mode activated lol</strong></p><p>(this doesn't do anything)</p></div></div></div>`;
         
         // --- DYNAMIC UI ELEMENT SELECTORS ---
-        const previewModal = document.getElementById('preview-modal');
         const emphasisModal = document.getElementById('emphasis-modal');
         const devModeModal = document.getElementById('dev-mode-modal');
-        const iframe = document.getElementById('pdf-preview-iframe');
-        const previewCloseBtn = document.getElementById('preview-close-btn');
         const emphasisCloseBtn = document.getElementById('emphasis-close-btn');
         const emphasisDoneBtn = document.getElementById('emphasis-done-btn');
         const devModeCloseBtn = document.getElementById('dev-mode-close-btn');
-        const printHelpToggle = document.getElementById('print-help-toggle');
-        const printHelpContent = document.getElementById('print-help-content');
-        const printBtn = document.getElementById('print-btn');
         const unhideAllBtn = document.getElementById('unhide-all-btn');
 
         // --- CORE LOGIC & HELPER FUNCTIONS ---
@@ -1389,81 +1365,86 @@
             // Line 2
             const sourceDates = [];
             ['att', 'vzw', 'tmo'].forEach(c => {
-                const rawDate = appState[c].fileDate;
-                if (rawDate) {
-                    try {
-                        const datePart = rawDate.match(/(\d{1,2}\/\d{1,2}\/\d{4}\s+\d{1,2}:\d{2}:\d{2}\s+[AP]M)/i);
-                        if (datePart) {
-                            const dObj = new Date(datePart[0]);
-                            sourceDates.push({ carrier: c.toUpperCase(), date: dObj });
-                        } else {
-                            sourceDates.push({ carrier: c.toUpperCase(), date: null }); 
-                        }
-                    } catch (e) {
-                         sourceDates.push({ carrier: c.toUpperCase(), date: null });
+                // v105: Look at raw appState to avoid missing dates when phones are isolated to Apple
+                if (appState[c] && appState[c].consolidatedList && appState[c].consolidatedList.length > 0) {
+                    const rawDate = appState[c].fileDate;
+                    if (rawDate) {
+                        try {
+                            // v105: Tolerant Regex (allows 2-digit years and missing seconds)
+                            const datePart = rawDate.match(/(\d{1,2}\/\d{1,2}\/\d{2,4}\s+\d{1,2}:\d{2}(:\d{2})?\s+[AP]M)/i);
+                            if (datePart) {
+                                const dObj = new Date(datePart[0]);
+                                sourceDates.push({ carrier: c.toUpperCase(), date: dObj });
+                            }
+                        } catch (e) {}
                     }
-                } else {
-                    sourceDates.push({ carrier: c.toUpperCase(), date: null });
                 }
             });
 
-            sourceDates.sort((a, b) => (a.date || 0) - (b.date || 0));
+            sourceDates.sort((a, b) => a.date - b.date);
 
-            let groups = [];
-            if (sourceDates.length > 0) {
-                let currentGroup = { anchor: sourceDates[0].date, startTime: sourceDates[0].date, endTime: sourceDates[0].date, carriers: [sourceDates[0].carrier] };
-                
-                for (let i = 1; i < sourceDates.length; i++) {
-                    const item = sourceDates[i];
-                    if (item.date && currentGroup.anchor && (item.date - currentGroup.anchor <= 30 * 60 * 1000)) {
-                         currentGroup.carriers.push(item.carrier);
-                         currentGroup.endTime = item.date;
-                    } else {
-                         groups.push(currentGroup);
-                         currentGroup = { anchor: item.date, startTime: item.date, endTime: item.date, carriers: [item.carrier] };
-                    }
-                }
-                groups.push(currentGroup);
-            }
+            // v105: 2D Day/Time Mapping Algorithm
+            const daysMap = new Map();
+            sourceDates.forEach(item => {
+                if (!item.date) return;
+                const dayKey = `${item.date.getMonth() + 1}/${item.date.getDate()}`;
+                if (!daysMap.has(dayKey)) daysMap.set(dayKey,[]);
+                daysMap.get(dayKey).push(item);
+            });
 
             let sourcesContent = "";
+            const dayKeys = Array.from(daysMap.keys());
             const formatTime = (d) => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(' ', '');
             
-            const formatCompactRange = (start, end) => {
-                const sH = start.getHours();
-                const sM = start.getMinutes();
-                const eH = end.getHours();
-                const eM = end.getMinutes();
-                const sAmPm = sH >= 12 ? 'pm' : 'am';
-                const eAmPm = eH >= 12 ? 'pm' : 'am';
-                const sH12 = sH % 12 || 12;
+            dayKeys.forEach((dayKey, dayIndex) => {
+                const dayItems = daysMap.get(dayKey);
+                let timeGroups = [];
+                let currentGroup = { start: dayItems[0].date, end: dayItems[0].date, carriers: [dayItems[0].carrier] };
                 
-                if (sH === eH) {
-                    const sMStr = sM.toString().padStart(2, '0');
-                    const eMStr = eM.toString().padStart(2, '0');
-                    return `${sH12}:${sMStr}-${eMStr}${sAmPm}`;
-                } else {
-                    return `${formatTime(start)}-${formatTime(end)}`;
+                for (let i = 1; i < dayItems.length; i++) {
+                    const item = dayItems[i];
+                    // 30 minute window
+                    if (item.date - currentGroup.start <= 30 * 60 * 1000) {
+                        currentGroup.carriers.push(item.carrier);
+                        currentGroup.end = item.date;
+                    } else {
+                        timeGroups.push(currentGroup);
+                        currentGroup = { start: item.date, end: item.date, carriers:[item.carrier] };
+                    }
                 }
-            };
-
-            groups.forEach((g, i) => {
-                let timeLabel = "N/A";
-                if (g.startTime) {
-                     const datePart = g.startTime.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-                     const startStr = formatTime(g.startTime);
-                     const endStr = formatTime(g.endTime);
-                     
-                     if (startStr === endStr) {
-                        timeLabel = (i === 0) ? `${datePart} ${startStr}` : `${startStr}`;
-                     } else {
-                        const rangeStr = formatCompactRange(g.startTime, g.endTime);
-                        timeLabel = (i === 0) ? `${datePart} ${rangeStr}` : `${rangeStr}`;
-                     }
-                }
-                sourcesContent += `${timeLabel} (${g.carriers.join(", ")})`;
-                if (i < groups.length - 1) sourcesContent += ", ";
+                timeGroups.push(currentGroup);
+                
+                let dayString = `${dayKey} `;
+                timeGroups.forEach((g, tIndex) => {
+                    const startStr = formatTime(g.start);
+                    const endStr = formatTime(g.end);
+                    let timeLabel = startStr;
+                    
+                    if (startStr !== endStr) {
+                        const sH = g.start.getHours();
+                        const eH = g.end.getHours();
+                        const sAmPm = sH >= 12 ? 'pm' : 'am';
+                        const eAmPm = eH >= 12 ? 'pm' : 'am';
+                        
+                        if (sH === eH && sAmPm === eAmPm) {
+                            const sH12 = sH % 12 || 12;
+                            const sMStr = g.start.getMinutes().toString().padStart(2, '0');
+                            const eMStr = g.end.getMinutes().toString().padStart(2, '0');
+                            timeLabel = `${sH12}:${sMStr}-${eMStr}${sAmPm}`;
+                        } else {
+                            timeLabel = `${startStr}-${endStr}`;
+                        }
+                    }
+                    
+                    dayString += `${timeLabel} (${g.carriers.join(", ")})`;
+                    if (tIndex < timeGroups.length - 1) dayString += ", ";
+                });
+                
+                sourcesContent += dayString;
+                if (dayIndex < dayKeys.length - 1) sourcesContent += ", ";
             });
+            
+            if (sourcesContent === "") sourcesContent = "N/A";
 
             let line2X = sideMargin;
             doc.setFont("helvetica", "bold");
@@ -1898,6 +1879,12 @@
                     const carrier = categorizePdf(text); 
                     if (carrier === 'unknown') { alert(`Could not determine carrier for file: ${file.name}`); continue; } 
                     
+                    // v102: CLEAN SLATE WIPE (Kills Ghost Data)
+                    appState[carrier].fileDate = '';
+                    appState[carrier].storeNumber = '';
+                    appState[carrier].consolidatedList = [];
+                    appState[carrier].autoHidden =[];
+                    
                     // Date Extraction
                     const dateMatch = text.match(/Date:\s*(.*?)(?=\s+Store)/);
                     if (dateMatch && dateMatch[1]) {
@@ -1961,6 +1948,27 @@
                 wearablesToggle.parentElement.classList.add('disabled');
             }
 
+            // v105: Global File Age Check
+            let hasOutdatedFile = false;['att', 'vzw', 'tmo'].forEach(c => {
+                if (appState[c].consolidatedList.length > 0 && appState[c].fileDate) {
+                    try {
+                        const datePart = appState[c].fileDate.match(/(\d{1,2}\/\d{1,2}\/\d{2,4}\s+\d{1,2}:\d{2}(:\d{2})?\s+[AP]M)/i);
+                        if (datePart) {
+                            const fileTime = new Date(datePart[0]).getTime();
+                            const nowTime = Date.now();
+                            const hoursOld = (nowTime - fileTime) / (1000 * 60 * 60);
+                            // Flag if 4+ hours old OR from a previous calendar day
+                            if (hoursOld >= 4 || new Date(fileTime).getDate() !== new Date(nowTime).getDate()) {
+                                hasOutdatedFile = true;
+                            }
+                        }
+                    } catch(e) {}
+                }
+            });
+            
+            const warningEl = document.getElementById('global-outdated-warning');
+            if (warningEl) warningEl.style.display = hasOutdatedFile ? 'flex' : 'none';
+
             uploadArea.querySelector('p').textContent = 'upload files'; 
         };
         
@@ -1991,18 +1999,39 @@
         });
 
         // --- ATTACH EVENT LISTENERS ---
-        let currentPdfBlobUri = null; // Stores the secure blob for printing/downloading
-
         highlightBtn.addEventListener('click', openEmphasisModal);
         
         processBtn.addEventListener('click', () => { 
-            const processedData = prepareDataForDisplay(); 
-            const comments = commentsInput.value; 
-            const pdfOutput = generateFinalPdf(processedData, comments); 
-            
-            iframe.src = pdfOutput.dataUri; 
-            currentPdfBlobUri = pdfOutput.blobUri;
-            previewModal.style.display = 'flex'; 
+            try {
+                const processedData = prepareDataForDisplay(); 
+                const comments = commentsInput.value; 
+                const pdfOutput = generateFinalPdf(processedData, comments); 
+                const blobUri = pdfOutput.blobUri;
+                
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isMobile) {
+                    window.open(blobUri, '_blank');
+                } else {
+                    const printFrame = document.createElement('iframe');
+                    printFrame.style.display = 'none';
+                    printFrame.src = blobUri;
+                    document.body.appendChild(printFrame);
+                    
+                    printFrame.onload = function() {
+                        try { 
+                            printFrame.contentWindow.print(); 
+                        } catch (e) { 
+                            window.open(blobUri, '_blank'); 
+                        }
+                        // Cleanup invisible frame after 5 seconds
+                        setTimeout(() => document.body.removeChild(printFrame), 5000);
+                    };
+                }
+            } catch (err) {
+                debugLog(`❌ CRASH: ${err.message}`, "sys");
+                alert("Failed to generate PDF. Check Dev Console.");
+            }
         });
         
         uploadArea.addEventListener('click', () => uploadInput.click());
@@ -2037,44 +2066,11 @@
         });
         const legacyCopy = (text) => { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.top = 0; textArea.style.left = 0; textArea.style.opacity = 0; document.body.appendChild(textArea); textArea.focus(); textArea.select(); try { const successful = document.execCommand('copy'); if (!successful) { alert('Failed to copy log.'); } } catch (err) { alert('Failed to copy log.'); } document.body.removeChild(textArea); };
         
-        previewCloseBtn.addEventListener('click', () => previewModal.style.display = 'none');
         emphasisCloseBtn.addEventListener('click', () => emphasisModal.style.display = 'none');
         emphasisDoneBtn.addEventListener('click', () => emphasisModal.style.display = 'none');
         devModeCloseBtn.addEventListener('click', () => { if (devModalCloseable.button) devModeModal.style.display = 'none'; });
-        window.addEventListener('click', (event) => { if (event.target == previewModal) previewModal.style.display = 'none'; if (event.target == emphasisModal) emphasisModal.style.display = 'none'; if (event.target == devModeModal && devModalCloseable.backdrop) devModeModal.style.display = 'none'; });
-        
-        printHelpToggle.addEventListener('click', () => {
-            printHelpContent.style.display = printHelpContent.style.display === 'none' ? 'block' : 'none';
-        });
+        window.addEventListener('click', (event) => { if (event.target == emphasisModal) emphasisModal.style.display = 'none'; if (event.target == devModeModal && devModalCloseable.backdrop) devModeModal.style.display = 'none'; });
 
-        printBtn.addEventListener('click', () => {
-            if (!currentPdfBlobUri) return;
-            
-            // Mobile Detection: Mobile browsers silently ignore hidden iframe print commands.
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                // Mobile Fallback: Open in new tab for native printing
-                window.open(currentPdfBlobUri, '_blank');
-            } else {
-                // Desktop: Hidden iframe for direct print dialog
-                const printFrame = document.createElement('iframe');
-                printFrame.style.display = 'none';
-                printFrame.src = currentPdfBlobUri;
-                document.body.appendChild(printFrame);
-                
-                printFrame.onload = function() {
-                    try { 
-                        printFrame.contentWindow.print(); 
-                    } catch (e) { 
-                        window.open(currentPdfBlobUri, '_blank'); 
-                    }
-                    // Cleanup
-                    setTimeout(() => document.body.removeChild(printFrame), 5000);
-                };
-            }
-        });
-        
         // v48 Persistence Debug: Added logging to the click listener
         emphasisModal.addEventListener('click', (e) => { const target = e.target.closest('.emphasis-item-hide'); if (!target) return; const { key, carrier } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false, hidden: false }; 
         
