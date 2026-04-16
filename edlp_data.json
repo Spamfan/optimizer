@@ -20,6 +20,26 @@
         "total": 0
       }
     },
+    "flip4": {
+      "att": {
+        "last_updated": 1774655177593,
+        "monthly": 1,
+        "total": 36
+      },
+      "last_updated": 1774655177593,
+      "name": "Flip4",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1774655177593,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1774655177593,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "flip45g": {
       "att": {
         "last_updated": 1766772123050,
@@ -490,7 +510,7 @@
       "name": "iPhone 16",
       "tmo": {
         "dp": 0,
-        "last_updated": 1765144696336,
+        "last_updated": 1776321023424,
         "monthly": 0,
         "total": 629
       },
@@ -609,9 +629,9 @@
       "last_updated": 1773178203206,
       "name": "iPhone 17e",
       "tmo": {
-        "dp": 0,
-        "last_updated": 1773179419346,
-        "monthly": 0,
+        "dp": 417,
+        "last_updated": 1775493802852,
+        "monthly": 5.5,
         "total": 549
       },
       "vzw": {
@@ -650,7 +670,7 @@
       "name": "iPhone 17 Pro Max",
       "tmo": {
         "dp": 867,
-        "last_updated": 1772994962847,
+        "last_updated": 1776278713033,
         "monthly": 11.75,
         "total": 1149
       },
@@ -776,6 +796,26 @@
       },
       "vzw": {
         "last_updated": 1764701373157,
+        "monthly": 0,
+        "total": 0
+      }
+    },
+    "motogstylus2026": {
+      "att": {
+        "last_updated": 1776009532207,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1776009487452,
+      "name": "Moto G Stylus 2026",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1776009487452,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1776009487452,
         "monthly": 0,
         "total": 0
       }
