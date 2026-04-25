@@ -1,5 +1,25 @@
 {
   "devices": {
+    "a12": {
+      "att": {
+        "last_updated": 1777160240964,
+        "monthly": 1,
+        "total": 36
+      },
+      "last_updated": 1777160238563,
+      "name": "A12",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1777160238563,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1777160238563,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "a135g": {
       "att": {
         "last_updated": 1777160222709,
