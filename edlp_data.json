@@ -1,5 +1,25 @@
 {
   "devices": {
+    "a135g": {
+      "att": {
+        "last_updated": 1777160222709,
+        "monthly": 1,
+        "total": 36
+      },
+      "last_updated": 1777160221125,
+      "name": "A13 5G",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1777160221125,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1777160221125,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "classic": {
       "att": {
         "last_updated": 1777160220039,
