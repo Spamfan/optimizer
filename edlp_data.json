@@ -920,6 +920,26 @@
         "total": 0
       }
     },
+    "motogstylus2024": {
+      "att": {
+        "last_updated": 1778963287495,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1778963287495,
+      "name": "Moto G Stylus 2024",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1778963287495,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1778963300522,
+        "monthly": 1,
+        "total": 36
+      }
+    },
     "motogstylus2025": {
       "att": {
         "last_updated": 1777922783288,
