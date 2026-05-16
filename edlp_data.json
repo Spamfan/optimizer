@@ -520,6 +520,26 @@
         "total": 99
       }
     },
+    "gstylus5g": {
+      "att": {
+        "last_updated": 1778962022120,
+        "monthly": 1,
+        "total": 36
+      },
+      "last_updated": 1778962013934,
+      "name": "G Stylus 5G",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1778962013934,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1778962013934,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "iphone13": {
       "att": {
         "last_updated": 1769187936022,
