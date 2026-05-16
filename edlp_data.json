@@ -880,24 +880,24 @@
         "total": 72
       }
     },
-    "motogpower2025": {
+    "motogpower2024": {
       "att": {
-        "last_updated": 1764701374519,
+        "last_updated": 1778963088765,
         "monthly": 0,
         "total": 0
       },
-      "last_updated": 1764448685542,
-      "name": "Moto G Power 2025",
+      "last_updated": 1778963088765,
+      "name": "Moto G Power 2024",
       "tmo": {
-        "dp": 40,
-        "last_updated": 1768261835668,
-        "monthly": 2,
-        "total": 88
+        "dp": 0,
+        "last_updated": 1778963088765,
+        "monthly": 0,
+        "total": 0
       },
       "vzw": {
-        "last_updated": 1777923023346,
-        "monthly": 2.44,
-        "total": 88
+        "last_updated": 1778963093977,
+        "monthly": 1,
+        "total": 36
       }
     },
     "motogstylus2023": {
