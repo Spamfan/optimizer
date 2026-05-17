@@ -89,10 +89,10 @@
       "last_updated": 1764448685542,
       "name": "Flip 4 5G",
       "tmo": {
-        "dp": 20,
-        "last_updated": 1772995036832,
+        "dp": 25,
+        "last_updated": 1779044426636,
         "monthly": 1,
-        "total": 44
+        "total": 49
       },
       "vzw": {
         "last_updated": 1767815328914,
