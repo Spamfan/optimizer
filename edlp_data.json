@@ -900,6 +900,26 @@
         "total": 36
       }
     },
+    "motogpower2025": {
+      "att": {
+        "last_updated": 1779051539000,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1779051432623,
+      "name": "Moto G Power 2025",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1779051432623,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1779051539000,
+        "monthly": 2.44,
+        "total": 88
+      }
+    },
     "motogstylus2023": {
       "att": {
         "last_updated": 1778961944348,
