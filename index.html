@@ -671,82 +671,7 @@
                     <svg class="inline-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                     <span data-i18n="howToUse">How To Use / FAQ</span><span class="arrow">▼</span>
                 </div>
-                <div id="main-steps" class="step-list expandable" data-i18n-html="tutorialHtml">
-                   <div class="step-container">
-                        <div class="step-title trigger-link" onclick="window.toggleAccordion('step1-content', this)">1) Use WARP to download an inventory print for each carrier.<span class="arrow">▼</span></div>
-                        <div id="step1-content" class="expandable">
-                            <div class="deep-nest-container">
-                                <div class="trigger-link" onclick="window.toggleAccordion('step1a-content', this)">How to find a carrier's "print inventory" screen on WARP<span class="arrow">▼</span></div>
-                                <div id="step1a-content" class="expandable">
-                                    <ul>
-                                        <li>Log into warp as normal (use + new tab button on chrome)</li>
-                                        <li>Go to Inventory Management > View Available Inventory.</li>
-                                        <li>Select a postpaid carrier (AT&T, Verizon Wireless, or T-Mobile). You may need to use the top bar &lt; &gt; buttons to find it first.</li>
-                                        <li>Make sure the “Instock” box is checked, then click More Options (<svg class="inline-svg" viewBox="0 0 24 24" fill="#606770"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>) and choose Print.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="deep-nest-container">
-                                <div class="trigger-link" onclick="window.toggleAccordion('step1b-content', this)">How to save an inventory print as a PDF<span class="arrow">▼</span></div>
-                                <div id="step1b-content" class="expandable">
-                                    <ul>
-                                        <li>Change the destination printer by clicking your stores printer (ie “CKPR1”) and changing it to “Save as PDF”, then click save.<br><span style="color: #555;">&nbsp;&nbsp;&nbsp;&nbsp;If you modified printer settings like scale and margin, reset these settings to their defaults before saving.</span></li>
-                                        <li>Name the file after its carrier (ie ATT.pdf, VZW.pdf, or TMO.pdf). If you've done this in the past, make sure to overwrite your previous save(s).</li>
-                                        <li>The above steps (navigating to the print screen then saving) should be done for each carrier whenever you want to print inventory.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="step-container">
-                        <div class="step-title trigger-link" onclick="window.toggleAccordion('step2-content', this)">2) On Optimizer, click "upload files," select the three PDFs you made, then click print.<span class="arrow">▼</span></div>
-                        <div id="step2-content" class="expandable">
-                            <div class="deep-nest-container">
-                                <div class="trigger-link" onclick="window.toggleAccordion('step2a-content', this)">I can't find the inventory files I'm trying to upload.<span class="arrow">▼</span></div>
-                                <div id="step2a-content" class="expandable">
-                                    <div style="margin-top: 5px;">This happens when WARP files are saved in one directory while Optimizer tries to find them somewhere else.</div>
-                                    <div class="deep-nest-container">
-                                        <div class="trigger-link" onclick="window.toggleAccordion('step2a1-content', this)">The recommended and quickest solution: drag and drop each file from the WARP save window into optimizer.<span class="arrow">▼</span></div>
-                                        <div id="step2a1-content" class="expandable">
-                                            <ul>
-                                                <li>Keep WARP open in a separate window. If helpful, rearrange the WARP and Optimizer windows so you can see both at once.</li>
-                                                <li>In the WARP window, after saving all needed carriers, start to save any one of the carriers a second time so that all carrier PDFs you need are visible in the save dialogue.</li>
-                                                <li>With the save dialogue open from WARP, click and drag each file from the warp save dialogue box into the upload files box on optimizer.</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="deep-nest-container">
-                                        <div class="trigger-link" onclick="window.toggleAccordion('step2a2-content', this)">Longer term solution: tell optimizer and WARP to save PDFs to the same location (experimental)<span class="arrow">▼</span></div>
-                                        <div id="step2a2-content" class="expandable">
-                                            <div style="margin-top: 5px;">Note: these instructions are a work in progress and may not work on every Walmart computer. To try and To reassign Optimizer's open dialogue directory:</div>
-                                            <ul>
-                                                <li>click upload files</li>
-                                                <li>type Desktop\testABC.pdf into the file name field and click open.</li>
-                                                <li>If prompted “this file does not exist” and / or “your administrator has blocked this action,” press okay.</li>
-                                                <li>If the open dialogue doesn't close by itself, manually close it by clicking its x on the top right of the window.</li>
-                                                <li>Click upload files again, optimizer should now open to the correct file path every time.</li>
-                                            </ul>
-                                            <div style="margin-top: 5px;">NOTE: for this to work, the text preceding \testABC.pdf must be the same directory the carrier files are saving to. To check where they are saving, save a carrier PDF from warp and see what directory it lands in by reading it's directory above. If it isn't desktop, you can copy the directory by clicking on the file address bar and using Ctrl + c, then paste the directory into the step above.</div>
-                                            <div style="margin-top: 5px;">Example: if carrier PDFs are saving to mpt user mpt user instead of desktop, copy that directory then put it at the beginning of the step 2 directory above, so it shows as mpt user mpt user\testABC.pdf, then continue directions as normal.</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="deep-nest-container">
-                                <div class="trigger-link" onclick="window.toggleAccordion('step2b-content', this)">How to upload multiple PDFs at once<span class="arrow">▼</span></div>
-                                <div id="step2b-content" class="expandable">
-                                    <ul><li>If carrier files are visible in the Optimizer open dialogue, you can upload them all simultaneously by using Ctrl + left click on each file then clicking open, or by dragging left click across all three then clicking open.</li></ul>
-                                </div>
-                            </div>
-                            <div class="deep-nest-container">
-                                <div class="trigger-link" onclick="window.toggleAccordion('step2c-content', this)">Why does my output document only say save and not print?<span class="arrow">▼</span></div>
-                                <div id="step2c-content" class="expandable">
-                                    <ul><li>This happens if the user forgets to change the destination printer back from “Save as PDF” to your store's printer, such as “CKPR1.” Simply re-select your stores printer from that drop down menu then click print.</li></ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div id="main-steps" class="step-list expandable" data-i18n-html="tutorialHtml">              
 
                     <div class="step-container">
                         <div class="step-title trigger-link" onclick="window.toggleAccordion('step3-content', this)">3) Opcional: personaliza la lista marcando dispositivos como no disponibles, añadiendo comentarios y más.<span class="arrow">▼</span></div>
@@ -829,15 +754,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="step-container">
-                            <div class="step-title trigger-link" onclick="window.toggleAccordion('trouble3-content-es', this)">3) Asegúrate de que los archivos se guarden correctamente<span class="arrow">▼</span></div>
-                            <div id="trouble3-content-es" class="expandable">
-                                <ul>
-                                    <li>Evita usar puntos en los nombres de los archivos. Intenta etiquetar cada archivo según su operadora, como ATT.pdf, VZW.pdf y TMO.pdf. (O att, VZW y TMO). Una etiqueta como 7.1.26att.pdf podría confundir a la computadora ya que tiene demasiados puntos.</li>
-                                    <li>¡Solo debería haber 3 archivos de WARP guardados en un momento dado! Las computadoras de Walmart no están diseñadas para almacenar archivos de inventario. Por favor, ayuda a mantener la computadora etiquetando cada operadora de manera idéntica al día anterior. Esto sobrescribirá la información de guardado antigua para que la computadora no se sature.</li>
-                                </ul>
-                            </div>
-                        </div>
+                     
                         <div class="step-container">
                             <div class="step-title trigger-link" onclick="window.toggleAccordion('trouble4-content-es', this)">4) Si los problemas aún persisten, restablece la caché de optimizer.<span class="arrow">▼</span></div>
                             <div id="trouble4-content-es" class="expandable">
@@ -895,7 +812,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.2.6';
+        const APP_VERSION = 'v1.2.7';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
