@@ -102,8 +102,6 @@
             font-size: 0.65em; padding: 5px 10px; background: #e4e6eb; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; color: #1c1e21; font-weight: bold; transition: all 0.2s;
         }
         #btn-edlp-index:hover { background: #d8dadf; }
-        body.dark-mode #btn-edlp-index { background: #3a3b3c; border-color: #555; color: #e4e6eb; }
-        body.dark-mode #btn-edlp-index:hover { background: #4e4f50; }
 
         h1 {
             color: #1c1e21;
@@ -378,17 +376,6 @@
         #btn-enter:hover { background-color: #166fe5; }
         #pin-error { color: #d93025; margin-top: 15px; font-weight: bold; display: none; }
 
-        body.dark-mode #login-view { background-color: #242526; border-color: #3e4042; }
-        body.dark-mode .login-warning { color: #e4e6eb; }
-        
-        body.dark-mode #unstable-warning { background-color: #332701; border-color: #664d03; }
-        body.dark-mode .unstable-header, body.dark-mode .unstable-text { color: #ffecb5; }
-        body.dark-mode .unstable-header .warning-icon { stroke: #ffecb5; }
-
-        body.dark-mode #pin-input { background-color: #3a3b3c; border-color: #555; color: #e4e6eb; }
-        body.dark-mode #pin-input:focus { border-color: #2d88ff; }
-        body.dark-mode #btn-enter { background-color: #2d88ff; }
-
         /* Modal Styles */
         .modal-container { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
         .modal-content { background-color: #fefefe; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); width: 80%; max-width: 600px; max-height: 90%; display: flex; flex-direction: column; }
@@ -463,54 +450,6 @@
         .badge { background: #666; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-weight: bold; vertical-align: middle; }
         .icon-svg { width: 18px; height: 18px; fill: #606770; vertical-align: middle; margin: 0 4px; }
 
-        /* --- DARK MODE --- */
-        #theme-toggle {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 1.5em;
-            cursor: pointer;
-            user-select: none;
-            z-index: 1000;
-            transition: transform 0.2s;
-        }
-        #theme-toggle:hover { transform: scale(1.1); }
-        
-        body.dark-mode { background-color: #18191a; color: #e4e6eb; }
-        body.dark-mode h1, body.dark-mode .step-title, body.dark-mode .status-text, body.dark-mode .footer-link { color: #e4e6eb; }
-        body.dark-mode #app-container, body.dark-mode #cloud-sidebar, body.dark-mode .modal-content, body.dark-mode .status-section, body.dark-mode .skeleton-box, body.dark-mode #comments, body.dark-mode #how-to-use-container h4 { background-color: #242526; border-color: #3e4042; color: #e4e6eb; }
-        body.dark-mode #cloud-sidebar h2 { color: #e4e6eb; border-bottom-color: #3e4042 !important; }
-        body.dark-mode .cloud-store-btn { background-color: #2d88ff; }
-        body.dark-mode .cloud-store-btn:hover { background-color: #4aa1ff; }
-        body.dark-mode #dev-console-container { background-color: #242526; border-color: #ff3b30; color: #e4e6eb; }
-        body.dark-mode .skeleton-bar { background: #3a3b3c; background-image: linear-gradient(to right, #3a3b3c 0%, #4e4f50 20%, #3a3b3c 40%, #3a3b3c 100%); }
-        body.dark-mode #upload-area { border-color: #3e4042; }
-        body.dark-mode #upload-area.dragover { background-color: #3a3b3c; border-color: #2d88ff; }
-        body.dark-mode .emphasis-header, body.dark-mode .emphasis-item { border-color: #3e4042; background-color: #242526; }
-        body.dark-mode .emphasis-list-carrier-header { border-bottom-color: #e4e6eb; }
-        body.dark-mode .footer-popover { background-color: #3e4042; color: #e4e6eb; }
-        body.dark-mode .footer-popover::after { border-top-color: #3e4042; }
-        body.dark-mode #app-footer { background-color: #242526; border-top: 1px solid #3e4042; }
-        body.dark-mode .inline-svg, body.dark-mode .hide-icon { fill: #b0b3b8; }
-        body.dark-mode #dev-console-output { background-color: #18191a; border-color: #3e4042; color: #b0b3b8; }
-        body.dark-mode .log-sys { color: #e4e6eb; }
-        body.dark-mode .log-pdf { color: #58a6ff; }
-        body.dark-mode .log-edlp { color: #ff7b72; }
-        body.dark-mode .expandable { border-left-color: #3e4042; color: #b0b3b8; }
-        body.dark-mode #highlight-btn, body.dark-mode #copy-log-btn, body.dark-mode #emphasis-done-btn { background-color: #3a3b3c; color: #e4e6eb; }
-        body.dark-mode #btn-force-fetch, body.dark-mode #btn-reset-settings { background-color: #242526; color: #ff7b72; border-color: #ff7b72; }
-        body.dark-mode #btn-force-fetch:hover, body.dark-mode #btn-reset-settings:hover { background-color: #3e4042; }
-        body.dark-mode .emphasis-item.item-hidden .emphasis-item-text { color: #8b9096; }
-
-        /* --- V110 TWEAKS --- */
-        body.dark-mode .trigger-link { color: #e4e6eb; }
-        body.dark-mode .trigger-link:hover { color: #b0b3b8; }
-        body.dark-mode .trigger-link .arrow { color: #4aa1ff; }
-        body.dark-mode #more-settings-btn, body.dark-mode #version-text, body.dark-mode #upload-area p, body.dark-mode .main-header, body.dark-mode .status-filename { color: #b0b3b8; }
-        body.dark-mode span[style*="color: #555;"] { color: #b0b3b8 !important; }
-        body.dark-mode #more-settings-btn:hover { color: #e4e6eb; }
-        body.dark-mode #process-btn { background-color: #2d88ff; }
-
         /* --- SETTINGS STACK & TRANSITIONS --- */
         body, #app-container, .modal-content, #dev-console-container { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
         
@@ -531,8 +470,6 @@
             transition: background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .top-btn:hover { background: #d8dadf; }
-        body.dark-mode .top-btn { background: #3a3b3c; border-color: #555; color: #e4e6eb; }
-        body.dark-mode .top-btn:hover { background: #4e4f50; }
         
     </style>
 </head>
@@ -552,11 +489,6 @@
                 <svg class="inline-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                 <span>spamfan.github.io</span>
             </a>
-            <button id="theme-toggle-btn" class="top-btn">
-                <svg id="theme-icon-moon" class="inline-svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <svg id="theme-icon-sun" class="inline-svg" viewBox="0 0 24 24" style="display:none;"><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <span id="theme-text" data-i18n="themeDark">Dark mode</span>
-            </button>
             <!-- Language toggle removed -->
         </div>
 
@@ -811,7 +743,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.2.8';
+        const APP_VERSION = 'v1.2.9';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
@@ -830,35 +762,10 @@
         let currentLang = 'en';
         const TRANSLATIONS = { en: { ui: {}, pdf: {} } };
 
-
-        // --- TOP SETTINGS INIT ---
-        let isDarkMode = false;
-        const themeToggleBtn = document.getElementById('theme-toggle-btn');
-        const themeText = document.getElementById('theme-text');
-        const iconMoon = document.getElementById('theme-icon-moon');
-        const iconSun = document.getElementById('theme-icon-sun');
-
-        themeToggleBtn.addEventListener('click', () => {
-            isDarkMode = !isDarkMode;
-            const dict = TRANSLATIONS[currentLang].ui;
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                themeText.textContent = dict.themeLight || 'Light mode';
-                iconMoon.style.display = 'none';
-                iconSun.style.display = 'block';
-            } else {
-                document.body.classList.remove('dark-mode');
-                themeText.textContent = dict.themeDark || 'Dark mode';
-                iconMoon.style.display = 'block';
-                iconSun.style.display = 'none';
-            }
-        });
-
         // Populate English Defaults Before Any Swap
         TRANSLATIONS.en.ui = {
             loginWarningTitle: "PROPRIETARY CONTENT", loginWarningBody: "Unauthorized access and/or sharing is forbidden. To gain access, agree to these terms by inputting the passcode or pin given to you by the device administrator.", enterPinPlaceholder: "Enter PIN", enterBtn: "Enter", incorrectPin: "Incorrect PIN",
             devBoxHeader: "Developer options",
-            themeDark: "Dark mode", themeLight: "Light mode",
             uploadFiles: "Click here to upload files", processing: "Processing...", outdated: "Some file(s) could be outdated.", customizeBtn: "Customize Entries", printBtn: "⠀⠀⠀Print⠀⠀⠀", moreSettings: "Show more settings ▼", lessSettings: "Show less settings ▲", isolateApple: "Isolate Apple Devices", showEdlps: "Show likely EDLPs", addComments: "Add comments to printout", showWearables: "Show wearables", showWearablesNA: "Show wearables (not applicable)", commentsPlaceholder: "Add your print out comments here.", showDevOptions: "Show developer options", howToUse: "How To Use / FAQ", troubleshooting: "Troubleshooting / help", highlightTitle: "Highlight Inventory", highlightSub: "(Highlight partial/full)", doneBtn: "Done", devModeTitle: "Dev Mode", devModeP1: "<strong>developer mode activated lol</strong>", devModeP2: "(this doesn't do anything)", aboutBtn: "About", termsBtn: "Terms of Use", privacyBtn: "Privacy Policy", showPdfInputs: "Show PDF Inputs", showEdlpFetches: "Show EDLP Fetches", copyLog: "Copy Log", forceRefetch: "Force Refetch Data", clearCache: "Clear Optimizer Cache", cloudFiles: "Cloud files", edlpIndexBtn: "EDLPs Index",
             popoverAbout: document.getElementById('popover-about').innerHTML,
             popoverTerms: document.getElementById('popover-terms').innerHTML,
