@@ -367,7 +367,7 @@
             border: 2px solid #dddfe2; border-radius: 6px; margin-bottom: 15px;
             box-sizing: border-box; background: #ffffff; color: #1c1e21;
         }
-        #pin-input { letter-spacing: 5px; }
+        #pin-input { letter-spacing: 5px; -webkit-text-security: disc; }
         #store-input:focus, #pin-input:focus { border-color: #1877f2; outline: none; }
         #btn-enter {
             width: 100%; padding: 12px; background-color: #1877f2; color: white;
@@ -514,7 +514,7 @@
             </div>
 
             <input type="number" id="store-input" placeholder="Store #">
-            <input type="tel" id="pin-input" data-i18n-placeholder="enterPinPlaceholder" placeholder="Enter PIN">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" spellcheck="false" id="pin-input" data-i18n-placeholder="enterPinPlaceholder" placeholder="Enter PIN">
             <button id="btn-enter" data-i18n="enterBtn">Enter</button>
             <p id="pin-error" data-i18n="incorrectPin">Incorrect PIN</p>
         </div>
@@ -745,7 +745,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.2.10';
+        const APP_VERSION = 'v1.2.11';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
