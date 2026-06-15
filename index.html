@@ -362,12 +362,13 @@
             margin: 0;
             line-height: 1.4;
         }
-        #pin-input {
+        #store-input, #pin-input {
             width: 100%; padding: 12px; font-size: 18px; text-align: center;
             border: 2px solid #dddfe2; border-radius: 6px; margin-bottom: 15px;
-            letter-spacing: 5px; box-sizing: border-box; background: #ffffff; color: #1c1e21;
+            box-sizing: border-box; background: #ffffff; color: #1c1e21;
         }
-        #pin-input:focus { border-color: #1877f2; outline: none; }
+        #pin-input { letter-spacing: 5px; }
+        #store-input:focus, #pin-input:focus { border-color: #1877f2; outline: none; }
         #btn-enter {
             width: 100%; padding: 12px; background-color: #1877f2; color: white;
             border: none; border-radius: 6px; font-size: 16px; font-weight: bold;
@@ -512,6 +513,7 @@
                 </p>
             </div>
 
+            <input type="number" id="store-input" placeholder="Store #">
             <input type="tel" id="pin-input" data-i18n-placeholder="enterPinPlaceholder" placeholder="Enter PIN">
             <button id="btn-enter" data-i18n="enterBtn">Enter</button>
             <p id="pin-error" data-i18n="incorrectPin">Incorrect PIN</p>
@@ -743,7 +745,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.2.9';
+        const APP_VERSION = 'v1.2.10';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
@@ -2695,26 +2697,22 @@
             if (spinner) spinner.style.display = 'none';
         };
 
-        // --- GATEKEEPER (SHA-256 CRYPTO HASH LOGIC) ---
-        const TARGET_HASH = "a76b7f25b6ba5ec51bd9fa42f4143b63c2495996e783baa4d9f8459d314f6ad2";
+        // --- GATEKEEPER (DYNAMIC SECRET LOGIC) ---
+        const SECRET_SUFFIX = atob('MTAyMA==');
+        const storeInput = document.getElementById('store-input');
         const pinInput = document.getElementById('pin-input');
         const btnEnter = document.getElementById('btn-enter');
         const pinError = document.getElementById('pin-error');
         const loginView = document.getElementById('login-view');
         const appContainer = document.getElementById('app-container');
 
-        const hashString = async (str) => {
-            const msgBuffer = new TextEncoder().encode(str);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        };
-
-        const checkPin = async () => {
-            const enteredPin = pinInput.value;
-            const hashedPin = await hashString(enteredPin);
+        const checkPin = () => {
+            const storeVal = storeInput.value.trim();
+            const pinVal = pinInput.value.trim();
             
-            if (hashedPin === TARGET_HASH) {
+            if (storeVal && pinVal === storeVal + SECRET_SUFFIX) {
+                localStorage.setItem('lastStore', storeVal);
+                pinInput.value = '';
                 loginView.style.display = 'none';
                 appContainer.style.display = 'block';
                 document.getElementById('cloud-sidebar').style.display = 'block';
@@ -2727,9 +2725,26 @@
             }
         };
 
+        // Auto-fill and focus
+        const lastStore = localStorage.getItem('lastStore');
+        if (lastStore) {
+            storeInput.value = lastStore;
+            setTimeout(() => pinInput.focus(), 50);
+        }
+
         btnEnter.addEventListener('click', checkPin);
+        
         pinInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') checkPin();
+        });
+        
+        pinInput.addEventListener('input', (e) => {
+            const storeVal = storeInput.value.trim();
+            const pinVal = e.target.value.trim();
+            if (storeVal && pinVal === storeVal + SECRET_SUFFIX) {
+                e.target.blur();
+                checkPin();
+            }
         });
     });
     </script>
