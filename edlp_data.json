@@ -880,6 +880,46 @@
         "total": 49
       }
     },
+    "motog5g2026": {
+      "att": {
+        "last_updated": 1781898543386,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1781898543386,
+      "name": "Moto G 5G 2026",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1781898543386,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1781898543386,
+        "monthly": 0,
+        "total": 0
+      }
+    },
+    "motogplay2026": {
+      "att": {
+        "last_updated": 1781898561263,
+        "monthly": 0,
+        "total": 0
+      },
+      "last_updated": 1781898561263,
+      "name": "Moto G Play 2026",
+      "tmo": {
+        "dp": 30,
+        "last_updated": 1781898583499,
+        "monthly": 1.5,
+        "total": 66
+      },
+      "vzw": {
+        "last_updated": 1781898561263,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "motogpower2024": {
       "att": {
         "last_updated": 1778963088765,
