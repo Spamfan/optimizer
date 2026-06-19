@@ -402,7 +402,7 @@
     },
     "galaxys25plus5g": {
       "att": {
-        "last_updated": 1777922733685,
+        "last_updated": 1781883426034,
         "monthly": 13.86,
         "total": 499
       },
@@ -415,7 +415,7 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1777922910572,
+        "last_updated": 1781883426034,
         "monthly": 13.86,
         "total": 499
       }
