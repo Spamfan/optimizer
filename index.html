@@ -22,9 +22,25 @@
             background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
-            padding-bottom: 70px;
             box-sizing: border-box;
             min-height: 100vh;
+        }
+
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #f0f2f5;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s ease;
+        }
+        #splash-screen h2 {
+            color: #1c1e21;
+            margin-top: 15px;
+            font-size: 1.5em;
         }
 
         /* v1.2.3: Centered Layout Wrapper */
@@ -405,30 +421,11 @@
         #print-btn { display: inline-block; background-color: #1877f2; color: white; }
         .modal-footer button { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
 
-        /* --- V107 FOOTER & SETTINGS --- */
+        /* --- V107 SETTINGS --- */
         #more-settings-btn {
             text-align: left; color: #606770; cursor: pointer; font-weight: bold; margin-bottom: 20px; font-size: 0.95em; user-select: none;
         }
         #more-settings-btn:hover { color: #1c1e21; }
-        
-        #app-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; background-color: #909090; padding: 12px 0;
-            display: flex; justify-content: space-around; align-items: center; z-index: 2000;
-        }
-        .footer-link-container { position: relative; display: flex; justify-content: center; }
-        .footer-link {
-            color: #000; font-weight: bold; text-decoration: underline; cursor: pointer; font-size: 1.1em; user-select: none;
-        }
-        .footer-popover {
-            position: absolute; bottom: 40px; width: 260px; background-color: #d3d3d3; color: #000;
-            padding: 15px; border-radius: 4px; font-size: 0.85em; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            opacity: 0; pointer-events: none; transition: opacity 0.2s; text-align: left; line-height: 1.4;
-        }
-        .footer-popover.active { opacity: 1; pointer-events: auto; }
-        .footer-popover::after {
-            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -10px;
-            border-width: 10px; border-style: solid; border-color: #d3d3d3 transparent transparent transparent;
-        }
 
         /* --- NEW TUTORIAL STYLES --- */
         .tutorial-container { text-align: left; box-sizing: border-box; width: 100%; margin-bottom: 15px; }
@@ -476,6 +473,11 @@
 </head>
 <body>
 
+    <div id="splash-screen">
+        <svg class="spinner-svg" viewBox="0 0 50 50" style="display: block; width: 40px; height: 40px;"><path d="M25 5 A20 20 0 1 0 45 25" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"></path></svg>
+        <h2>Loading Optimizer</h2>
+    </div>
+
     <div id="version-wrapper">
         <span id="status-icon" title="Offline Mode">❌☁</span>
         <span id="version-text" style="opacity: 0.7;">Loading...</span>
@@ -517,6 +519,9 @@
             <input type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" spellcheck="false" id="pin-input" data-i18n-placeholder="enterPinPlaceholder" placeholder="Enter PIN">
             <button id="btn-enter" data-i18n="enterBtn">Enter</button>
             <p id="pin-error" data-i18n="incorrectPin">Incorrect PIN</p>
+            <div style="margin-top: 20px;">
+                <a id="terms-link" href="#" style="color: #1877f2; text-decoration: none; font-size: 0.85em; font-weight: 500;">Terms of use</a>
+            </div>
         </div>
 
         <div id="app-container" style="display: none;">
@@ -716,36 +721,33 @@
         </div>
     </div>
 
-    </div> <footer id="app-footer">
-        <div class="footer-link-container">
-            <div class="footer-link" data-target="popover-about" data-i18n="aboutBtn">About</div>
-            <div class="footer-popover" id="popover-about" data-i18n-html="popoverAbout">
-                Optimizer is a secure application that streamlines Walmart Wireless inventory reports. OSLRS workers can reach out to Optimizer's development team by private messaging @Abraham Gable on Microsoft teams or by emailing AbrahamJohnGable@gmail.com.
-            </div>
-        </div>
-        <div class="footer-link-container">
-            <div class="footer-link" data-target="popover-terms" data-i18n="termsBtn">Terms of Use</div>
-            <div class="footer-popover" id="popover-terms" data-i18n-html="popoverTerms">
-                Optimizer is currently being reconstructed to work with newer inventory systems and does not have a privacy policy yet.
-            </div>
-        </div>
-        <div class="footer-link-container">
-            <div class="footer-link" data-target="popover-privacy" data-i18n="privacyBtn">Privacy Policy</div>
-            <div class="footer-popover" id="popover-privacy" data-i18n-html="popoverPrivacy">
-                Optimizer is currently being reconstructed to work with newer inventory systems and does not have a privacy policy yet.
-            </div>
-        </div>
-    </footer>
-
+    </div> 
 
     <!-- Modals are empty here, populated by script -->
     <div id="emphasis-modal" class="modal-container"></div>
     <div id="dev-mode-modal" class="modal-container"></div>
+    
+    <div id="terms-modal" class="modal-container">
+        <div class="modal-content" style="max-width: 300px; padding: 25px; text-align: center;">
+            <h3 style="margin-top: 0; color: #1c1e21; font-size: 1.3em;">Terms of Use</h3>
+            <p style="color: #606770; font-size: 0.95em; line-height: 1.4; margin-bottom: 20px;">Terms of use hasn't been made yet.</p>
+            <button id="terms-ok-btn" style="background-color: #1877f2; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%;">Okay</button>
+        </div>
+    </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Remove Splash Screen
+        const splashScreen = document.getElementById('splash-screen');
+        if (splashScreen) {
+            setTimeout(() => {
+                splashScreen.style.opacity = '0';
+                setTimeout(() => splashScreen.remove(), 300);
+            }, 50); // Slight delay ensures paint
+        }
+
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.2.11';
+        const APP_VERSION = 'v1.2.12';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
@@ -768,10 +770,7 @@
         TRANSLATIONS.en.ui = {
             loginWarningTitle: "PROPRIETARY CONTENT", loginWarningBody: "Unauthorized access and/or sharing is forbidden. To gain access, agree to these terms by inputting the passcode or pin given to you by the device administrator.", enterPinPlaceholder: "Enter PIN", enterBtn: "Enter", incorrectPin: "Incorrect PIN",
             devBoxHeader: "Developer options",
-            uploadFiles: "Click here to upload files", processing: "Processing...", outdated: "Some file(s) could be outdated.", customizeBtn: "Customize Entries", printBtn: "⠀⠀⠀Print⠀⠀⠀", moreSettings: "Show more settings ▼", lessSettings: "Show less settings ▲", isolateApple: "Isolate Apple Devices", showEdlps: "Show likely EDLPs", addComments: "Add comments to printout", showWearables: "Show wearables", showWearablesNA: "Show wearables (not applicable)", commentsPlaceholder: "Add your print out comments here.", showDevOptions: "Show developer options", howToUse: "How To Use / FAQ", troubleshooting: "Troubleshooting / help", highlightTitle: "Highlight Inventory", highlightSub: "(Highlight partial/full)", doneBtn: "Done", devModeTitle: "Dev Mode", devModeP1: "<strong>developer mode activated lol</strong>", devModeP2: "(this doesn't do anything)", aboutBtn: "About", termsBtn: "Terms of Use", privacyBtn: "Privacy Policy", showPdfInputs: "Show PDF Inputs", showEdlpFetches: "Show EDLP Fetches", copyLog: "Copy Log", forceRefetch: "Force Refetch Data", clearCache: "Clear Optimizer Cache", cloudFiles: "Cloud files", edlpIndexBtn: "EDLPs Index",
-            popoverAbout: document.getElementById('popover-about').innerHTML,
-            popoverTerms: document.getElementById('popover-terms').innerHTML,
-            popoverPrivacy: document.getElementById('popover-privacy').innerHTML,
+            uploadFiles: "Click here to upload files", processing: "Processing...", outdated: "Some file(s) could be outdated.", customizeBtn: "Customize Entries", printBtn: "⠀⠀⠀Print⠀⠀⠀", moreSettings: "Show more settings ▼", lessSettings: "Show less settings ▲", isolateApple: "Isolate Apple Devices", showEdlps: "Show likely EDLPs", addComments: "Add comments to printout", showWearables: "Show wearables", showWearablesNA: "Show wearables (not applicable)", commentsPlaceholder: "Add your print out comments here.", showDevOptions: "Show developer options", howToUse: "How To Use / FAQ", troubleshooting: "Troubleshooting / help", highlightTitle: "Highlight Inventory", highlightSub: "(Highlight partial/full)", doneBtn: "Done", devModeTitle: "Dev Mode", devModeP1: "<strong>developer mode activated lol</strong>", devModeP2: "(this doesn't do anything)", showPdfInputs: "Show PDF Inputs", showEdlpFetches: "Show EDLP Fetches", copyLog: "Copy Log", forceRefetch: "Force Refetch Data", clearCache: "Clear Optimizer Cache", cloudFiles: "Cloud files", edlpIndexBtn: "EDLPs Index",
             tutorialHtml: document.getElementById('main-steps').innerHTML,
             troubleHtml: document.getElementById('trouble-steps') ? document.getElementById('trouble-steps').innerHTML : ''
         };
@@ -2532,34 +2531,35 @@
             });
         }
 
-        // v107: Footer Popovers Logic
-        const footerLinks = document.querySelectorAll('.footer-link');
-        const footerPopovers = document.querySelectorAll('.footer-popover');
-        
-        footerLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent document click from immediately closing
-                const targetId = link.getAttribute('data-target');
-                const targetPopover = document.getElementById(targetId);
-                
-                // Close others
-                footerPopovers.forEach(p => {
-                    if (p !== targetPopover) p.classList.remove('active');
-                });
-                
-                // Toggle clicked
-                if (targetPopover) {
-                    targetPopover.classList.toggle('active');
+        // Terms of Use Modal Logic
+        const termsLink = document.getElementById('terms-link');
+        const termsModal = document.getElementById('terms-modal');
+        const termsOkBtn = document.getElementById('terms-ok-btn');
+
+        if (termsLink && termsModal && termsOkBtn) {
+            termsLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                termsModal.style.display = 'flex';
+            });
+            
+            termsOkBtn.addEventListener('click', () => {
+                termsModal.style.display = 'none';
+            });
+
+            // Close on outside click
+            window.addEventListener('click', (e) => {
+                if (e.target === termsModal) {
+                    termsModal.style.display = 'none';
                 }
             });
-        });
 
-        // Click outside to close popovers
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.footer-popover') && !e.target.closest('.footer-link')) {
-                footerPopovers.forEach(p => p.classList.remove('active'));
-            }
-        });
+            // Close on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && termsModal.style.display === 'flex') {
+                    termsModal.style.display = 'none';
+                }
+            });
+        }
 
         // Initial load of settings from localStorage
         loadSettings();
