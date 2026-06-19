@@ -382,9 +382,9 @@
     },
     "galaxys25fe": {
       "att": {
-        "last_updated": 1777922725250,
-        "monthly": 17,
-        "total": 612
+        "last_updated": 1781883410855,
+        "monthly": 11.08,
+        "total": 399
       },
       "last_updated": 1764448685541,
       "name": "Galaxy S25 FE",
@@ -395,7 +395,7 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1777922890585,
+        "last_updated": 1781883410855,
         "monthly": 17,
         "total": 612
       }
