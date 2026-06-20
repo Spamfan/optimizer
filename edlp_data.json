@@ -382,7 +382,7 @@
     },
     "galaxys25fe": {
       "att": {
-        "last_updated": 1781977215552,
+        "last_updated": 1781978052796,
         "monthly": 11.08,
         "total": 399
       },
@@ -395,7 +395,7 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1781883418883,
+        "last_updated": 1781978053733,
         "monthly": 11.08,
         "total": 399
       }
@@ -415,7 +415,7 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1781883427708,
+        "last_updated": 1781978054640,
         "monthly": 13.86,
         "total": 499
       }
@@ -435,7 +435,7 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1781977752940,
+        "last_updated": 1781978055515,
         "monthly": 13.86,
         "total": 499
       }
@@ -475,7 +475,7 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1781977293683,
+        "last_updated": 1781978183595,
         "monthly": 31.92,
         "total": 1149
       }
