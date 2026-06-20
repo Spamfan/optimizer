@@ -462,7 +462,7 @@
     },
     "galaxys26ultra5g": {
       "att": {
-        "last_updated": 1781977243312,
+        "last_updated": 1781978185061,
         "monthly": 31.92,
         "total": 1149
       },
@@ -887,7 +887,7 @@
         "total": 0
       },
       "last_updated": 1781898543386,
-      "name": "Moto G 5G 2026",
+      "name": "MG 2026",
       "tmo": {
         "dp": 35,
         "last_updated": 1781898597632,
