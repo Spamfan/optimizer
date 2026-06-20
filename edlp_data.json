@@ -422,9 +422,9 @@
     },
     "galaxys25ultra5g": {
       "att": {
-        "last_updated": 1777922748838,
-        "monthly": 24.97,
-        "total": 899
+        "last_updated": 1781977189958,
+        "monthly": 13.86,
+        "total": 499
       },
       "last_updated": 1764448685541,
       "name": "Galaxy S25 Ultra 5G",
@@ -890,7 +890,7 @@
       "name": "Moto G 5G 2026",
       "tmo": {
         "dp": 35,
-        "last_updated": 1781898595666,
+        "last_updated": 1781898597632,
         "monthly": 1.5,
         "total": 71
       },
@@ -910,7 +910,7 @@
       "name": "Moto G Play 2026",
       "tmo": {
         "dp": 30,
-        "last_updated": 1781898583499,
+        "last_updated": 1781898596742,
         "monthly": 1.5,
         "total": 66
       },
