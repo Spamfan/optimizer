@@ -960,6 +960,26 @@
         "total": 88
       }
     },
+    "motogpower2026": {
+      "att": {
+        "last_updated": 1782501456294,
+        "monthly": 4,
+        "total": 144
+      },
+      "last_updated": 1782501456294,
+      "name": "Moto G Power 2026",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1782501456294,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1782501456294,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "motogstylus2023": {
       "att": {
         "last_updated": 1778961944348,
