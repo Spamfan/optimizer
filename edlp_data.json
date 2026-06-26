@@ -882,12 +882,12 @@
     },
     "motog5g2026": {
       "att": {
-        "last_updated": 1781898543386,
-        "monthly": 0,
-        "total": 0
+        "last_updated": 1782501482642,
+        "monthly": 2.5,
+        "total": 90
       },
       "last_updated": 1781898543386,
-      "name": "MG 2026",
+      "name": "Moto G 2026",
       "tmo": {
         "dp": 35,
         "last_updated": 1781898597632,
