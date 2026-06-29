@@ -747,7 +747,7 @@
         }
 
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.2.12';
+        const APP_VERSION = 'v1.2.13';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
@@ -2637,12 +2637,36 @@
                         const storeMatch = text.match(/Store:\s*(\d+)/);
                         if (storeMatch && storeMatch[1]) appState[carrier].storeNumber = storeMatch[1].trim();
 
-                        const { preFilterList, postFilterList, autoHidden } = parseInventoryText(text);
-                        appState[carrier].consolidatedList = consolidateInventory(postFilterList);
-                        appState[carrier].autoHidden = autoHidden;
+                        // Smart Reader: Check if >= 8 hours old
+                        let isExpired = false;
+                        if (appState[carrier].fileDate) {
+                            const datePart = appState[carrier].fileDate.match(/(\d{1,2}\/\d{1,2}\/\d{2,4}\s+\d{1,2}:\d{2}(:\d{2})?\s+[AP]M)/i);
+                            if (datePart) {
+                                const fileTime = new Date(datePart[0]).getTime();
+                                const hoursOld = (Date.now() - fileTime) / (1000 * 60 * 60);
+                                if (Math.abs(hoursOld) >= 8) {
+                                    isExpired = true;
+                                }
+                            }
+                        }
 
                         const statusSection = document.getElementById(`${carrier}-status`);
-                        statusSection.querySelector('.status-filename').textContent = `Cloud File - ${c}`;
+                        
+                        if (isExpired) {
+                            // File is expired, ignore the data
+                            appState[carrier].consolidatedList = [];
+                            appState[carrier].autoHidden = [];
+                            statusSection.querySelector('.status-filename').textContent = `Cloud File - ${c} (Expired)`;
+                            statusSection.querySelector('.status-filename').style.color = "#d93025";
+                        } else {
+                            // File is fresh, parse normally
+                            const { preFilterList, postFilterList, autoHidden } = parseInventoryText(text);
+                            appState[carrier].consolidatedList = consolidateInventory(postFilterList);
+                            appState[carrier].autoHidden = autoHidden;
+                            statusSection.querySelector('.status-filename').textContent = `Cloud File - ${c}`;
+                            statusSection.querySelector('.status-filename').style.color = ""; // Reset color
+                        }
+
                         statusSection.style.display = 'block';
 
                         try {
