@@ -12,8 +12,7 @@
     <link rel="manifest" href="site.webmanifest">
     <link rel="shortcut icon" href="favicon.ico">
     
-    <!-- PDF.js and jsPDF library CDNs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <!-- jsPDF library CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
 
     <style>
@@ -83,65 +82,35 @@
             position: relative;
         }
 
-        #cloud-sidebar {
-            flex: 0 0 220px;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            display: none;
-            text-align: center;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .cloud-store-btn {
-            background-color: #1877f2;
-            color: white;
-            border: none;
-            padding: 12px 15px;
-            border-radius: 6px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background-color 0.2s;
-        }
-        .cloud-store-btn:hover { background-color: #166fe5; }
-        .cloud-store-btn svg { fill: white; width: 18px; height: 18px; }
-
-        /* EDLP Index Button Styles */
-        #btn-edlp-index {
-            font-size: 0.65em; padding: 5px 10px; background: #e4e6eb; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; color: #1c1e21; font-weight: bold; transition: all 0.2s;
-        }
-        #btn-edlp-index:hover { background: #d8dadf; }
-
         h1 {
             color: #1c1e21;
-            margin-bottom: 25px;
+            margin-bottom: 5px;
             font-size: 1.8em;
         }
 
-        #upload-area {
-            border: 2px dashed #dddfe2;
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 20px;
+        /* Segmented Control Styles */
+        .segmented-control {
+            display: inline-flex;
+            background-color: #e4e6eb;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .segmented-btn {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.2s, border-color 0.2s;
+            border: none;
+            background: transparent;
+            color: #606770;
+            transition: background-color 0.2s, color 0.2s;
         }
-        
-        #upload-area.dragover {
-            border-color: #1877f2;
-            background-color: #f0f8ff;
+        .segmented-btn.active {
+            background-color: #1877f2;
+            color: white;
+            border-radius: 6px;
         }
-        
-        #upload-area p { margin: 0; font-weight: 600; color: #606770; transition: color 0.2s; }
-        #upload-area p:hover, #upload-area p:active { text-decoration: underline; color: #1877f2; }
-        #upload-input { display: none; }
 
         .status-section {
             display: none;
@@ -527,14 +496,6 @@
         <div id="app-container" style="display: none;">
 
             <h1>Optimizer</h1>
-            
-            <div id="upload-area">
-                <input type="file" id="upload-input" multiple accept=".pdf">
-                <div style="display: flex; justify-content: center; align-items: center;">
-                    <svg class="spinner-svg" id="upload-spinner" viewBox="0 0 50 50"><path d="M25 5 A20 20 0 1 0 45 25" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"></path></svg>
-                    <p data-i18n="uploadFiles">Click here to upload files</p>
-                </div>
-            </div>
 
             <div id="global-outdated-warning" style="display: none; color: #d93025; font-weight: 600; font-size: 0.9em; margin-bottom: 15px; align-items: center; justify-content: center; gap: 8px;">
                 <svg style="width: 18px; height: 18px; fill: #d93025;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
@@ -542,6 +503,9 @@
             </div>
 
             <div id="status-container">
+                <div id="empty-cloud-message" style="display: none; color: #606770; font-size: 0.9em; font-style: italic; margin-bottom: 10px;">
+                    Upload your stores inventory with <a href="https://spamfan.github.io/iris" target="_blank" style="color: #1877f2; text-decoration: none; font-weight: bold;">Scanner</a> and they'll appear here.
+                </div>
                 <div class="status-section" id="att-status"><div><span class="status-text">AT&T:</span><span class="status-filename"></span></div></div>
                 <div class="status-section" id="vzw-status"><div><span class="status-text">Verizon:</span><span class="status-filename"></span></div></div>
                 <div class="status-section" id="tmo-status"><div><span class="status-text">T-Mobile:</span><span class="status-filename"></span></div></div>
@@ -572,37 +536,23 @@
                         <label for="show-comments-toggle" data-i18n="addComments">Add comments to printout</label>
                     </div>
                     <div class="toggle-option" id="wearables-wrapper">
-                        <input type="checkbox" id="show-wearables-toggle" checked disabled>
-                        <label for="show-wearables-toggle" id="wearables-label" data-i18n="showWearablesNA">Show wearables (not applicable)</label>
-                    </div>
+                    <input type="checkbox" id="show-wearables-toggle" checked disabled>
+                    <label for="show-wearables-toggle" id="wearables-label" data-i18n="showWearablesNA">Show wearables (not applicable)</label>
                 </div>
                 
-                <div class="control-section" id="comments-section">
-                    <textarea id="comments" data-i18n-placeholder="commentsPlaceholder" placeholder="Add your print out comments here."></textarea>
-                    <p id="konami-message">Also try Tank Tycoon!</p>
+                <div class="toggle-option" style="align-items: flex-start;">
+                    <div class="segmented-control" id="mode-segmented-control">
+                        <button class="segmented-btn" id="btn-mode-index">Pricing index</button>
+                        <button class="segmented-btn active" id="btn-mode-instore">In-store only</button>
+                    </div>
                 </div>
+            </div>
+            
+            <div class="control-section" id="comments-section">
+                <textarea id="comments" data-i18n-placeholder="commentsPlaceholder" placeholder="Add your print out comments here."></textarea>
+                <p id="konami-message">Also try Tank Tycoon!</p>
+            </div>
 
-                <div id="dev-options-wrapper">
-                    <div class="toggle-option">
-                        <input type="checkbox" id="dev-console-toggle">
-                        <label for="dev-console-toggle" data-i18n="showDevOptions">Show developer options</label>
-                    </div>
-                    
-                    <div id="dev-console-container">
-                        <div class="dev-box-header" data-i18n="devBoxHeader">Developer options</div>
-                        <div class="dev-box-content">
-                            <div id="console-filters">
-                                <label><input type="checkbox" id="cb-log-pdf" checked> <span data-i18n="showPdfInputs">Show PDF Inputs</span></label>
-                                <label><input type="checkbox" id="cb-log-edlp" checked> <span data-i18n="showEdlpFetches">Show EDLP Fetches</span></label>
-                            </div>
-                            
-                            <pre id="dev-console-output"></pre>
-                            <button id="copy-log-btn" data-i18n="copyLog">Copy Log</button>
-                            <button id="btn-force-fetch" data-i18n="forceRefetch">Force Refetch Data</button>
-                            <button id="btn-reset-settings" data-i18n="clearCache">Clear Optimizer Cache</button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div class="tutorial-container">
@@ -679,6 +629,25 @@
                     <span data-i18n="troubleshooting">Troubleshooting / help</span><span class="arrow">▼</span>
                 </div>
                 <div id="trouble-steps" class="step-list expandable" data-i18n-html="troubleHtml">
+                    <div class="toggle-option" style="margin-bottom: 15px;">
+                        <input type="checkbox" id="dev-console-toggle">
+                        <label for="dev-console-toggle" data-i18n="showDevOptions" style="font-weight: 600; color: #1c1e21;">Show developer options</label>
+                    </div>
+                    <div id="dev-options-wrapper">
+                        <div id="dev-console-container" style="margin-top: 0; margin-bottom: 15px;">
+                            <div class="dev-box-header" data-i18n="devBoxHeader">Developer options</div>
+                            <div class="dev-box-content">
+                                <div id="console-filters">
+                                    <label><input type="checkbox" id="cb-log-pdf" checked> <span data-i18n="showPdfInputs">Show PDF Inputs</span></label>
+                                    <label><input type="checkbox" id="cb-log-edlp" checked> <span data-i18n="showEdlpFetches">Show EDLP Fetches</span></label>
+                                </div>
+                                <pre id="dev-console-output"></pre>
+                                <button id="copy-log-btn" data-i18n="copyLog">Copy Log</button>
+                                <button id="btn-force-fetch" data-i18n="forceRefetch">Force Refetch Data</button>
+                                <button id="btn-reset-settings" data-i18n="clearCache">Clear Optimizer Cache</button>
+                            </div>
+                        </div>
+                    </div>
                     <div><strong>Experiencing issues? Independently try the solutions below from top to bottom.</strong> You can also reach out to the developer directly from the "About" section below.</div>
                     <div class="step-list">
                         <div class="step-container">
@@ -710,17 +679,6 @@
 
     </div>
 
-    <!-- Cloud Sidebar -->
-    <div id="cloud-sidebar" style="display: none;">
-        <h2 style="margin-top: 0; font-size: 1.4em; color: #1c1e21; border-bottom: 2px solid #dddfe2; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
-            <span data-i18n="cloudFiles">Cloud files</span>
-            <button id="btn-edlp-index" data-i18n="edlpIndexBtn">EDLPs Index</button>
-        </h2>
-        <div id="cloud-list">
-            <!-- Buttons injected here -->
-        </div>
-    </div>
-
     </div> 
 
     <!-- Modals are empty here, populated by script -->
@@ -747,10 +705,9 @@
         }
 
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.2.13';
+        const APP_VERSION = 'v1.3.1';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
 
         // --- GLOBAL STATE ---
         let appState = { 
@@ -1107,18 +1064,17 @@
             }
         });
 
-        // EDLP Index Mode Trigger
-        document.getElementById('btn-edlp-index').addEventListener('click', () => {
-            isEdlpIndexMode = true;
-            
-            const uploadText = uploadArea.querySelector('p');
-            const spinner = document.getElementById('upload-spinner');
-            uploadText.textContent = TRANSLATIONS[currentLang].ui.processing || 'Processing...'; 
-            if (spinner) spinner.style.display = 'block';
+        // Segmented Control Mode Switcher
+        const btnModeIndex = document.getElementById('btn-mode-index');
+        const btnModeInstore = document.getElementById('btn-mode-instore');
 
+        const activateIndexMode = () => {
+            isEdlpIndexMode = true;
+            btnModeIndex.classList.add('active');
+            btnModeInstore.classList.remove('active');
+            
             setTimeout(() => {
                 hasWatches = false;
-
                 ['att', 'vzw', 'tmo'].forEach(carrier => {
                     appState[carrier].fileDate = '';
                     appState[carrier].storeNumber = '';
@@ -1143,6 +1099,9 @@
                     if (fileHasWatches) hasWatches = true;
                 });
 
+                const emptyCloudMsg = document.getElementById('empty-cloud-message');
+                if (emptyCloudMsg) emptyCloudMsg.style.display = 'none';
+
                 const wearablesToggle = document.getElementById('show-wearables-toggle');
                 const wearablesLabel = document.getElementById('wearables-label');
                 if (hasWatches) {
@@ -1160,13 +1119,25 @@
 
                 const warningEl = document.getElementById('global-outdated-warning');
                 if (warningEl) warningEl.style.display = 'none';
-
-                uploadArea.querySelector('p').textContent = TRANSLATIONS[currentLang].ui.uploadFiles || 'Click here to upload files';
-                if (spinner) spinner.style.display = 'none';
-                
                 debugLog("Activated EDLP Index Mode", "sys");
             }, 50);
-        });
+        };
+
+        const activateInstoreMode = () => {
+            isEdlpIndexMode = false;
+            btnModeInstore.classList.add('active');
+            btnModeIndex.classList.remove('active');
+            
+            const lastStore = localStorage.getItem('lastStore');
+            if (lastStore && window.cloudInventoryData) {
+                loadCloudStore(lastStore);
+            } else {
+                debugLog("No store or cloud data available for In-store mode.", "sys");
+            }
+        };
+
+        btnModeIndex.addEventListener('click', activateIndexMode);
+        btnModeInstore.addEventListener('click', activateInstoreMode);
 
         // v33: Console Filters Logic (Fixed)
         const consoleOut = document.getElementById('dev-console-output');
@@ -1309,8 +1280,6 @@
 
         // --- STATIC UI ELEMENT SELECTORS ---
         const versionText = document.getElementById('version-text');
-        const uploadArea = document.getElementById('upload-area');
-        const uploadInput = document.getElementById('upload-input');
         const highlightBtn = document.getElementById('highlight-btn');
         const processBtn = document.getElementById('process-btn');
         const commentsInput = document.getElementById('comments');
@@ -1330,8 +1299,6 @@
         const unhideAllBtn = document.getElementById('unhide-all-btn');
 
         // --- CORE LOGIC & HELPER FUNCTIONS ---
-        const getTextFromPdf = (file) => { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = async (event) => { try { const pdf = await pdfjsLib.getDocument({ data: event.target.result }).promise; let textContent = ''; for (let i = 1; i <= pdf.numPages; i++) { const page = await pdf.getPage(i); const text = await page.getTextContent(); textContent += text.items.map(s => s.str).join(' '); } resolve(textContent); } catch (error) { reject(error); } }; reader.onerror = (error) => reject(error); reader.readAsArrayBuffer(file); }); };
-        
         const parseInventoryText = (text) => { 
             if (!text) return { preFilterList: [], postFilterList: [] }; 
             const dataStartIndex = text.indexOf('Quantity'); 
@@ -1842,6 +1809,16 @@
                 yPosition += lineHeight;
             }
             
+            // --- INJECT DYNAMIC WARNING BANNER ---
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "bold");
+            if (isEdlpIndexMode) {
+                doc.text("[!] NOT A STOCK REPORT, FOR PRICING REFERENCE ONLY.", sideMargin, yPosition);
+            } else {
+                doc.text("[!] EXPERIMENTAL SOFTWARE. Stock counts may be inaccurate, pricing is not affected.", sideMargin, yPosition);
+            }
+            yPosition += lineHeight;
+            
             if (comments) { const splitComments = doc.splitTextToSize(comments, 190); doc.setFont("helvetica", "italic").text(splitComments, sideMargin, yPosition); yPosition += (splitComments.length * (lineHeight - 1)); }
             yPosition += sectionSpacing;
             const contentStartY = yPosition;
@@ -2226,151 +2203,8 @@
         };
 
         // --- EVENT HANDLER FUNCTIONS ---
-        const handleFileUploads = async (files) => { 
-            if (!files || files.length === 0) return; 
-            isEdlpIndexMode = false;
-            
-            // UI Feedback: Show Spinner & Translated Processing Text
-            const uploadText = uploadArea.querySelector('p');
-            const spinner = document.getElementById('upload-spinner');
-            uploadText.textContent = TRANSLATIONS[currentLang].ui.processing || 'Processing...'; 
-            if (spinner) spinner.style.display = 'block';
-
-            // Safe Skeleton Injection
-            try {
-                const statusContainer = document.getElementById('status-container');
-                // Hide existing status sections temporarily
-                statusContainer.querySelectorAll('.status-section').forEach(el => el.style.display = 'none');
-                // Inject skeleton boxes based on file count
-                for (let i = 0; i < files.length; i++) {
-                    const skel = document.createElement('div');
-                    skel.className = 'skeleton-box';
-                    skel.innerHTML = '<div class="skeleton-bar"></div>';
-                    statusContainer.appendChild(skel);
-                }
-            } catch (e) {
-                console.warn('Skeleton injection skipped:', e);
-            }
-
-            // Forced Paint Yield (Allows WMPC to draw skeletons before locking main thread)
-            await new Promise(resolve => setTimeout(resolve, 50));
-            
-            for (const file of files) { 
-                try { 
-                    const text = await getTextFromPdf(file); 
-                    const carrier = categorizePdf(text); 
-                    if (carrier === 'unknown') { alert(`Could not determine carrier for file: ${file.name}`); continue; } 
-                    
-                    // v102: CLEAN SLATE WIPE (Kills Ghost Data)
-                    appState[carrier].fileDate = '';
-                    appState[carrier].storeNumber = '';
-                    appState[carrier].consolidatedList = [];
-                    appState[carrier].autoHidden =[];
-                    
-                    // Date Extraction
-                    const dateMatch = text.match(/Date:\s*(.*?)(?=\s+Store)/);
-                    if (dateMatch && dateMatch[1]) {
-                        appState[carrier].fileDate = dateMatch[1].trim();
-                    }
-                    
-                    // Store Extraction (v19)
-                    const storeMatch = text.match(/Store:\s*(\d+)/);
-                    if (storeMatch && storeMatch[1]) {
-                        appState[carrier].storeNumber = storeMatch[1].trim();
-                    }
-
-                    const { preFilterList, postFilterList, autoHidden } = parseInventoryText(text); 
-                    appState[carrier].consolidatedList = consolidateInventory(postFilterList); 
-                    appState[carrier].autoHidden = autoHidden; 
-
-                    // V44: Verbose Logging (Correct Location)
-                    let logContent = `--- DEBUG LOG FOR: ${file.name} (detected as ${carrier.toUpperCase()}) ---\n\n`; 
-                    logContent += `== RAW TEXT EXTRACTED ==\n${text}\n\n`; 
-                    logContent += `== ITEMS FOUND (PRE-FILTER) ==\n${preFilterList.map(item => item.join(' | ')).join('\n')}\n\n`; 
-                    logContent += `== ITEMS KEPT (POST-FILTER) ==\n${postFilterList.map(item => item.join(' | ')).join('\n')}\n\n`; 
-                    debugLog(logContent, 'pdf');
-                    debugLog(`PARSED [${carrier}]: ${postFilterList.length} items found.`, "sys"); // Summary log
-
-                    const statusSection = document.getElementById(`${carrier}-status`); 
-                    statusSection.querySelector('.status-filename').textContent = file.name; 
-                    statusSection.style.display = 'block'; 
-                    
-                    // Safe Skeleton Removal
-                    try {
-                        const statusContainer = document.getElementById('status-container');
-                        const firstSkel = statusContainer.querySelector('.skeleton-box');
-                        if (firstSkel) firstSkel.remove();
-                    } catch (e) {}
-
-                    // v47: Check for watches
-                    const fileHasWatches = postFilterList.some(item => 
-                        item[0].startsWith('AW ') || item[0].toLowerCase().includes('apple watch')
-                    );
-                    if (fileHasWatches) hasWatches = true;
-
-                } catch (error) { 
-                    // v43: Explicit error logging
-                    debugLog("❌ CRASH: " + error.message, 'sys');
-                    alert(`Failed to process file: ${file.name}`); 
-                    console.error(error); 
-                } 
-            } 
-
-            // v48: Update Wearables Toggle (Smart Logic)
-            const wearablesToggle = document.getElementById('show-wearables-toggle');
-            const wearablesLabel = document.getElementById('wearables-label');
-            
-            if (hasWatches) {
-                // If watches exist, unlock the toggle
-                wearablesToggle.disabled = false;
-                wearablesLabel.textContent = TRANSLATIONS[currentLang].ui.showWearables;
-                wearablesToggle.parentElement.classList.remove('disabled');
-                
-                // Restore user preference if it exists, otherwise default to true
-                const savedSettings = JSON.parse(localStorage.getItem('betterInvSettings') || '{}');
-                wearablesToggle.checked = (savedSettings.showWearables !== undefined) ? savedSettings.showWearables : true;
-            } else {
-                // If no watches, lock it to "Checked" (Standard behavior) but Disabled
-                wearablesToggle.checked = true;
-                wearablesToggle.disabled = true;
-                wearablesLabel.textContent = TRANSLATIONS[currentLang].ui.showWearablesNA;
-                wearablesToggle.parentElement.classList.add('disabled');
-            }
-
-            // v106: Global File Age Check (Absolute Math)
-            let hasOutdatedFile = false;['att', 'vzw', 'tmo'].forEach(c => {
-                if (appState[c].consolidatedList.length > 0 && appState[c].fileDate) {
-                    try {
-                        const datePart = appState[c].fileDate.match(/(\d{1,2}\/\d{1,2}\/\d{2,4}\s+\d{1,2}:\d{2}(:\d{2})?\s+[AP]M)/i);
-                        if (datePart) {
-                            const fileTime = new Date(datePart[0]).getTime();
-                            const nowTime = Date.now();
-                            const hoursOld = (nowTime - fileTime) / (1000 * 60 * 60);
-                            // Flag if file is 4+ hours old (or 4+ hours in the future due to bad clocks)
-                            if (Math.abs(hoursOld) >= 4) {
-                                hasOutdatedFile = true;
-                            }
-                        }
-                    } catch(e) {}
-                }
-            });
-            
-            const warningEl = document.getElementById('global-outdated-warning');
-            if (warningEl) warningEl.style.display = hasOutdatedFile ? 'flex' : 'none';
-
-            // Safe Cleanup of any remaining skeletons (in case of unsupported files)
-            try {
-                document.querySelectorAll('.skeleton-box').forEach(el => el.remove());
-            } catch(e) {}
-
-            uploadArea.querySelector('p').textContent = TRANSLATIONS[currentLang].ui.uploadFiles; 
-            if (spinner) spinner.style.display = 'none';
-            
-            // v106: Clear input value so re-uploading the same filename triggers the change event
-            document.getElementById('upload-input').value = '';
-        };
         
-        const openEmphasisModal = () => { 
+        const openEmphasisModal = () => {
             // V38 Logging
             debugLog("--- OPENING MODAL (Key Lookup Check) ---", "sys");
             
@@ -2432,11 +2266,6 @@
             }
         });
         
-        uploadArea.addEventListener('click', () => uploadInput.click());
-        uploadInput.addEventListener('change', (e) => handleFileUploads(e.target.files));
-        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
-        uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); });
-        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); handleFileUploads(e.dataTransfer.files); });
         isolateIphonesCheckbox.addEventListener('change', saveSettings);
         
         // Listener for EDLP toggle to show/hide warning
@@ -2574,16 +2403,6 @@
                 const data = await res.json();
                 if (data && data.inventory) {
                     window.cloudInventoryData = data.inventory;
-                    const listEl = document.getElementById('cloud-list');
-                    listEl.innerHTML = '';
-                    
-                    Object.keys(data.inventory).forEach(storeNum => {
-                        const btn = document.createElement('button');
-                        btn.className = 'cloud-store-btn';
-                        btn.innerHTML = `<span>${storeNum}</span> <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`;
-                        btn.onclick = () => loadCloudStore(storeNum);
-                        listEl.appendChild(btn);
-                    });
                 }
             } catch (err) {
                 console.warn("Cloud Inventory fetch failed:", err);
@@ -2593,16 +2412,19 @@
         const loadCloudStore = async (storeNum) => {
             isEdlpIndexMode = false;
             const storeData = window.cloudInventoryData[storeNum];
-            if (!storeData) return;
-
-            const uploadText = uploadArea.querySelector('p');
-            const spinner = document.getElementById('upload-spinner');
-            uploadText.textContent = TRANSLATIONS[currentLang].ui.processing || 'Processing...'; 
-            if (spinner) spinner.style.display = 'block';
+            const emptyCloudMsg = document.getElementById('empty-cloud-message');
+            
+            if (!storeData) {
+                const statusContainer = document.getElementById('status-container');
+                statusContainer.querySelectorAll('.status-section').forEach(el => el.style.display = 'none');
+                if (emptyCloudMsg) emptyCloudMsg.style.display = 'block';
+                return;
+            }
 
             try {
                 const statusContainer = document.getElementById('status-container');
                 statusContainer.querySelectorAll('.status-section').forEach(el => el.style.display = 'none');
+                if (emptyCloudMsg) emptyCloudMsg.style.display = 'none';
                 
                 let fileCount = 0;
                 ['ATT', 'VZW', 'TMO'].forEach(c => { if(storeData[c] && storeData[c].text) fileCount++; });
@@ -2618,6 +2440,7 @@
             await new Promise(resolve => setTimeout(resolve, 50));
 
             hasWatches = false;
+            let validFilesCount = 0;
 
             for (const c of ['ATT', 'VZW', 'TMO']) {
                 if (storeData[c] && storeData[c].text) {
@@ -2656,8 +2479,7 @@
                             // File is expired, ignore the data
                             appState[carrier].consolidatedList = [];
                             appState[carrier].autoHidden = [];
-                            statusSection.querySelector('.status-filename').textContent = `Cloud File - ${c} (Expired)`;
-                            statusSection.querySelector('.status-filename').style.color = "#d93025";
+                            statusSection.style.display = 'none';
                         } else {
                             // File is fresh, parse normally
                             const { preFilterList, postFilterList, autoHidden } = parseInventoryText(text);
@@ -2665,9 +2487,9 @@
                             appState[carrier].autoHidden = autoHidden;
                             statusSection.querySelector('.status-filename').textContent = `Cloud File - ${c}`;
                             statusSection.querySelector('.status-filename').style.color = ""; // Reset color
+                            statusSection.style.display = 'block';
+                            validFilesCount++;
                         }
-
-                        statusSection.style.display = 'block';
 
                         try {
                             const statusContainer = document.getElementById('status-container');
@@ -2682,6 +2504,12 @@
                         debugLog(`❌ Cloud Parse CRASH: ${err.message}`, 'sys');
                     }
                 }
+            }
+
+            if (validFilesCount === 0 && emptyCloudMsg) {
+                emptyCloudMsg.style.display = 'block';
+            } else if (emptyCloudMsg) {
+                emptyCloudMsg.style.display = 'none';
             }
 
             const wearablesToggle = document.getElementById('show-wearables-toggle');
@@ -2716,9 +2544,6 @@
             if (warningEl) warningEl.style.display = hasOutdatedFile ? 'flex' : 'none';
 
             try { document.querySelectorAll('.skeleton-box').forEach(el => el.remove()); } catch(e) {}
-
-            uploadArea.querySelector('p').textContent = TRANSLATIONS[currentLang].ui.uploadFiles || 'Click here to upload files';
-            if (spinner) spinner.style.display = 'none';
         };
 
         // --- GATEKEEPER (DYNAMIC SECRET LOGIC) ---
@@ -2730,7 +2555,7 @@
         const loginView = document.getElementById('login-view');
         const appContainer = document.getElementById('app-container');
 
-        const checkPin = () => {
+        const checkPin = async () => {
             const storeVal = storeInput.value.trim();
             const pinVal = pinInput.value.trim();
             
@@ -2739,9 +2564,14 @@
                 pinInput.value = '';
                 loginView.style.display = 'none';
                 appContainer.style.display = 'block';
-                document.getElementById('cloud-sidebar').style.display = 'block';
                 pinError.style.display = 'none';
-                if (window.fetchCloudInventory) window.fetchCloudInventory();
+                
+                if (window.fetchCloudInventory) {
+                    await window.fetchCloudInventory();
+                    if (window.cloudInventoryData) {
+                        loadCloudStore(storeVal);
+                    }
+                }
             } else {
                 pinError.style.display = 'block';
                 pinInput.value = '';
