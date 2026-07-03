@@ -438,6 +438,26 @@
         }
         .top-btn:hover { background: #d8dadf; }
         
+        /* --- V1.3.3 SCANNER POPOVER --- */
+        .scanner-wrapper { position: relative; display: inline-block; }
+        .scanner-link { color: #1877f2; text-decoration: none; font-weight: bold; cursor: pointer; }
+        .scanner-link:hover { text-decoration: underline; }
+        .scanner-popover {
+            display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            margin-top: 12px; background: #ffffff; border: 1px solid #dddfe2; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); padding: 15px; width: 220px;
+            text-align: center; z-index: 1000; cursor: default;
+        }
+        .scanner-popover.show { display: block; }
+        /* Caret/Arrow */
+        .scanner-popover::before, .scanner-popover::after {
+            content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            border: solid transparent; height: 0; width: 0; pointer-events: none;
+        }
+        .scanner-popover::before { border-bottom-color: #dddfe2; border-width: 9px; margin-left: -9px; }
+        .scanner-popover::after { border-bottom-color: #ffffff; border-width: 8px; margin-left: -8px; }
+        .scanner-popover img { width: 100%; height: auto; border-radius: 4px; display: block; margin-bottom: 10px; }
+        .scanner-popover p { margin: 0; font-size: 0.9em; color: #1c1e21; line-height: 1.4; font-weight: normal; }
     </style>
 </head>
 <body>
@@ -504,7 +524,15 @@
 
             <div id="status-container">
                 <div id="empty-cloud-message" style="display: none; color: #606770; font-size: 0.9em; font-style: italic; margin-bottom: 10px;">
-                    Upload your stores inventory with <a href="https://spamfan.github.io/iris" target="_blank" style="color: #1877f2; text-decoration: none; font-weight: bold;">Scanner</a> and they'll appear here.
+                    Upload your store's inventory with 
+                    <div class="scanner-wrapper">
+                        <a id="scanner-btn" class="scanner-link">Scanner</a>
+                        <div id="scanner-popover" class="scanner-popover">
+                            <img src="https://i.imgur.com/7OyGqTbl.png" alt="Scanner QR Code" loading="lazy">
+                            <p>On your mobile device, scan this QR code or go to spamfan.github.io/scanner</p>
+                        </div>
+                    </div>
+                    and it'll appear here.
                 </div>
                 <div class="status-section" id="att-status"><div><span class="status-text">AT&T:</span><span class="status-filename"></span></div></div>
                 <div class="status-section" id="vzw-status"><div><span class="status-text">Verizon:</span><span class="status-filename"></span></div></div>
@@ -705,9 +733,37 @@
         }
 
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.3.2';
+        const APP_VERSION = 'v1.3.3';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
+
+        // --- SCANNER POPOVER LOGIC ---
+        const scannerBtn = document.getElementById('scanner-btn');
+        const scannerPopover = document.getElementById('scanner-popover');
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (scannerBtn) {
+            if (isMobileDevice) {
+                scannerBtn.href = 'https://spamfan.github.io/iris';
+                scannerBtn.target = '_blank';
+            } else {
+                scannerBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    scannerPopover.classList.toggle('show');
+                });
+                
+                // Prevent clicks inside popover from bubbling up to the document listener
+                scannerPopover.addEventListener('click', (e) => e.stopPropagation());
+                
+                // Close when clicking anywhere outside
+                document.addEventListener('click', () => {
+                    if (scannerPopover.classList.contains('show')) {
+                        scannerPopover.classList.remove('show');
+                    }
+                });
+            }
+        }
 
         // --- GLOBAL STATE ---
         let appState = { 
