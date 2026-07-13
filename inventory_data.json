@@ -1,17 +1,13 @@
 {
   "inventory": {
-    "9999": {
-      "ATT": {
-        "last_updated": 1783877660173,
-        "text": "AT&T\nDate: 7/12/2026 1:34:04 PM Store: 9999\nQuantity\n\niPhone 17e 256GB Black 2 available\niPhone Air 256GB Space Black 5 available\niPhone Air 256GB Sky Blue 5 available\nMoto G 5G 2024 128GB Green 1 available\nMoto G 5G 2024 unlocked 128GB Green 2 available\nMoto G 5G 2025 128GB Green 2 available\nMoto G Power 2024 unlocked 128GB Blue 6 available\nMoto G Power 2025 128GB Gray 2 available\nMoto G Stylus 2024 unlocked 256GB Beige 3 available\nTCL Flip 3 16GB Gray 4 available"
-      },
+    "1698": {
       "TMO": {
-        "last_updated": 1783877647177,
-        "text": "T-Mobile\nDate: 7/12/2026 1:33:18 PM Store: 9999\nQuantity\n\niPhone 17e 256GB Black 2 available\niPhone Air 256GB Space Black 5 available\niPhone Air 256GB Sky Blue 5 available\nMoto G 5G 2024 128GB ) Green 1 available\nMoto G 5G 2024 unlocked 128GB Green 2 available\nMoto G 5G 2025 128GB Green 2 available\nMoto G Power 2024 unlocked 128GB Blue 6 available\nMoto G Power 2025 128GB Gray 2 available\nMoto G Stylus 2024 unlocked 256GB Beige 3 available\nTCL Flip 3 16GB Gray 4 available"
+        "last_updated": 1783957919272,
+        "text": "T-Mobile\nDate: 7/13/2026 11:40:44 AM Store: 1698\nQuantity\n\nFlip 4 5G 32GB Gray 2 available\nGalaxy A13 LTE 32GB Black 1 available\nGalaxy A17 5G 128GB Black 5 available\niPhone 16 128GB Black 1 available\niPhone 17 256GB Black 3 available\niPhone 17 Pro Max 256GB Deep Blue 2 available\niPhone 17 Pro Max 256GB Cosmic Orange 3 available\niPhone 17 Pro Max 256GB Silver 1 available\niPhone Air 256GB Space Black 5 available\niPhone Air 256GB Sky Blue 5 available\nMoto G 2026 128GB Slipstream 13 available\nMoto G Play 2026 64GB Tapestry 1 available\nMoto G Stylus 2025 128GB Blue 4 available"
       },
       "VZW": {
-        "last_updated": 1783877653160,
-        "text": "Verizon\nDate: 7/12/2026 1:33:54 PM Store: 9999\nQuantity\n\nDODE pe of f ck would y iPhone 17e 256GB Black 2 available\niPhone Air 256GB Space Black 5 available\nedback would you lik iPhone Air 256GB Sky Blue 5 available\nMoto G 5G 2024 128GB Green 1 available\nShi Moto G 5G 2024 unlocked 128GB Green 2 available\nMoto G 5G 2025 128GB Green 2 available\nMoto G Power 2024 unlocked 128GB Blue 6 available\nMoto G Power 2025 128GB Gray 2 available\nMoto G Stylus 2024 unlocked 256GB Beige 3 available\nTCL Flip 3 16GB Gray 4 available"
+        "last_updated": 1783957917926,
+        "text": ""
       }
     }
   }
