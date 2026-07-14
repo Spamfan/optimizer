@@ -576,7 +576,7 @@
             </div>
 
             <div id="status-container">
-                <div id="empty-cloud-message" style="display: none; color: #606770; font-size: 0.9em; font-style: italic; margin-bottom: 10px;">
+                <div id="empty-cloud-message" style="visibility: hidden; color: #606770; font-size: 0.9em; font-style: italic; margin-bottom: 10px;">
                     Upload your store's inventory with 
                     <div class="scanner-wrapper">
                         <a id="scanner-btn" class="scanner-link">Scanner</a>
@@ -792,7 +792,7 @@
         }
 
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.4.3';
+        const APP_VERSION = 'v1.4.4';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
         
@@ -1224,7 +1224,7 @@
             });
 
             const emptyCloudMsg = document.getElementById('empty-cloud-message');
-            if (emptyCloudMsg) emptyCloudMsg.style.display = 'none';
+            if (emptyCloudMsg) emptyCloudMsg.style.visibility = 'hidden';
 
             const wearablesToggle = document.getElementById('show-wearables-toggle');
             const wearablesLabel = document.getElementById('wearables-label');
@@ -2420,7 +2420,11 @@
             if (!unhideBtn) return;
             let anyHidden = false;
             ['att', 'vzw', 'tmo'].forEach(c => {
-                appState[c].emphasis.forEach(val => { if (val && val.hidden) anyHidden = true; });
+                appState[c].consolidatedList.forEach(item => {
+                    const key = item[0];
+                    const val = appState[c].emphasis.get(key);
+                    if (val && val.hidden) anyHidden = true;
+                });
             });
             unhideBtn.innerHTML = anyHidden ? SHOW_ICON_SVG : HIDE_ICON_SVG;
             unhideBtn.dataset.state = anyHidden ? 'show' : 'hide';
@@ -2429,12 +2433,21 @@
         unhideAllBtn.addEventListener('click', () => {
             const isShow = unhideAllBtn.dataset.state === 'show';
             ['att', 'vzw', 'tmo'].forEach(c => {
-                appState[c].consolidatedList.forEach(item => {
-                    const key = item[0];
-                    const val = appState[c].emphasis.get(key) || { partial: false, full: false, hidden: false };
-                    val.hidden = !isShow;
-                    appState[c].emphasis.set(key, val);
-                });
+                if (isShow) {
+                    appState[c].emphasis.forEach((val, key) => {
+                        if (val) {
+                            val.hidden = false;
+                            appState[c].emphasis.set(key, val);
+                        }
+                    });
+                } else {
+                    appState[c].consolidatedList.forEach(item => {
+                        const key = item[0];
+                        const val = appState[c].emphasis.get(key) || { partial: false, full: false, hidden: false };
+                        val.hidden = true;
+                        appState[c].emphasis.set(key, val);
+                    });
+                }
             });
             saveSettings();
             openEmphasisModal();
@@ -2743,7 +2756,7 @@
             const emptyCloudMsg = document.getElementById('empty-cloud-message');
             
             if (!storeData) {
-                if (emptyCloudMsg) emptyCloudMsg.style.display = 'block';
+                if (emptyCloudMsg) emptyCloudMsg.style.visibility = 'visible';
                 ['att', 'vzw', 'tmo'].forEach(c => {
                     const sec = document.getElementById(`${c}-status`);
                     if (sec) {
@@ -2755,7 +2768,7 @@
             }
 
             try {
-                if (emptyCloudMsg) emptyCloudMsg.style.display = 'none';
+                if (emptyCloudMsg) emptyCloudMsg.style.visibility = 'hidden';
                 ['att', 'vzw', 'tmo'].forEach(c => {
                     const sec = document.getElementById(`${c}-status`);
                     if (sec) {
@@ -2832,9 +2845,9 @@
             }
 
             if (validFilesCount === 0 && emptyCloudMsg) {
-                emptyCloudMsg.style.display = 'block';
+                emptyCloudMsg.style.visibility = 'visible';
             } else if (emptyCloudMsg) {
-                emptyCloudMsg.style.display = 'none';
+                emptyCloudMsg.style.visibility = 'hidden';
             }
 
             const wearablesToggle = document.getElementById('show-wearables-toggle');
@@ -2915,6 +2928,12 @@
                 try { pinInput.select(); } catch(e){}
             }, 150);
         }
+
+        storeInput.addEventListener('input', (e) => {
+            if (e.target.value.trim().length === 4) {
+                pinInput.focus();
+            }
+        });
 
         btnEnter.addEventListener('click', checkPin);
         
