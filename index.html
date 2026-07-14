@@ -165,7 +165,7 @@
         }
 
         .status-section {
-            display: none;
+            display: block;
             padding: 10px;
             border: 1px solid #dddfe2;
             border-radius: 6px;
@@ -424,15 +424,16 @@
         #dev-mode-text p { margin: 5px 0; }
         .emphasis-header { display: flex; align-items: center; font-weight: bold; font-size: 0.8em; color: #606770; background-color: #f0f2f5; padding: 10px 20px; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; }
         .emphasis-header-hide, .emphasis-header-partial, .emphasis-header-full, .emphasis-header-unhide { min-width: 40px; text-align: center; }
-        .emphasis-header-unhide { cursor: pointer; }
+        .emphasis-header-unhide { cursor: pointer; outline: none; }
+        .emphasis-header-unhide:focus { outline: 2px solid #1877f2; border-radius: 2px; }
         .emphasis-header-text { flex-grow: 1; padding-left: 5px; }
         .modal-body { flex-grow: 1; padding: 0; overflow-y: auto; }
         #emphasis-list-container { padding: 5px 20px; }
         #pdf-preview-iframe { width: 100%; height: 100%; border: none; }
         .emphasis-item { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #e9ebee; }
-        .emphasis-item-hide { min-width: 40px; text-align: center; }
+        .emphasis-item-hide { min-width: 40px; text-align: center; outline: none; }
+        .emphasis-item-hide:focus { outline: 2px solid #1877f2; border-radius: 2px; }
         .emphasis-item .hide-icon { width: 18px; height: 18px; cursor: pointer; fill: #606770; }
-        .emphasis-item.item-hidden .hide-icon { fill: #ccc; }
         .emphasis-item input[type="checkbox"] { min-width: 40px; height: 18px; margin: 0; }
         .emphasis-item-text { font-size: 0.9em; padding-left: 5px; transition: color 0.2s; }
         .emphasis-item.item-hidden .emphasis-item-text { color: #ccc; text-decoration: line-through; }
@@ -791,9 +792,13 @@
         }
 
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.4.2';
+        const APP_VERSION = 'v1.4.3';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
+        
+        // Dynamic Tabindexes for Keyboard Navigation
+        document.querySelectorAll('.trigger-link').forEach(el => el.setAttribute('tabindex', '0'));
+        document.querySelectorAll('.rt-btn').forEach(el => el.setAttribute('tabindex', '-1'));
 
         // --- SCANNER POPOVER LOGIC ---
         const scannerBtn = document.getElementById('scanner-btn');
@@ -1193,65 +1198,52 @@
             btnModeIndex.classList.add('active');
             btnModeInstore.classList.remove('active');
             
-            const statusContainer = document.getElementById('status-container');
-            const skel = document.createElement('div');
-            skel.className = 'skeleton-box mode-skel';
-            skel.innerHTML = '<div class="skeleton-bar"></div>';
-            statusContainer.appendChild(skel);
-            ['att', 'vzw', 'tmo'].forEach(c => {
-                const sec = document.getElementById(`${c}-status`);
-                if(sec) sec.style.display = 'none';
-            });
-            
-            setTimeout(() => {
-                document.querySelectorAll('.mode-skel').forEach(el => el.remove());
-                hasWatches = false;
-                ['att', 'vzw', 'tmo'].forEach(carrier => {
-                    appState[carrier].fileDate = '';
-                    appState[carrier].storeNumber = '';
-                    appState[carrier].autoHidden = [];
-                    
-                    const dummyList = [];
-                    if (EDLP_DATA[carrier]) {
-                        Object.keys(EDLP_DATA[carrier]).forEach(device => {
-                            const priceObj = EDLP_DATA[carrier][device];
-                            if ((priceObj.total && priceObj.total > 0) || (priceObj.monthly && priceObj.monthly > 0) || (priceObj.dp !== undefined && priceObj.dp > 0)) {
-                                dummyList.push([device, "", 1]);
-                            }
-                        });
-                    }
-                    appState[carrier].consolidatedList = consolidateInventory(dummyList);
-                    
-                    const statusSection = document.getElementById(`${carrier}-status`);
-                    statusSection.querySelector('.status-filename').textContent = "EDLP Index Mode Active";
-                    statusSection.style.display = 'block';
-
-                    const fileHasWatches = dummyList.some(item => item[0].startsWith('AW ') || item[0].toLowerCase().includes('apple watch'));
-                    if (fileHasWatches) hasWatches = true;
-                });
-
-                const emptyCloudMsg = document.getElementById('empty-cloud-message');
-                if (emptyCloudMsg) emptyCloudMsg.style.display = 'none';
-
-                const wearablesToggle = document.getElementById('show-wearables-toggle');
-                const wearablesLabel = document.getElementById('wearables-label');
-                if (hasWatches) {
-                    wearablesToggle.disabled = false;
-                    wearablesLabel.textContent = TRANSLATIONS[currentLang].ui.showWearables || 'Show wearables';
-                    wearablesToggle.parentElement.classList.remove('disabled');
-                    const savedSettings = JSON.parse(localStorage.getItem('betterInvSettings') || '{}');
-                    wearablesToggle.checked = (savedSettings.showWearables !== undefined) ? savedSettings.showWearables : true;
-                } else {
-                    wearablesToggle.checked = true;
-                    wearablesToggle.disabled = true;
-                    wearablesLabel.textContent = TRANSLATIONS[currentLang].ui.showWearablesNA || 'Show wearables (not applicable)';
-                    wearablesToggle.parentElement.classList.add('disabled');
+            hasWatches = false;
+            ['att', 'vzw', 'tmo'].forEach(carrier => {
+                appState[carrier].fileDate = '';
+                appState[carrier].storeNumber = '';
+                appState[carrier].autoHidden = [];
+                
+                const dummyList = [];
+                if (EDLP_DATA[carrier]) {
+                    Object.keys(EDLP_DATA[carrier]).forEach(device => {
+                        const priceObj = EDLP_DATA[carrier][device];
+                        if ((priceObj.total && priceObj.total > 0) || (priceObj.monthly && priceObj.monthly > 0) || (priceObj.dp !== undefined && priceObj.dp > 0)) {
+                            dummyList.push([device, "", 1]);
+                        }
+                    });
                 }
+                appState[carrier].consolidatedList = consolidateInventory(dummyList);
+                
+                const statusSection = document.getElementById(`${carrier}-status`);
+                statusSection.querySelector('.status-filename').textContent = "EDLP Index Mode Active";
+                statusSection.querySelector('.status-filename').style.color = "";
 
-                const warningEl = document.getElementById('global-outdated-warning');
-                if (warningEl) warningEl.style.display = 'none';
-                debugLog("Activated EDLP Index Mode", "sys");
-            }, 50);
+                const fileHasWatches = dummyList.some(item => item[0].startsWith('AW ') || item[0].toLowerCase().includes('apple watch'));
+                if (fileHasWatches) hasWatches = true;
+            });
+
+            const emptyCloudMsg = document.getElementById('empty-cloud-message');
+            if (emptyCloudMsg) emptyCloudMsg.style.display = 'none';
+
+            const wearablesToggle = document.getElementById('show-wearables-toggle');
+            const wearablesLabel = document.getElementById('wearables-label');
+            if (hasWatches) {
+                wearablesToggle.disabled = false;
+                wearablesLabel.textContent = TRANSLATIONS[currentLang].ui.showWearables || 'Show wearables';
+                wearablesToggle.parentElement.classList.remove('disabled');
+                const savedSettings = JSON.parse(localStorage.getItem('betterInvSettings') || '{}');
+                wearablesToggle.checked = (savedSettings.showWearables !== undefined) ? savedSettings.showWearables : true;
+            } else {
+                wearablesToggle.checked = true;
+                wearablesToggle.disabled = true;
+                wearablesLabel.textContent = TRANSLATIONS[currentLang].ui.showWearablesNA || 'Show wearables (not applicable)';
+                wearablesToggle.parentElement.classList.add('disabled');
+            }
+
+            const warningEl = document.getElementById('global-outdated-warning');
+            if (warningEl) warningEl.style.display = 'none';
+            debugLog("Activated EDLP Index Mode", "sys");
         };
 
         const activateInstoreMode = () => {
@@ -1259,25 +1251,12 @@
             btnModeInstore.classList.add('active');
             btnModeIndex.classList.remove('active');
             
-            const statusContainer = document.getElementById('status-container');
-            const skel = document.createElement('div');
-            skel.className = 'skeleton-box mode-skel';
-            skel.innerHTML = '<div class="skeleton-bar"></div>';
-            statusContainer.appendChild(skel);
-            ['att', 'vzw', 'tmo'].forEach(c => {
-                const sec = document.getElementById(`${c}-status`);
-                if(sec) sec.style.display = 'none';
-            });
-            
-            setTimeout(() => {
-                document.querySelectorAll('.mode-skel').forEach(el => el.remove());
-                const lastStore = localStorage.getItem('lastStore');
-                if (lastStore && window.cloudInventoryData) {
-                    loadCloudStore(lastStore);
-                } else {
-                    debugLog("No store or cloud data available for In-store mode.", "sys");
-                }
-            }, 100);
+            const lastStore = localStorage.getItem('lastStore');
+            if (lastStore && window.cloudInventoryData) {
+                loadCloudStore(lastStore);
+            } else {
+                debugLog("No store or cloud data available for In-store mode.", "sys");
+            }
         };
 
         document.getElementById('mode-segmented-control').addEventListener('click', (e) => {
@@ -1433,7 +1412,7 @@
         const copyLogBtn = document.getElementById('copy-log-btn');
 
         // --- DYNAMIC HTML INJECTION ---
-        document.getElementById('emphasis-modal').innerHTML = `<div class="modal-content"><div class="modal-header"><h2 id="emphasis-modal-title" data-i18n="highlightTitle">Highlight Inventory</h2><span class="close-btn" id="emphasis-close-btn">&times;</span></div><div class="modal-body"><div class="emphasis-header"><div class="emphasis-header-unhide" id="unhide-all-btn" title="Unhide All">${SHOW_ICON_SVG}</div><div class="emphasis-header-hide"></div><div class="emphasis-header-partial"><input type="checkbox" id="master-partial-checkbox" title="Select/Deselect All Partial"></div><div class="emphasis-header-full"><input type="checkbox" id="master-full-checkbox" title="Select/Deselect All Full"></div><div class="emphasis-header-text" data-i18n="highlightSub">(Highlight partial/full)</div></div><div id="emphasis-list-container"></div></div><div class="modal-footer"><button id="emphasis-done-btn" data-i18n="doneBtn">Done</button></div></div>`;
+        document.getElementById('emphasis-modal').innerHTML = `<div class="modal-content"><div class="modal-header"><h2 id="emphasis-modal-title" data-i18n="highlightTitle">Highlight Inventory</h2><span class="close-btn" id="emphasis-close-btn">&times;</span></div><div class="modal-body"><div class="emphasis-header"><div class="emphasis-header-unhide" id="unhide-all-btn" title="Unhide All" tabindex="0">${SHOW_ICON_SVG}</div><div class="emphasis-header-hide"></div><div class="emphasis-header-partial"><input type="checkbox" id="master-partial-checkbox" title="Select/Deselect All Partial"></div><div class="emphasis-header-full"><input type="checkbox" id="master-full-checkbox" title="Select/Deselect All Full"></div><div class="emphasis-header-text" data-i18n="highlightSub">(Highlight partial/full)</div></div><div id="emphasis-list-container"></div></div><div class="modal-footer"><button id="emphasis-done-btn" data-i18n="doneBtn">Done</button></div></div>`;
         document.getElementById('dev-mode-modal').innerHTML = `<div class="modal-content"><div class="modal-header"><h2 data-i18n="devModeTitle">Dev Mode</h2><span class="close-btn" id="dev-mode-close-btn">&times;</span></div><div class="modal-body"><div id="dev-mode-text"><p data-i18n-html="devModeP1"><strong>developer mode activated lol</strong></p><p data-i18n="devModeP2">(this doesn't do anything)</p></div></div></div>`;
         
         // --- DYNAMIC UI ELEMENT SELECTORS ---
@@ -1972,8 +1951,6 @@
             const hasRealText = tempDiv.textContent.trim().length > 0;
             
             if (comments && hasRealText) { 
-                yPosition += lineHeight; 
-                
                 const parseRichTextNode = (node) => {
                     let segments = [];
                     if (node.nodeType === 3) {
@@ -2040,7 +2017,6 @@
                 });
                 yPosition += lineHeight;
             }
-            yPosition += sectionSpacing;
             const contentStartY = yPosition;
 
             // --- v59: SMART FLOW ENGINE ---
@@ -2437,12 +2413,26 @@
             // v40: Ensure full fallback object includes hidden:false
             const currentEmphasis = existingState || { partial: false, full: false, hidden: false }; 
             
-            const itemDiv = document.createElement('div'); itemDiv.className = 'emphasis-item'; if (currentEmphasis.hidden) itemDiv.classList.add('item-hidden'); const hideDiv = document.createElement('div'); hideDiv.className = 'emphasis-item-hide'; hideDiv.innerHTML = HIDE_ICON_SVG; hideDiv.dataset.key = modelAndCapacity; hideDiv.dataset.carrier = sourceCarrier; const partialCheckbox = document.createElement('input'); partialCheckbox.type = 'checkbox'; partialCheckbox.checked = currentEmphasis.partial; partialCheckbox.disabled = currentEmphasis.hidden; partialCheckbox.dataset.key = modelAndCapacity; partialCheckbox.dataset.carrier = sourceCarrier; partialCheckbox.dataset.type = 'partial'; const fullCheckbox = document.createElement('input'); fullCheckbox.type = 'checkbox'; fullCheckbox.checked = currentEmphasis.full; fullCheckbox.disabled = currentEmphasis.hidden; fullCheckbox.dataset.key = modelAndCapacity; fullCheckbox.dataset.carrier = sourceCarrier; fullCheckbox.dataset.type = 'full'; const textDiv = document.createElement('div'); textDiv.className = 'emphasis-item-text'; textDiv.textContent = `${modelAndCapacity} - ${details}`; itemDiv.appendChild(hideDiv); itemDiv.appendChild(partialCheckbox); itemDiv.appendChild(fullCheckbox); itemDiv.appendChild(textDiv); listContainer.appendChild(itemDiv); }); }); emphasisModal.style.display = 'flex'; };
+            const itemDiv = document.createElement('div'); itemDiv.className = 'emphasis-item'; if (currentEmphasis.hidden) itemDiv.classList.add('item-hidden'); const hideDiv = document.createElement('div'); hideDiv.className = 'emphasis-item-hide'; hideDiv.innerHTML = currentEmphasis.hidden ? SHOW_ICON_SVG : HIDE_ICON_SVG; hideDiv.tabIndex = 0; hideDiv.dataset.key = modelAndCapacity; hideDiv.dataset.carrier = sourceCarrier; const partialCheckbox = document.createElement('input'); partialCheckbox.type = 'checkbox'; partialCheckbox.checked = currentEmphasis.partial; partialCheckbox.disabled = currentEmphasis.hidden; partialCheckbox.dataset.key = modelAndCapacity; partialCheckbox.dataset.carrier = sourceCarrier; partialCheckbox.dataset.type = 'partial'; const fullCheckbox = document.createElement('input'); fullCheckbox.type = 'checkbox'; fullCheckbox.checked = currentEmphasis.full; fullCheckbox.disabled = currentEmphasis.hidden; fullCheckbox.dataset.key = modelAndCapacity; fullCheckbox.dataset.carrier = sourceCarrier; fullCheckbox.dataset.type = 'full'; const textDiv = document.createElement('div'); textDiv.className = 'emphasis-item-text'; textDiv.textContent = `${modelAndCapacity} - ${details}`; itemDiv.appendChild(hideDiv); itemDiv.appendChild(partialCheckbox); itemDiv.appendChild(fullCheckbox); itemDiv.appendChild(textDiv); listContainer.appendChild(itemDiv); }); }); updateMasterHideIcon(); emphasisModal.style.display = 'flex'; };
+
+        const updateMasterHideIcon = () => {
+            const unhideBtn = document.getElementById('unhide-all-btn');
+            if (!unhideBtn) return;
+            let anyHidden = false;
+            ['att', 'vzw', 'tmo'].forEach(c => {
+                appState[c].emphasis.forEach(val => { if (val && val.hidden) anyHidden = true; });
+            });
+            unhideBtn.innerHTML = anyHidden ? SHOW_ICON_SVG : HIDE_ICON_SVG;
+            unhideBtn.dataset.state = anyHidden ? 'show' : 'hide';
+        };
 
         unhideAllBtn.addEventListener('click', () => {
+            const isShow = unhideAllBtn.dataset.state === 'show';
             ['att', 'vzw', 'tmo'].forEach(c => {
-                appState[c].emphasis.forEach((val, key) => {
-                    val.hidden = false;
+                appState[c].consolidatedList.forEach(item => {
+                    const key = item[0];
+                    const val = appState[c].emphasis.get(key) || { partial: false, full: false, hidden: false };
+                    val.hidden = !isShow;
                     appState[c].emphasis.set(key, val);
                 });
             });
@@ -2515,7 +2505,16 @@
         // V48 Log
         debugLog(`HIDE CLICK: Key '${key}' | Pre-State: ${JSON.stringify(state)}`, "sys");
 
-        state.hidden = !state.hidden; appState[carrier].emphasis.set(key, state); const parentItem = target.closest('.emphasis-item'); parentItem.classList.toggle('item-hidden'); parentItem.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = state.hidden); saveSettings(); });
+        state.hidden = !state.hidden; appState[carrier].emphasis.set(key, state); const parentItem = target.closest('.emphasis-item'); parentItem.classList.toggle('item-hidden'); parentItem.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = state.hidden); target.innerHTML = state.hidden ? SHOW_ICON_SVG : HIDE_ICON_SVG; updateMasterHideIcon(); saveSettings(); });
+        
+        emphasisModal.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                if (document.activeElement && (document.activeElement.classList.contains('emphasis-item-hide') || document.activeElement.id === 'unhide-all-btn')) {
+                    e.preventDefault();
+                    document.activeElement.click();
+                }
+            }
+        });
         // v40: Updated fallback object in change listener
         emphasisModal.addEventListener('change', (e) => { const target = e.target; if (target.type !== 'checkbox') return; const isMaster = target.id.startsWith('master-'); if (isMaster) { const masterType = target.id.includes('partial') ? 'partial' : 'full'; const isChecking = target.checked; const allItems = emphasisModal.querySelectorAll('.emphasis-item:not(.item-hidden)'); allItems.forEach(item => { const partialBox = item.querySelector('[data-type="partial"]'); const fullBox = item.querySelector('[data-type="full"]'); const key = partialBox.dataset.key; const carrier = partialBox.dataset.carrier; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false, hidden: false }; if (masterType === 'partial') { partialBox.checked = isChecking; state.partial = isChecking; if (!isChecking) { fullBox.checked = false; state.full = false; } } else { fullBox.checked = isChecking; state.full = isChecking; if (isChecking) { partialBox.checked = true; state.partial = true; } } appState[carrier].emphasis.set(key, state); }); const masterPartial = document.getElementById('master-partial-checkbox'); const masterFull = document.getElementById('master-full-checkbox'); if (masterType === 'full' && isChecking) masterPartial.checked = true; if (masterType === 'partial' && !isChecking) masterFull.checked = false; } else if (target.dataset.key) { const { key, carrier, type } = target.dataset; const state = appState[carrier].emphasis.get(key) || { partial: false, full: false, hidden: false }; state[type] = target.checked; const parentItem = target.closest('.emphasis-item'); if (parentItem) { const partialBox = parentItem.querySelector('[data-type="partial"]'); const fullBox = parentItem.querySelector('[data-type="full"]'); if (type === 'full' && target.checked) { state.partial = true; if (partialBox) partialBox.checked = true; } if (type === 'partial' && !target.checked) { state.full = false; if (fullBox) fullBox.checked = false; } } appState[carrier].emphasis.set(key, state); } saveSettings(); });
         
@@ -2744,26 +2743,26 @@
             const emptyCloudMsg = document.getElementById('empty-cloud-message');
             
             if (!storeData) {
-                const statusContainer = document.getElementById('status-container');
-                statusContainer.querySelectorAll('.status-section').forEach(el => el.style.display = 'none');
                 if (emptyCloudMsg) emptyCloudMsg.style.display = 'block';
+                ['att', 'vzw', 'tmo'].forEach(c => {
+                    const sec = document.getElementById(`${c}-status`);
+                    if (sec) {
+                        sec.querySelector('.status-filename').textContent = "None found";
+                        sec.querySelector('.status-filename').style.color = "#8d949e";
+                    }
+                });
                 return;
             }
 
             try {
-                const statusContainer = document.getElementById('status-container');
-                statusContainer.querySelectorAll('.status-section').forEach(el => el.style.display = 'none');
                 if (emptyCloudMsg) emptyCloudMsg.style.display = 'none';
-                
-                let fileCount = 0;
-                ['ATT', 'VZW', 'TMO'].forEach(c => { if(storeData[c] && storeData[c].text) fileCount++; });
-                
-                for (let i = 0; i < fileCount; i++) {
-                    const skel = document.createElement('div');
-                    skel.className = 'skeleton-box';
-                    skel.innerHTML = '<div class="skeleton-bar"></div>';
-                    statusContainer.appendChild(skel);
-                }
+                ['att', 'vzw', 'tmo'].forEach(c => {
+                    const sec = document.getElementById(`${c}-status`);
+                    if (sec) {
+                        sec.querySelector('.status-filename').textContent = "Loading...";
+                        sec.querySelector('.status-filename').style.color = "#8d949e";
+                    }
+                });
             } catch (e) {}
 
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -2772,27 +2771,29 @@
             let validFilesCount = 0;
 
             for (const c of ['ATT', 'VZW', 'TMO']) {
+                const carrier = c.toLowerCase();
+                const statusSection = document.getElementById(`${carrier}-status`);
                 if (storeData[c] && storeData[c].text) {
                     try {
                         const text = storeData[c].text;
-                        const carrier = categorizePdf(text);
-                        if (carrier === 'unknown') continue;
+                        const parsedCarrier = categorizePdf(text);
+                        const targetCarrier = parsedCarrier !== 'unknown' ? parsedCarrier : carrier;
+                        const targetSection = document.getElementById(`${targetCarrier}-status`);
 
-                        appState[carrier].fileDate = '';
-                        appState[carrier].storeNumber = '';
-                        appState[carrier].consolidatedList = [];
-                        appState[carrier].autoHidden = [];
+                        appState[targetCarrier].fileDate = '';
+                        appState[targetCarrier].storeNumber = '';
+                        appState[targetCarrier].consolidatedList = [];
+                        appState[targetCarrier].autoHidden = [];
 
                         const dateMatch = text.match(/Date:\s*(.*?)(?=\s+Store)/);
-                        if (dateMatch && dateMatch[1]) appState[carrier].fileDate = dateMatch[1].trim();
+                        if (dateMatch && dateMatch[1]) appState[targetCarrier].fileDate = dateMatch[1].trim();
                         
                         const storeMatch = text.match(/Store:\s*(\d+)/);
-                        if (storeMatch && storeMatch[1]) appState[carrier].storeNumber = storeMatch[1].trim();
+                        if (storeMatch && storeMatch[1]) appState[targetCarrier].storeNumber = storeMatch[1].trim();
 
-                        // Smart Reader: Check if >= 8 hours old
                         let isExpired = false;
-                        if (appState[carrier].fileDate) {
-                            const datePart = appState[carrier].fileDate.match(/(\d{1,2}\/\d{1,2}\/\d{2,4}\s+\d{1,2}:\d{2}(:\d{2})?\s+[AP]M)/i);
+                        if (appState[targetCarrier].fileDate) {
+                            const datePart = appState[targetCarrier].fileDate.match(/(\d{1,2}\/\d{1,2}\/\d{2,4}\s+\d{1,2}:\d{2}(:\d{2})?\s+[AP]M)/i);
                             if (datePart) {
                                 const fileTime = new Date(datePart[0]).getTime();
                                 const hoursOld = (Date.now() - fileTime) / (1000 * 60 * 60);
@@ -2802,35 +2803,30 @@
                             }
                         }
 
-                        const statusSection = document.getElementById(`${carrier}-status`);
-                        
                         if (isExpired) {
-                            // File is expired, ignore the data
-                            appState[carrier].consolidatedList = [];
-                            appState[carrier].autoHidden = [];
-                            statusSection.style.display = 'none';
+                            appState[targetCarrier].consolidatedList = [];
+                            appState[targetCarrier].autoHidden = [];
+                            targetSection.querySelector('.status-filename').textContent = "None found";
+                            targetSection.querySelector('.status-filename').style.color = "#8d949e";
                         } else {
-                            // File is fresh, parse normally
                             const { preFilterList, postFilterList, autoHidden } = parseInventoryText(text);
-                            appState[carrier].consolidatedList = consolidateInventory(postFilterList);
-                            appState[carrier].autoHidden = autoHidden;
-                            statusSection.querySelector('.status-filename').textContent = `Cloud File - ${c}`;
-                            statusSection.querySelector('.status-filename').style.color = ""; // Reset color
-                            statusSection.style.display = 'block';
+                            appState[targetCarrier].consolidatedList = consolidateInventory(postFilterList);
+                            appState[targetCarrier].autoHidden = autoHidden;
+                            targetSection.querySelector('.status-filename').textContent = `Cloud File - ${c}`;
+                            targetSection.querySelector('.status-filename').style.color = ""; 
                             validFilesCount++;
                         }
 
-                        try {
-                            const statusContainer = document.getElementById('status-container');
-                            const firstSkel = statusContainer.querySelector('.skeleton-box');
-                            if (firstSkel) firstSkel.remove();
-                        } catch (e) {}
-
-                        const fileHasWatches = postFilterList.some(item => item[0].startsWith('AW ') || item[0].toLowerCase().includes('apple watch'));
+                        const fileHasWatches = postFilterList && postFilterList.some(item => item[0].startsWith('AW ') || item[0].toLowerCase().includes('apple watch'));
                         if (fileHasWatches) hasWatches = true;
 
                     } catch (err) {
                         debugLog(`❌ Cloud Parse CRASH: ${err.message}`, 'sys');
+                    }
+                } else {
+                    if (statusSection) {
+                        statusSection.querySelector('.status-filename').textContent = "None found";
+                        statusSection.querySelector('.status-filename').style.color = "#8d949e";
                     }
                 }
             }
