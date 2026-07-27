@@ -822,7 +822,7 @@
         }
 
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.4.7';
+        const APP_VERSION = 'v1.4.8';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
         
@@ -911,7 +911,7 @@
             'Classic': 'Classic', 'Galaxy A03': 'A03', 'Galaxy A13 LTE': 'A13', 'Galaxy A15 5G': 'A15', 'Galaxy A16 5G': 'A16', 'Galaxy A35 5G': 'A35', 'Galaxy S24 FE': '24FE', 'Galaxy S25 FE': '25FE', 'Galaxy S25 Plus 5G': 'S25+', 'Galaxy S25 Ultra 5G': 'S25U', 'Galaxy Z Flip 4 5G': 'GZF4',
             'iPhone 15 Pro Max': 'IP15PM', 'iPhone 15 Pro': 'IP15PR', 'iPhone 15 Plus': 'IP15+', 'iPhone 15': 'IP15', 
             'iPhone 16 Pro Max': 'IP16PM', 'iPhone 16 Pro': 'IP16PR', 'iPhone 16 Plus': 'IP16+', 'iPhone 16e': 'IP16e', 'iPhone 16': 'IP16', 
-            'iPhone 17 Pro Max': 'IP17PM', 'iPhone 17 Pro': 'IP17PR', 'iPhone 17': 'IP17', 'iPhone Air': 'IP AIR', 'iPhone 17e': 'IP17e',
+            'iPhone 17 Pro Max': 'IP17PM', 'iPhone 17 Pro': 'IP17PR', 'iPhone 17': 'IP17', 'iPhone Air': 'IP AIR', 'iPhone 17e': 'IP17e', 'SOMM iPhone 17e': 'IP17e (SOMM)',
             'iPhone 13 Pro Max': 'IP13PM', 'iPhone 13 Pro': 'IP13PR', 'iPhone 13': 'IP13',
             'iPhone 12 Pro Max': 'IP12PM', 'iPhone 12 Pro': 'IP12PR', 'iPhone 12': 'IP12',
             'iPhone 11 Pro Max': 'IP11PM',
@@ -1467,7 +1467,7 @@
                 for (const carrier of priorityOrder) { 
                     // Check for iPhones OR Watches
                     if (appState[carrier].consolidatedList.some(item => 
-                        item[0].toLowerCase().startsWith('iphone') || 
+                        item[0].toLowerCase().includes('iphone') || 
                         item[0].startsWith('AW ') || 
                         item[0].toLowerCase().includes('apple watch')
                     )) { iphoneSource = carrier; break; } 
@@ -1476,13 +1476,13 @@
                 for (const carrier of ['att', 'vzw', 'tmo']) { 
                     // Filter out BOTH iPhones and Watches from carrier lists
                     preparedState[carrier].consolidatedList = appState[carrier].consolidatedList.filter(item => 
-                        !item[0].toLowerCase().startsWith('iphone') &&
+                        !item[0].toLowerCase().includes('iphone') &&
                         !item[0].startsWith('AW ') &&
                         !item[0].toLowerCase().includes('apple watch')
                     ); 
                     if (carrier === iphoneSource) { 
                         const appleItems = appState[carrier].consolidatedList.filter(item => 
-                            item[0].toLowerCase().startsWith('iphone') || 
+                            item[0].toLowerCase().includes('iphone') || 
                             item[0].startsWith('AW ') || 
                             item[0].toLowerCase().includes('apple watch')
                         ).map(item => ({ modelAndCapacity: item[0], details: item[1], sourceCarrier: carrier })); 
@@ -2441,6 +2441,14 @@
             if (event.target == emphasisModal) emphasisModal.style.display = 'none'; 
             if (event.target == devModeModal && devModalCloseable.backdrop) devModeModal.style.display = 'none'; 
             if (event.target == backupModal) backupModal.style.display = 'none';
+        });
+
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                emphasisModal.style.display = 'none';
+                if (devModalCloseable.backdrop) devModeModal.style.display = 'none';
+                backupModal.style.display = 'none';
+            }
         });
 
         // v48 Persistence Debug: Added logging to the click listener
