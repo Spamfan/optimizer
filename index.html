@@ -898,92 +898,14 @@
             consoleOut.appendChild(div);
         };
 
-        const STORE_NICKNAMES = { 
-            '1698': 'Hooksett', '2399': 'Manchester', '1762': 'Seabrook',
-            '2758': 'Plymouth', '1753': 'Derry', '2639': 'Gilford', '3535': 'Epping', '1785': 'Hudson', '2369': 'Tilton', '1796': 'Amherst',
-            '2202': 'Windham', '1868': 'Auburn', '2143': 'Skowhegan', '2530': 'Rutland', '1856': 'Bangor', '1788': 'Scarborough',
-            '2222': 'Tewksbury', '2118': 'Lunenburg',
-            '2152': 'Albany'
-        };
+        let STORE_NICKNAMES = {};
 
         // --- EDLP DATA & ABBREVIATIONS ---
-        const DEVICE_ABBREVIATIONS = {
-            'Classic': 'Classic', 'Galaxy A03': 'A03', 'Galaxy A13 LTE': 'A13', 'Galaxy A15 5G': 'A15', 'Galaxy A16 5G': 'A16', 'Galaxy A35 5G': 'A35', 'Galaxy S24 FE': '24FE', 'Galaxy S25 FE': '25FE', 'Galaxy S25 Plus 5G': 'S25+', 'Galaxy S25 Ultra 5G': 'S25U', 'Galaxy Z Flip 4 5G': 'GZF4',
-            'iPhone 15 Pro Max': 'IP15PM', 'iPhone 15 Pro': 'IP15PR', 'iPhone 15 Plus': 'IP15+', 'iPhone 15': 'IP15', 
-            'iPhone 16 Pro Max': 'IP16PM', 'iPhone 16 Pro': 'IP16PR', 'iPhone 16 Plus': 'IP16+', 'iPhone 16e': 'IP16e', 'iPhone 16': 'IP16', 
-            'iPhone 17 Pro Max': 'IP17PM', 'iPhone 17 Pro': 'IP17PR', 'iPhone 17': 'IP17', 'iPhone Air': 'IP AIR', 'iPhone 17e': 'IP17e', 'SOMM iPhone 17e': 'IP17e (SOMM)',
-            'iPhone 13 Pro Max': 'IP13PM', 'iPhone 13 Pro': 'IP13PR', 'iPhone 13': 'IP13',
-            'iPhone 12 Pro Max': 'IP12PM', 'iPhone 12 Pro': 'IP12PR', 'iPhone 12': 'IP12',
-            'iPhone 11 Pro Max': 'IP11PM',
-            'Moto G 5G 2024': 'MG24', 'Moto G 5G 2025': 'MG25', 'Moto G Power 2024': 'PWR24', 'Moto G Power 2025': 'PWR25', 'Moto G Stylus 2024': 'STYL24', 'Moto G Stylus 2025': 'STYL25', 'One Ace 5G': 'ACE', 'REVVL 6': 'REV6', 'TCL Flip 3': 'Flip3',
-            'Galaxy S24 Plus': 'S24+', 'Galaxy S23 Plus': 'S23+', 'Galaxy S22 Plus': 'S22+', 'Galaxy S21 Plus': 'S21+', 'Galaxy S20 Plus': 'S20+', 'Galaxy S26 Plus 5G': 'S26+', 'Galaxy S26 Plus': 'S26+',
-            'Cingular Flip 4 4GB': 'Flip4 4GB', 'Galaxy A14 64GB': 'A14 64GB', 'Galaxy A23 64GB': 'A23 64GB', 'Galaxy A54 5G 128GB': 'A54 128GB', 'Moto G Play 2023 32GB': 'PLAY23 32GB',
-            'iPhone 14 Plus': 'IP14+',
-            'Galaxy S21 FE': '21FE',
-            'Moto G Stylus 5G 2023': 'STYL23',
-            'iPhone 14': 'IP14',
-            'G Stylus 5G': 'STYL 5G',
-            'G Stylus': 'STYL',
-            'MOTO G Stylus 5G': 'STYL 5G',
-            'Galaxy A52 5G': 'A52 5G',
-            'Galaxy A13 5G': 'A13 5G',
-            'Galaxy A32 5G': 'A32 5G',
-            'Galaxy A23 5G': 'A23 5G',
-            'Galaxy A53 5G': 'A53 5G',
-            'iPhone SE 2nd Gen Rev': 'SE2 Rev',
-            'iPhone SE 3rd Gen': 'SE3',
-            'Moto G 5G 23': 'MG23',
-            'Galaxy S21 5G': 'S21 5G',
-            'Galaxy A17 5G': 'A17',
-            'Galaxy S24 Ultra 5G': 'S24U', 'Galaxy S26 Ultra 5G': 'S26U', 'Galaxy S26 Ultra': 'S26U', 'Galaxy S20 Ultra 5G': 'S20U 5G',
-            'Galaxy A35 128GB': 'A35',
-            'Apple Watch S10': 'AW S10',
-            'Apple Watch S9': 'AW S9',
-            'Apple Watch S8': 'AW S8',
-            'Apple Watch S7': 'AW S7',
-            'Apple Watch S6': 'AW S6',
-            'Apple Watch SE2 Rev': 'AW SE2 Rev',
-            'Apple Watch SE2': 'AW SE2',
-            'Apple Watch SE': 'AW SE',
-            'Apple Watch Ultra 2': 'AW ULT2',
-            'Apple Watch Ultra': 'AW ULT',
-            'Galaxy S23 128GB': 'S23',
-            'Galaxy S23 Ultra 5G': 'S23U',
-            'Galaxy S23': 'S23',
-            'Moto G Power 2026': 'PWR26',
-            'Moto G Stylus 2026': 'STYL26',
-            'Moto G Play 2026': 'PLAY26',
-            'Moto G 2026': 'MG26',
-            // v57 Generic Additions
-            'Galaxy A54': 'A54', 'Galaxy A35': 'A35', 'Galaxy A14': 'A14', 'Galaxy A13': 'A13', 'Galaxy A12': 'A12', 'Galaxy A11': 'A11', 'Galaxy A71': 'A71', 'Galaxy Note9': 'Note9', 'Galaxy A42 5G': 'A42 5G',
-            'Moto G Stylus': 'STYL', 'Moto G Power': 'PWR', 'Moto G': 'MG', 'Moto E6': 'E6', 'Revvl': 'REVVL'
-        };
+        let DEVICE_ABBREVIATIONS = {};
 
-        const COLOR_ABBREVIATIONS = {
-            'Beige': 'BGE', 'Black': 'BLK', 'Black Titanium': 'BLK', 'Blue': 'BLU', 'Cosmic Orange': 'ORNG', 'Deep Blue': 'BLU', 'Desert Titanium': 'DSRT', 'Graphite': 'BLK', 'Gray': 'GRY', 'Green': 'GRN', 'Mist Blue': 'BLU', 'Natural Titanium': 'NTRL', 'Navy': 'BLU', 'Sky Blue': 'BLU', 'Space Black': 'BLK', 'Titanium Black': 'BLK', 'Ultramarine': 'BLU', 'White': 'WHTE',
-            'Onyx Black': 'BLK', 'Onyx BLK': 'BLK', 'Slipstream': 'GRY', 'Coal Smoke': 'BLK', 'Tapestry': 'BLU',
-            'Midnight': 'NAVY', 'Caramel Latte': 'BEIGE', 'Olive': 'GRN',
-            'Silver': 'SLVR', 'Soft Pink': 'PNK'
-        };
+        let COLOR_ABBREVIATIONS = {};
 
-        const HIDDEN_CLEANUP = {
-            'Demo - iPhone 16 Ultramari ne Demo 128GB': 'Demo IP16',
-            'Demo - Galaxy A16 128GB': 'Demo A16',
-            'Demo - iPhone 16 Plus 128GB': 'Demo IP16+',
-            'Demo - iPhone 16 128GB': 'Demo IP16',
-            'Demo - Galaxy S24 FE 128GB': 'Demo S24FE',
-            'Demo - Galaxy A15 5G 128GB': 'Demo A15',
-            'Demo - Galaxy S25 Plus 256GB': 'Demo S25+',
-            'Demo - Galaxy S25 Ultra 256GB': 'Demo S25U',
-            'Demo - iPhone 16e 128GB': 'Demo IP16e',
-            'Demo - iPhone 17 DEMO 256GB': 'Demo IP17',
-            'Demo - iPhone 17 Pro Max DEMO 256GB': 'Demo IP17PM',
-            'Demo - iPhone Air DEMO 256GB': 'Demo IP Air',
-            'Demo - iPhone 17 Pro DEMO 256GB': 'Demo IP17PR',
-            'Demo - iPhone 17 Plus DEMO 256GB': 'Demo IP17+',
-            'Demo - Galaxy S25 128GB': 'Demo S25'
-            // v55: Removed "Unlocked" entries to allow dynamic capacity handling
-        };
+        let HIDDEN_CLEANUP = {};
 
       // Offline Backup Data (v1.4.5 Dynamic)
         let EDLP_DATA = { att: {}, vzw: {}, tmo: {} };
@@ -994,16 +916,29 @@
                 const deviceCount = Object.keys(data.devices).length;
                 log(`📦 DATA RECEIVED (${source}): ${deviceCount} devices found.`, 'edlp');
 
+                // Update dynamic dictionaries from cloud
+                STORE_NICKNAMES = data.store_nicknames || {};
+                COLOR_ABBREVIATIONS = data.color_abbreviations || {};
+                HIDDEN_CLEANUP = data.hidden_cleanup || {};
+                DEVICE_ABBREVIATIONS = {}; // Reset before repopulating
+
                 const newEdlp = { att: {}, vzw: {}, tmo: {} };
                 Object.keys(data.devices).forEach(key => {
                     const device = data.devices[key];
                     const name = device.name;
-                    if (device.att) newEdlp.att[name] = device.att;
-                    if (device.vzw) newEdlp.vzw[name] = device.vzw;
-                    if (device.tmo) {
-                        newEdlp.tmo[name] = device.tmo;
-                        if (device.tmo.monthly !== undefined) {
-                            newEdlp.tmo[name].mo = device.tmo.monthly;
+                    
+                    if (name && device.abbr) {
+                        DEVICE_ABBREVIATIONS[name] = device.abbr;
+                    }
+
+                    if (!device.is_ghost) {
+                        if (device.att) newEdlp.att[name] = device.att;
+                        if (device.vzw) newEdlp.vzw[name] = device.vzw;
+                        if (device.tmo) {
+                            newEdlp.tmo[name] = device.tmo;
+                            if (device.tmo.monthly !== undefined) {
+                                newEdlp.tmo[name].mo = device.tmo.monthly;
+                            }
                         }
                     }
                 });
