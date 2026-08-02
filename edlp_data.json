@@ -1069,9 +1069,9 @@
     "galaxys26ultra5g": {
       "abbr": "S26U",
       "att": {
-        "last_updated": 1785688955275,
-        "monthly": 0.89,
-        "total": 31.92
+        "last_updated": 1785698209336,
+        "monthly": 31.92,
+        "total": 1149
       },
       "is_ghost": true,
       "last_updated": 1785392687243,
