@@ -1069,7 +1069,7 @@
     "galaxys26ultra5g": {
       "abbr": "S26U",
       "att": {
-        "last_updated": 1785688953578,
+        "last_updated": 1785688955275,
         "monthly": 0.89,
         "total": 31.92
       },
@@ -1078,12 +1078,12 @@
       "name": "Galaxy S26 Ultra 5G",
       "tmo": {
         "dp": 0,
-        "last_updated": 1785688953578,
+        "last_updated": 1785688955275,
         "monthly": 0,
         "total": 0
       },
       "vzw": {
-        "last_updated": 1785688953578,
+        "last_updated": 1785688955275,
         "monthly": 0,
         "total": 0
       }
