@@ -2,15 +2,15 @@
   "inventory": {
     "1698": {
       "ATT": {
-        "last_updated": 1787326245088,
-        "text": ""
+        "last_updated": 1787326326298,
+        "text": "AT&T\nDate: 8/21/2026 11:32:01 AM Store: 1698\nQuantity\n\nClassic 8GB Black 2 available\nGalaxy A17 5G 128GB Black 3 available\nGalaxy S24 FE 128GB Black 1 available\nGalaxy S25 FE 128GB Black 1 available\nGalaxy S25 Plus 5G 256GB Navy 1 available\nGalaxy S25 Ultra 5G 256GB Black 3 available\nGalaxy S26 Ultra 256GB Black 3 available\nMoto G 2026 128GB Slipstream 1 available\nMoto G Power 2026 128GB Evening Blue 1 available"
       },
       "TMO": {
         "last_updated": 1787326239995,
         "text": "T-Mobile\nDate: 8/21/2026 11:30:36 AM Store: 1698\nQuantity\n\nFlip 4 5G 32GB Gray 1 available\nGalaxy A17 5G 128GB Black 4 available\nMoto G 2026 128GB Slipstream 5 available\nMoto G Play 2026 64GB Tapestry 2 available"
       },
       "VZW": {
-        "last_updated": 1787326283056,
+        "last_updated": 1787326304893,
         "text": "Verizon\nDate: 8/21/2026 11:30:59 AM Store: 1698\nQuantity\n\niPhone 16 128GB Black 2 available\niPhone 17 256GB Black 2 available\niPhone 17 Pro Max 256GB Deep Blue 2 available\niPhone 17 Pro Max 256GB Cosmic Orange 4 available\niPhone 17 Pro Max 256GB Silver 1 available\niPhone Air 256GB Space Black 5 available\niPhone Air 256GB Sky Blue 3 available\nGalaxy S26 Ultra 256GB Black 2 available\nMoto G 2026 128GB Slipstream 1 available\nMoto G Play 2026 64GB Tapestry 2 available\nMoto G Power 2026 128GB Beige 1 available\nTCL Flip 3 16GB Gray 3 available"
       }
     }
