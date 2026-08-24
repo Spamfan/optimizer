@@ -1,5 +1,5 @@
 
-    // Optimizer Core Logic v1.5.0
+    // Optimizer Core Logic v1.5.2
     document.addEventListener('DOMContentLoaded', () => {
         // Remove Splash Screen
         const splashScreen = document.getElementById('splash-screen');
@@ -11,7 +11,7 @@
         }
 
         // --- SCRIPT INITIALIZATION ---
-        const APP_VERSION = 'v1.5.1';
+        const APP_VERSION = 'v1.5.2';
         document.getElementById('version-text').textContent = APP_VERSION;
         document.title = 'Optimizer';
         
@@ -1895,10 +1895,10 @@
                             targetSection.querySelector('.status-filename').textContent = `Cloud File - ${c}`;
                             targetSection.querySelector('.status-filename').style.color = ""; 
                             validFilesCount++;
-                        }
 
-                        const fileHasWatches = postFilterList && postFilterList.some(item => item[0].startsWith('AW ') || item[0].toLowerCase().includes('apple watch'));
-                        if (fileHasWatches) hasWatches = true;
+                            const fileHasWatches = postFilterList && postFilterList.some(item => item[0].startsWith('AW ') || item[0].toLowerCase().includes('apple watch'));
+                            if (fileHasWatches) hasWatches = true;
+                        }
 
                     } catch (err) {
                         debugLog(`❌ Cloud Parse CRASH: ${err.message}`, 'sys');
