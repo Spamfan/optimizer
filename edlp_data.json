@@ -1069,7 +1069,7 @@
     "galaxys26ultra5g": {
       "abbr": "S26U",
       "att": {
-        "last_updated": 1785708724174,
+        "last_updated": 1787674943392,
         "monthly": 31.92,
         "total": 1149
       },
@@ -1083,7 +1083,7 @@
         "total": 0
       },
       "vzw": {
-        "last_updated": 1785708724174,
+        "last_updated": 1787674943392,
         "monthly": 0.89,
         "total": 31.92
       }
