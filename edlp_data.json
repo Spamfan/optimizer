@@ -1047,6 +1047,26 @@
         "total": 499
       }
     },
+    "galaxys26fe5g": {
+      "att": {
+        "last_updated": 1789754732287,
+        "monthly": 15.97,
+        "total": 575
+      },
+      "last_updated": 1789754729117,
+      "name": "Galaxy S26 FE 5G",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1789754729117,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1789754729117,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "galaxys26plus5g": {
       "abbr": "S26+",
       "att": {
