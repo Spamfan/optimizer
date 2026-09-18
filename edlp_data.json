@@ -1637,6 +1637,26 @@
         "total": 1149
       }
     },
+    "iphone18pro": {
+      "att": {
+        "last_updated": 1789754894882,
+        "monthly": 31.92,
+        "total": 1149
+      },
+      "last_updated": 1789754893427,
+      "name": "iPhone 18 Pro",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1789754893427,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1789754893427,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "iphone18promax": {
       "att": {
         "last_updated": 1789754871587,
