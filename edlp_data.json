@@ -1070,6 +1070,7 @@
     "galaxys26plus5g": {
       "abbr": "S26+",
       "att": {
+        "last_updated": 1789754739855,
         "monthly": 0,
         "total": 0
       },
@@ -1078,10 +1079,12 @@
       "name": "Galaxy S26 Plus 5G",
       "tmo": {
         "dp": 0,
+        "last_updated": 1789754739855,
         "monthly": 0,
         "total": 0
       },
       "vzw": {
+        "last_updated": 1789754739855,
         "monthly": 0,
         "total": 0
       }
