@@ -1637,6 +1637,26 @@
         "total": 1149
       }
     },
+    "iphone18promax": {
+      "att": {
+        "last_updated": 1789754871587,
+        "monthly": 34.69,
+        "total": 1249
+      },
+      "last_updated": 1789754866165,
+      "name": "iPhone 18 Pro Max",
+      "tmo": {
+        "dp": 0,
+        "last_updated": 1789754866165,
+        "monthly": 0,
+        "total": 0
+      },
+      "vzw": {
+        "last_updated": 1789754866165,
+        "monthly": 0,
+        "total": 0
+      }
+    },
     "iphoneair": {
       "abbr": "IP AIR",
       "att": {
